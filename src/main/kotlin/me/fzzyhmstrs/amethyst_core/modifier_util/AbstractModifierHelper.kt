@@ -101,7 +101,7 @@ abstract class AbstractModifierHelper<T: AbstractModifier<T>> : ModifierInitiali
 
     fun addModifierToNbt(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
-        ModifierHelper.addModifierToNbt(modifier, nbt)
+        addModifierToNbt(modifier, nbt)
     }
 
     fun addModifierToNbt(modifier: Identifier, nbt: NbtCompound){
