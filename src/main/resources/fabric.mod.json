@@ -22,12 +22,6 @@
         "value": "me.fzzyhmstrs.amethyst_core.AC"
       }
     ],
-    "preLaunch": [
-      {
-        "adapter": "kotlin",
-        "value": "me.fzzyhmstrs.amethyst_core.ACPreLaunch"
-      }
-    ],
     "client": [
       {
         "adapter": "kotlin",
@@ -44,32 +38,6 @@
     "fabric-language-kotlin": ">=1.7.0+kotlin.1.6.0",
     "minecraft": ">=1.18.2",
     "java": ">=17"
-  },
-  "custom": {
-    "loom:injected_interfaces": {
-      "net/minecraft/class_1831": [
-        "me/fzzyhmstrs/amethyst_core/interfaces/HitTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/KillTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/MineTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/UseTracking"
-      ],
-      "net/minecraft/class_1835": [
-        "me/fzzyhmstrs/amethyst_core/interfaces/HitTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/KillTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/MineTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/UseTracking"
-      ],
-      "net/minecraft/class_1738": [
-        "me/fzzyhmstrs/amethyst_core/interfaces/HitTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/KillTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/MineTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/DamageTracking",
-        "me/fzzyhmstrs/amethyst_core/interfaces/AugmentTracking"
-      ],
-      "net/minecraft/class_1799": [
-        "me/fzzyhmstrs/amethyst_core/interfaces/DurabilityTracking"
-      ]
-    }
   }
 
 }

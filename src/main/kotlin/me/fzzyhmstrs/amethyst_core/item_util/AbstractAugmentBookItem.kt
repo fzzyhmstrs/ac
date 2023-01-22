@@ -1,14 +1,14 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.nbt_util.Nbt
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -41,7 +41,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
     ) {
         val nbt = stack.orCreateNbt
         if (nbt.contains(NbtKeys.LORE_KEY.str())){
-            val bola = Identifier(Nbt.readStringNbt(NbtKeys.LORE_KEY.str(),nbt)).toString()
+            val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
             tooltip.add(AcText.translatable("lore_book.augment",AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}")).formatted(Formatting.GOLD))
             //tooltip.add(AcText.translatable("lore_book.augment").formatted(Formatting.GOLD).append(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}").formatted(Formatting.GOLD)))
             tooltip.add(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}.desc").formatted(Formatting.WHITE))
@@ -105,23 +105,23 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             val nbt = stack2.orCreateNbt
             if (!nbt.contains(NbtKeys.LORE_KEY.str())) {
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
-                Nbt.writeStringNbt(NbtKeys.LORE_KEY.str(), aug, nbt)
-                val bola = Identifier(Nbt.readStringNbt(NbtKeys.LORE_KEY.str(), nbt)).toString()
+                nbt.putString(NbtKeys.LORE_KEY.str(), aug)
+                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
-                    Nbt.writeStringNbt(NbtKeys.LORE_TYPE.str(), type.str(), nbt)
+                    nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
                 }
                 world.playSound(null, user.blockPos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.NEUTRAL, 0.7f, 1.0f)
                 if (shouldOffer){
                     user.inventory.offerOrDrop(stack2)
                 }
-            } else if (Identifier(Nbt.readStringNbt(NbtKeys.LORE_KEY.str(), nbt)).namespace == "minecraft") {
+            } else if (Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).namespace == "minecraft") {
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
-                Nbt.writeStringNbt(NbtKeys.LORE_KEY.str(), aug, nbt)
-                val bola = Identifier(Nbt.readStringNbt(NbtKeys.LORE_KEY.str(), nbt)).toString()
+                nbt.putString(NbtKeys.LORE_KEY.str(), aug)
+                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
-                    Nbt.writeStringNbt(NbtKeys.LORE_TYPE.str(), type.str(), nbt)
+                    nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
                 }
                 world.playSound(null, user.blockPos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.NEUTRAL, 0.7f, 1.0f)
                 if (shouldOffer){
@@ -150,7 +150,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         fun addLoreKeyForREI(stack: ItemStack,augment: String){
             val nbt = stack.orCreateNbt
             if(!nbt.contains(NbtKeys.LORE_KEY.str())) {
-                Nbt.writeStringNbt(NbtKeys.LORE_KEY.str(),augment,nbt)
+                nbt.putString(NbtKeys.LORE_KEY.str(),augment)
             }
         }
     }

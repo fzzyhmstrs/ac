@@ -2,10 +2,10 @@ package me.fzzyhmstrs.amethyst_core.modifier_util
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
-import me.fzzyhmstrs.amethyst_core.coding_util.Addable
-import me.fzzyhmstrs.amethyst_core.coding_util.PerLvlD
-import me.fzzyhmstrs.amethyst_core.coding_util.PerLvlF
-import me.fzzyhmstrs.amethyst_core.coding_util.PerLvlI
+import me.fzzyhmstrs.fzzy_core.coding_util.Addable
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.entity.LivingEntity
 import java.util.function.Consumer
 import kotlin.math.max
@@ -23,7 +23,7 @@ import kotlin.math.max
  *
  * [range]: bucket for range of effect. Might be size of a effect cloud, or search range when selecting targets.
  *
- * [consumers]: advanced effects go here. Spells will pass a list of LivingEntity to the [accept] method and all compiled consumers will apply to that list. See the [ModifierRegistry][me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry] for example consumers.
+ * [consumers]: advanced effects go here. Spells will pass a list of LivingEntity to the [accept] method and all compiled consumers will apply to that list. See the [ModifierRegistry][me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry] for example consumers.
  */
 data class AugmentEffect(
     private var damageData: PerLvlF = PerLvlF(),

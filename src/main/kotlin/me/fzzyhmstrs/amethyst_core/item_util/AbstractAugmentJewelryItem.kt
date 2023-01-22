@@ -3,13 +3,10 @@ package me.fzzyhmstrs.amethyst_core.item_util
 import com.google.common.collect.Multimap
 import dev.emi.trinkets.api.SlotReference
 import dev.emi.trinkets.api.TrinketItem
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.interfaces.DamageTracking
-import me.fzzyhmstrs.amethyst_core.interfaces.HitTracking
-import me.fzzyhmstrs.amethyst_core.interfaces.KillTracking
-import me.fzzyhmstrs.amethyst_core.item_util.interfaces.Flavorful
-import me.fzzyhmstrs.amethyst_core.registry.EventRegistry
-import me.fzzyhmstrs.amethyst_core.trinket_util.AugmentTasks
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
+import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
+import me.fzzyhmstrs.fzzy_core.trinket_util.AugmentTasks
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttribute
@@ -25,7 +22,7 @@ import net.minecraft.world.World
 import java.util.*
 
 /**
- * used with the Trinkets mod to create jewelry that interacts with [Equipment Augments][me.fzzyhmstrs.amethyst_core.trinket_util.base_augments.BaseAugment].
+ * used with the Trinkets mod to create jewelry that interacts with [Equipment Augments][me.fzzyhmstrs.fzzy_core.trinket_util.base_augments.BaseAugment].
  *
  * An item built using this class will be "modular". It will not be limited to one pre-defined effect, rather it can be enchanted/imbued with a variety of Augment effects to provide a custom trinket to the player.
  *
@@ -33,8 +30,7 @@ import java.util.*
  *
  * Notably absent from this default item is an implementation for activated abilities (abilities that might be turned on/off with use)
  */
-open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings), AugmentTasks, Flavorful<AbstractAugmentJewelryItem>,
-    HitTracking, DamageTracking, KillTracking {
+open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings), AugmentTasks, Flavorful<AbstractAugmentJewelryItem> {
 
     override var glint: Boolean = false
     override var flavor: String = ""
@@ -108,7 +104,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
         passiveEnchantmentTasks(stack,entity.world,entity)
     }
 
-    override fun onWearerDamaged(stack: ItemStack, wearer: LivingEntity, attacker: LivingEntity?, source: DamageSource, amount: Float): Float{
+/*    override fun onWearerDamaged(stack: ItemStack, wearer: LivingEntity, attacker: LivingEntity?, source: DamageSource, amount: Float): Float{
         return 0f
     }
 
@@ -116,6 +112,6 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
     }
 
     override fun onWearerKilledOther(stack: ItemStack, wearer: LivingEntity, victim: LivingEntity, world: ServerWorld) {
-    }
+    }*/
 
 }

@@ -1,11 +1,15 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.config.AcConfig
-import me.fzzyhmstrs.amethyst_core.nbt_util.Nbt
-import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
-import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
+import me.fzzyhmstrs.amethyst_core.item_util.AbstractScepterItem
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.config.FcConfig
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
@@ -19,6 +23,8 @@ import net.minecraft.util.registry.Registry
 object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     override val fallbackData: AbstractModifier.CompiledModifiers<AugmentModifier> = ModifierDefaults.BLANK_COMPILED_DATA
+
+    private val scepterAcceptableMap: MutableMap<Int,MutableList<ItemStack>> = mutableMapOf()
 
     fun addModifierForREI(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
@@ -38,10 +44,32 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         return TagKey.of(Registry.ENCHANTMENT_KEY, Identifier(AC.MOD_ID,path))
     }
 
+    fun scepterAcceptableItemStacks(tier:Int): MutableList<ItemStack>{
+        if (scepterAcceptableMap.containsKey(tier)){
+            return scepterAcceptableMap[tier] ?: mutableListOf()
+        } else {
+            val entries = Registry.ITEM.indexedEntries
+            val list: MutableList<ItemStack> = mutableListOf()
+            for (entry in entries){
+                val item = entry.value()
+                if (item is AbstractScepterItem){
+                    val material = item.material
+                    if (material is ScepterToolMaterial){
+                        if (material.scepterTier() >= tier){
+                            list.add(ItemStack(item,1))
+                        }
+                    }
+                }
+            }
+            scepterAcceptableMap[tier] = list
+            return list
+        }
+    }
+
     override fun addModifierTooltip(stack: ItemStack, tooltip: MutableList<Text>, context: TooltipContext){
         val modifierList = getModifiers(stack)
         if (modifierList.isEmpty()) return
-        if ((context.isAdvanced && AcConfig.flavors.showFlavorDescOnAdvanced) || AcConfig.flavors.showFlavorDesc){
+        if ((context.isAdvanced && FcConfig.flavors.showFlavorDescOnAdvanced) || FcConfig.flavors.showFlavorDesc){
             modifierList.forEach {
                 tooltip.add(AcText.translatable(getTranslationKeyFromIdentifier(it)).formatted(Formatting.GOLD)
                     .append(AcText.literal(" - ").formatted(Formatting.GOLD))
@@ -71,7 +99,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         if (nbt != null) {
             val id = Nbt.getItemStackId(nbt)
             if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) return
-            val activeEnchant = Identifier(Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt))
+            val activeEnchant = Identifier(nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()))
             //println(getModifiers(stack))
             val compiled = gatherActiveAbstractModifiers(stack, activeEnchant, ModifierDefaults.BLANK_AUG_MOD.compiler())
             //println(compiled.modifiers)

@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
-import me.fzzyhmstrs.amethyst_core.coding_util.PersistentEffectHelper
+import me.fzzyhmstrs.fzzy_core.coding_util.PersistentEffectHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
