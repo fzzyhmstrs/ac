@@ -45,15 +45,15 @@ dependencies {
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
 
-    modImplementation("dev.emi:trinkets:3.4.0"){
+    modImplementation("dev.emi:trinkets:3.5.0"){
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation(":gear_core:0.1.0+1.18.2"){
+    modImplementation(":gear_core:0.1.0+1.19.3"){
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation(":fzzy_core:0.1.0+1.18.2"){
+    modImplementation(":fzzy_core:0.1.0+1.19.3"){
         exclude("net.fabricmc.fabric-api")
     }
 

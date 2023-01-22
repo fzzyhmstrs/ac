@@ -1,6 +1,8 @@
 package me.fzzyhmstrs.amethyst_core
 
+import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
 import me.fzzyhmstrs.amethyst_core.registry.*
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PlaceItemAugment
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
@@ -15,6 +17,9 @@ object AC: ModInitializer {
 
     override fun onInitialize() {
         RegisterBaseEntity.registerAll()
+        ModifierRegistry.registerAll()
+        GcChecker.registerProcessor()
+        ScepterHelper.registerServer()
     }
 }
 

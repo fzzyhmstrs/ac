@@ -3,11 +3,7 @@
   "package": "me.fzzyhmstrs.amethyst_core.mixins",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "EnchantmentMixin",
-    "TrinketItemMixin",
-    "TrinketMixin",
-    "ArmorItemMixin",
-    "EquipmentModifierMixin"
+    "EnchantmentMixin"
   ],
   "client": [
     "ItemRendererMixin",
