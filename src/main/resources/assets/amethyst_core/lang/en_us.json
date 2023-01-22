@@ -1,6 +1,4 @@
 {
-	"enchantment.amethyst_core.none": "None",
-	"enchantment.amethyst_imbuement.none.desc": "No Description.",
 	"scepter.augment.disabled": " (Disabled)",
 	"scepter.augment.disabled_message": "%1$s is disabled in the augment configs! :(",
 	"scepter.fury.lvl": "Fury: ",
@@ -20,7 +18,6 @@
 	"scepter.modifier.amethyst_core:lesser_thrifty": "Lesser Thrifty",
 	"scepter.modifier.amethyst_core:thrifty": "Thrifty",
 	"scepter.modifier.amethyst_core:greater_thrifty": "Greater Thrifty",
-	"modifiers.base_text": "Modifiers: ",
 	"death.attack.soul": "%1$s had their soul destroyed",
 	"death.attack.soul.player": "%1$s had their soul destroyed by %2$s",
 	"death.attack.smite": "%1$s was smited",

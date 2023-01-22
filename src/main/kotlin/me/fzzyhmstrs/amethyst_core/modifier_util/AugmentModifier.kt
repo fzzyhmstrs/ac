@@ -1,9 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.item_util.AcceptableItemStacks
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.item_util.AcceptableItemStacks
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
@@ -123,7 +125,7 @@ open class AugmentModifier(
     }
 
     override fun acceptableItemStacks(): MutableList<ItemStack>{
-        return AcceptableItemStacks.scepterAcceptableItemStacks(1)
+        return ModifierHelper.scepterAcceptableItemStacks(1)
     }
 
     override fun compiler(): Compiler {

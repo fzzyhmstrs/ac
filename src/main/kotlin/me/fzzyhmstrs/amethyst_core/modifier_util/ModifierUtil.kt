@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.modifier_util
 
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
 import java.util.function.Consumer

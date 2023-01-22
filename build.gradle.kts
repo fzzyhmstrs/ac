@@ -23,12 +23,9 @@ repositories {
         name = "Ladysnake Libs"
         url = uri("https://ladysnake.jfrog.io/artifactory/mods")
     }
-    maven {
-        name = "Jitpack"
-        url = uri("https://jitpack.io")
-    }
+
     flatDir {
-        dirs("F:\\Documents\\Mod Development\\ai\\build\\libs")
+        dirs("F:\\Documents\\Mod Libraries\\fc\\build\\libs")
     }
 
 }
@@ -48,10 +45,9 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
 
-
-    implementation("com.github.LlamaLad7:MixinExtras:0.1.1")
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")
-    include("com.github.LlamaLad7:MixinExtras:0.1.1")
+    modImplementation(":fzzy_core:0.1.0+1.19"){
+        exclude("net.fabricmc.fabric-api")
+    }
 
 }
 tasks {
