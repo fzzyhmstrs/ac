@@ -49,7 +49,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         if (scepterAcceptableMap.containsKey(tier)){
             return scepterAcceptableMap[tier] ?: mutableListOf()
         } else {
-            val entries = Registry.ITEM.indexedEntries
+            val entries = Registries.ITEM.indexedEntries
             val list: MutableList<ItemStack> = mutableListOf()
             for (entry in entries){
                 val item = entry.value()
