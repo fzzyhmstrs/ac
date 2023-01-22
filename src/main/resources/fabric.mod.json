@@ -38,6 +38,16 @@
     "fabric-language-kotlin": ">=1.7.4+kotlin.1.6.21",
     "minecraft": ">=1.19",
     "java": ">=17"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1738": [
+        "me/fzzyhmstrs/gear_core/interfaces/AugmentTracking"
+      ],
+      "dev/emi/trinkets/api/TrinketItem": [
+        "me/fzzyhmstrs/gear_core/interfaces/AugmentTracking"
+      ]
+    }
   }
 
 }

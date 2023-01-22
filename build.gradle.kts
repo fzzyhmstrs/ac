@@ -28,6 +28,10 @@ repositories {
         dirs("F:\\Documents\\Mod Libraries\\fc\\build\\libs")
     }
 
+    flatDir {
+        dirs("F:\\Documents\\Mod Libraries\\gc\\build\\libs")
+    }
+
 }
 dependencies {
     val minecraftVersion: String by project
@@ -45,7 +49,11 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation(":fzzy_core:0.1.0+1.19"){
+    modImplementation(":gear_core:0.1.0+1.18.2"){
+        exclude("net.fabricmc.fabric-api")
+    }
+
+    modImplementation(":fzzy_core:0.1.0+1.18.2"){
         exclude("net.fabricmc.fabric-api")
     }
 
