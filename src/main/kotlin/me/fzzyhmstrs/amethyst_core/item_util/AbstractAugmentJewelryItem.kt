@@ -35,7 +35,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
     override var glint: Boolean = false
     override var flavor: String = ""
     override var flavorDesc: String = ""
-        
+
     private val flavorText: MutableText by lazy{
         makeFlavorText()
     }
