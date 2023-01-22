@@ -1,8 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
+import me.fzzyhmstrs.amethyst_core.modifier_util.GcCompat
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
-import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
@@ -119,9 +120,12 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
     private fun serverUse(world: World, user: PlayerEntity, hand: Hand, stack: ItemStack,
                           activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
 
-        val modifiers = ModifierHelper.getActiveModifiers(stack)
+        val modifiers = if (GcChecker.gearCoreLoaded) {
+            GcCompat.modifyCompiledAugmentModifiers(ModifierHelper.getActiveModifiers(stack), user.uuid)
+        } else {
+            ModifierHelper.getActiveModifiers(stack)
+        }
         //val modifiers = ModifierHelper.getActiveModifiers(stack)
-        println(modifiers.modifiers)
 
         val cd : Int? = ScepterHelper.useScepter(activeEnchantId, testEnchant, stack, world, modifiers.compiledData.cooldownModifier)
         return if (cd != null) {
