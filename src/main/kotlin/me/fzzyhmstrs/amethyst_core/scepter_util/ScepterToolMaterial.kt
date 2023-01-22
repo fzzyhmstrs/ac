@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
-import me.fzzyhmstrs.amethyst_core.mana_util.ManaItemMaterial
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaItemMaterial
 import net.minecraft.item.ToolMaterial
 
 /**

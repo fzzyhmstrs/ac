@@ -3,13 +3,13 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
-import me.fzzyhmstrs.amethyst_core.nbt_util.Nbt
-import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
@@ -108,19 +108,19 @@ object ScepterHelper {
         if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
             item.initializeScepter(stack, nbt)
         }
-        val activeEnchantCheck = Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+        val activeEnchantCheck = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
 
         val activeCheck = Registries.ENCHANTMENT.get(Identifier(activeEnchantCheck))
         val activeEnchant = if (activeCheck != null) {
             if (EnchantmentHelper.getLevel(activeCheck, stack) == 0) {
                 fixActiveEnchantWhenMissing(stack)
-                Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+                nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
             } else {
                 activeEnchantCheck
             }
         } else {
             fixActiveEnchantWhenMissing(stack)
-            Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         }
 
         val nbtEls = stack.enchantments
@@ -162,7 +162,7 @@ object ScepterHelper {
         } else{
             user.itemCooldownManager.set(stack.item, (cooldown - timeSinceLast).toInt())
         }
-        Nbt.writeStringNbt(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchant, nbt)
+        nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchant)
         ModifierHelper.gatherActiveModifiers(stack)
         val name = Registries.ENCHANTMENT.get(Identifier(Identifier(newActiveEnchant).namespace,Identifier(newActiveEnchant).path))?.getName(1)?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
         val message = AcText.translatable("scepter.new_active_spell").append(name)
@@ -190,12 +190,12 @@ object ScepterHelper {
     fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, activeEnchantId: String, xpMods: XpModifiers? = null){
         val spellKey = AugmentHelper.getAugmentType(activeEnchantId).name
         if(spellKey == SpellType.NULL.name) return
-        val statLvl = Nbt.readIntNbt(spellKey + "_lvl",scepterNbt)
+        val statLvl = scepterNbt.getInt(spellKey + "_lvl")
         val statMod = xpMods?.getMod(spellKey) ?: 0
-        val statXp = Nbt.readIntNbt(spellKey + "_xp",scepterNbt) + statMod + 1
-        Nbt.writeIntNbt(spellKey + "_xp",statXp,scepterNbt)
+        val statXp = scepterNbt.getInt(spellKey + "_xp") + statMod + 1
+        scepterNbt.putInt(spellKey + "_xp",statXp)
         if(checkXpForLevelUp(statXp,statLvl)){
-            Nbt.writeIntNbt(spellKey + "_lvl",statLvl + 1,scepterNbt)
+            scepterNbt.putInt(spellKey + "_lvl",statLvl + 1)
             updateScepterAugments(scepter, scepterNbt)
         }
     }
@@ -224,8 +224,8 @@ object ScepterHelper {
     fun getScepterStat(scepterNbt: NbtCompound, activeEnchantId: String): Pair<Int,Int>{
         val spellKey = AugmentHelper.getAugmentType(activeEnchantId).name
         if (!scepterNbt.contains(spellKey + "_lvl")) getStatsHelper(scepterNbt)
-        val statLvl = Nbt.readIntNbt(spellKey + "_lvl",scepterNbt)
-        val statXp = Nbt.readIntNbt(spellKey + "_xp",scepterNbt)
+        val statLvl = scepterNbt.getInt(spellKey + "_lvl")
+        val statXp = scepterNbt.getInt(spellKey + "_xp")
         return Pair(statLvl,statXp)
     }
 
@@ -261,15 +261,15 @@ object ScepterHelper {
     fun checkLastUsed(lastUsedList: NbtCompound, activeEnchantId: String, time: Long): Long{
         val key = activeEnchantId + NbtKeys.LAST_USED.str()
         return if (!lastUsedList.contains(key)) {
-            Nbt.writeLongNbt(key, time, lastUsedList)
+            lastUsedList.putLong(key, time)
             time
         } else {
-            Nbt.readLongNbt(key, lastUsedList)
+            lastUsedList.getLong(key)
         }
     }
     fun updateLastUsed(lastUsedList: NbtCompound, activeEnchantId: String, currentTime: Long){
         val key = activeEnchantId + NbtKeys.LAST_USED.str()
-        Nbt.writeLongNbt(key, currentTime, lastUsedList)
+        lastUsedList.putLong(key, currentTime)
 
     }
 

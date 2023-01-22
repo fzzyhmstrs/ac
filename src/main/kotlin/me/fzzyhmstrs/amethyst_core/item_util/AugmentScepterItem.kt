@@ -1,11 +1,10 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.EquipmentModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
-import me.fzzyhmstrs.amethyst_core.nbt_util.Nbt
-import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
-import me.fzzyhmstrs.amethyst_core.raycaster_util.RaycasterUtil
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
@@ -120,7 +119,7 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
     private fun serverUse(world: World, user: PlayerEntity, hand: Hand, stack: ItemStack,
                           activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
 
-        val modifiers = EquipmentModifierHelper.modifyCompiledAugmentModifiers(ModifierHelper.getActiveModifiers(stack),user.uuid)
+        val modifiers = ModifierHelper.getActiveModifiers(stack)
         //val modifiers = ModifierHelper.getActiveModifiers(stack)
         println(modifiers.modifiers)
 
@@ -174,7 +173,7 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
     private fun activeNbtCheck(scepterNbt: NbtCompound){
         if(!scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
             val identifier = fallbackId
-            Nbt.writeStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString(), scepterNbt)
+            scepterNbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
         }
     }
 
@@ -183,7 +182,7 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
     }
 
     open fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
-        if (scepterNbt.contains(NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
+        if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && !noFallback){
             if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
@@ -195,7 +194,7 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
                 stack.addEnchantment(it,1)
             }
         }
-        Nbt.writeBoolNbt(NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true,scepterNbt)
+        scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
     }
 
     open fun resetCooldown(stack: ItemStack, world: World, user: PlayerEntity, activeEnchant: String): TypedActionResult<ItemStack>{
@@ -207,10 +206,10 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
     fun getActiveEnchant(stack: ItemStack): String{
         val nbt: NbtCompound = stack.orCreateNbt
         return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
-            Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         } else {
             initializeScepter(stack,nbt)
-            Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         }
     }
 }

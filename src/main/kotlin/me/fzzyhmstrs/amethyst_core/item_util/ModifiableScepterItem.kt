@@ -1,9 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
-import me.fzzyhmstrs.amethyst_core.interfaces.Modifiable
-import me.fzzyhmstrs.amethyst_core.modifier_util.AbstractModifier
+import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierInitializer
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierInitializer
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.nbt.NbtCompound

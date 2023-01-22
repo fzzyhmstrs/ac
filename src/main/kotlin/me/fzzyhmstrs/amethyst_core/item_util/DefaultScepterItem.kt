@@ -3,11 +3,11 @@ package me.fzzyhmstrs.amethyst_core.item_util
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.LinkedHashMultimap
 import com.google.common.collect.Multimap
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.coding_util.PlayerParticles.scepterParticlePos
-import me.fzzyhmstrs.amethyst_core.item_util.interfaces.ParticleEmitting
-import me.fzzyhmstrs.amethyst_core.nbt_util.Nbt
-import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.PlayerParticlesV2.scepterParticlePos
+import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
@@ -36,7 +36,7 @@ import net.minecraft.world.World
  *
  * For the most basic implementation, extend this and set the fallback ID; that's it. Define characteristics in the [ScepterToolMaterial] as with any tool, and register! You have your very own AI style scepter fully compatible with Scepter Augments and with all the functionality AIs scepters come with.
  *
- * For more in depth implementations, this scepter is [Modifiable][me.fzzyhmstrs.amethyst_core.interfaces.Modifiable] and [ParticleEmitting], with all the functionality those interfaces offer.
+ * For more in depth implementations, this scepter is [Modifiable][me.fzzyhmstrs.fzzy_core.interfaces.Modifiable] and [ParticleEmitting], with all the functionality those interfaces offer.
  */
 
 @Suppress("SameParameterValue", "unused", "USELESS_IS_CHECK")
@@ -97,7 +97,7 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
         super.appendTooltip(stack, world, tooltip, context)
         val nbt = stack.orCreateNbt
         val activeSpell = if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) {
-            val activeEnchantId = Nbt.readStringNbt(NbtKeys.ACTIVE_ENCHANT.str(), nbt)
+            val activeEnchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
             val text = AcText.translatable("enchantment.${Identifier(activeEnchantId).namespace}.${Identifier(activeEnchantId).path}")
             if(!AugmentHelper.getAugmentEnabled(activeEnchantId)){
                 text.formatted(Formatting.DARK_RED).formatted(Formatting.STRIKETHROUGH)

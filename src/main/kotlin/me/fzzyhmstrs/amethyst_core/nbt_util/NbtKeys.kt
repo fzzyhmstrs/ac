@@ -40,11 +40,6 @@ enum class NbtKeys {
             return "scepter_id"
         }
     },
-    ITEM_STACK_ID{
-        override fun str(): String {
-            return "item_stack_id"
-        }
-    },
     LORE_KEY{
         override fun str(): String {
             return "book_of_lore_augment"
@@ -56,44 +51,14 @@ enum class NbtKeys {
             return "lore_type"
         }
     },
-    ACTIVE_ENCHANT{
-        override fun str(): String {
-            return "active_enchant_id"
-        }
-    },
     ENCHANT_INIT{
         override fun str(): String {
             return "enchant_init_"
         }
     },
-    MOD_INIT{
-        override fun str(): String {
-            return "mod_init_"
-        }
-    },
-    LAST_USED{
-        override fun str(): String {
-            return "_last_used"
-        }
-    },
-    LAST_USED_LIST{
-        override fun str(): String {
-            return "last_used_list"
-        }
-    },
     DISENCHANT_COUNT{
         override fun str(): String {
             return "disenchant_count"
-        }
-    },
-    MODIFIERS{
-        override fun str(): String {
-            return "modifiers"
-        }
-    },
-    MODIFIER_ID{
-        override fun str(): String {
-            return "modifier_id"
         }
     },
     LOCK_POS{

@@ -1,15 +1,16 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.coding_util.AcText
-import me.fzzyhmstrs.amethyst_core.coding_util.SyncedConfigHelper
-import me.fzzyhmstrs.amethyst_core.coding_util.SyncedConfigHelper.gson
-import me.fzzyhmstrs.amethyst_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
-import me.fzzyhmstrs.amethyst_core.item_util.AcceptableItemStacks
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper
+import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
+import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
+import me.fzzyhmstrs.fzzy_core.item_util.AcceptableItemStacks
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.registry.SyncedConfigRegistry
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
@@ -135,7 +136,7 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
     }
 
     open fun acceptableItemStacks(): MutableList<ItemStack> {
-        return AcceptableItemStacks.scepterAcceptableItemStacks(tier)
+        return ModifierHelper.scepterAcceptableItemStacks(tier)
     }
 
     fun getTier(): Int{
@@ -181,12 +182,12 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
             var minLvl: Int = 1
         }
 
-        class AugmentStatsV0: SyncedConfigHelper.OldClass {
+        class AugmentStatsV0: SyncedConfigHelper.OldClass<AugmentStats> {
             var id: String = AC.fallbackId.toString()
             var cooldown: Int = 20
             var manaCost: Int = 2
             var minLvl: Int = 1
-            override fun generateNewClass(): Any {
+            override fun generateNewClass(): AugmentStats {
                 val augmentStats = AugmentStats()
                 augmentStats.id = id
                 augmentStats.cooldown = cooldown
