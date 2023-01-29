@@ -49,11 +49,11 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation(":gear_core:0.1.0+1.19.3"){
+    modImplementation(":gear_core:0.1.0+1.19"){
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation(":fzzy_core:0.1.0+1.19.3"){
+    modImplementation(":fzzy_core:0.1.0+1.19"){
         exclude("net.fabricmc.fabric-api")
     }
 
