@@ -9,6 +9,7 @@ base {
     archivesName.set(archivesBaseName)
 }
 val log: File = file("changelog.md")
+val mcVersions: String by project
 val modVersion: String by project
 version = modVersion
 val mavenGroup: String by project
@@ -91,13 +92,14 @@ modrinth {
     versionName.set("${base.archivesName.get()}-$modVersion")
     versionType.set("beta")
     uploadFile.set(tasks.remapJar.get())
-    gameVersions.addAll("1.18.2")
+    gameVersions.addAll(mcVersions.split(","))
     loaders.addAll("fabric","quilt")
     detectLoaders.set(false)
     changelog.set("## Changelog for Amethyst Core $modVersion \n\n" + log.readText())
     dependencies{
         required.project("fabric-api")
         required.project("fabric-language-kotlin")
+        required.project("fzzy-core")
         optional.project("trinkets")
     }
     debugMode.set(true)
