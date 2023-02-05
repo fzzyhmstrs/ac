@@ -32,5 +32,6 @@
 	"lore_book.xp_level": "XP levels: %1$s",
 	"lore_book.cooldown": "Cooldown: %1$s Seconds",
 	"lore_book.mana_cost": "Mana cost: %1$s",
-	"lore_book.tier": "Spell tier: %1$s"
+	"lore_book.tier": "Spell tier: %1$s",
+	"enchantment.amethyst_core.none": "None"
 }
