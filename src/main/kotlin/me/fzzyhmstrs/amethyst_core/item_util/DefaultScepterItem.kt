@@ -96,7 +96,11 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
     ) {
         super.appendTooltip(stack, world, tooltip, context)
         val nbt = stack.orCreateNbt
-        val activeSpell = if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) {
+        val activeSpell = if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) {
+            AcText.translatable("enchantment.amethyst_core.none")
+        } else if (nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()) == "none") {
+            AcText.translatable("enchantment.amethyst_core.none")
+        } else {
             val activeEnchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
             val text = AcText.translatable("enchantment.${Identifier(activeEnchantId).namespace}.${Identifier(activeEnchantId).path}")
             if(!AugmentHelper.getAugmentEnabled(activeEnchantId)){
@@ -104,8 +108,6 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
             } else {
                 text.formatted(Formatting.GOLD)
             }
-        } else {
-            AcText.translatable("enchantment.amethyst_core.none")
         }
 
         tooltip.add(AcText.translatable("scepter.active_spell").formatted(Formatting.GOLD).append(activeSpell))
