@@ -43,7 +43,6 @@ import kotlin.math.max
  */
 object ScepterHelper {
 
-
     private val SCEPTER_SYNC_PACKET = Identifier(AC.MOD_ID,"scepter_sync_packet")
     val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
     val USED_KNOWLEDGE_BOOK = CustomCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
@@ -98,18 +97,24 @@ object ScepterHelper {
         val item = stack.item
         if (item !is AbstractScepterItem) return
         val nbt = stack.orCreateNbt
-        if (!stack.hasEnchantments()){
+/*        if (!stack.hasEnchantments()){
             val enchant = Registry.ENCHANTMENT.get(item.fallbackId)
             if (enchant != null) {
                 stack.addEnchantment(enchant,1)
             } else {
                 return
             }
-        }
+        }*/
         //println(stack.enchantments)
         if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
             item.initializeScepter(stack, nbt)
         }
+
+        if (!stack.hasEnchantments()) {
+            nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),"none")
+            return
+        }
+
         val activeEnchantCheck = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
 
         val activeCheck = Registry.ENCHANTMENT.get(Identifier(activeEnchantCheck))
