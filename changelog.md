@@ -1,2 +1,5 @@
 ### Fixes
-* Fixed missing lang key for "None" active scepter spell
+* Fixed issue where the fallback spell (Magic Missile in AI) could be continually re-applied to a scepter by changing spells
+
+### Additions
+* If a scepter has no spells for some reason, it will now display "Active Spell: None"
