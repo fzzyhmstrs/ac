@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
@@ -8,8 +9,17 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.coding_util.Dustbin
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
+import net.minecraft.client.network.AbstractClientPlayerEntity
+import net.minecraft.client.network.ClientPlayNetworkHandler
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -23,6 +33,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
+import kotlin.random.Random
 
 /**
  * used to define the augment books like Amethyst Imbuements Book of Lore. For all Augment tiers except Extreme Tier, there is a pre-existing book in Amethyst Imbuement.
@@ -90,6 +101,10 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
 
     override fun use(world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
         val stack = user.getStackInHand(hand)
+        if (!(user as SyncedRandomProviding).provider.isSynced()){
+            user.sendMessage(AcText.translatable("lore_book.sync_cooldown"))
+            return TypedActionResult.fail(stack)
+        }
         val item = stack.item
         if (item !is AbstractAugmentBookItem) return TypedActionResult.fail(stack)
         //if (world !is ServerWorld) return TypedActionResult.fail(stack)
@@ -132,6 +147,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 ScepterHelper.USED_KNOWLEDGE_BOOK.trigger(user)
             }
         } while (stack.count > 1)
+        (user as SyncedRandomProviding).provider.sync()
+        user.itemCooldownManager.set(stack.item, 10)
         return useAfterWriting(stack, world, user, hand)
     }
 
@@ -140,13 +157,31 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
     }
 
     open fun getRandomBookAugment(list: List<String>, user: PlayerEntity, hand: Hand): String{
+        val rnd = (user as SyncedRandomProviding).provider
         if (list.isEmpty()) return AC.fallbackId.toString()
-        val rndMax = list.size
-        val rndIndex = AC.acRandom.nextInt(rndMax)
+        val rndIndex = rnd.getRandom().nextInt(list.size)
         return list[rndIndex]
     }
 
     companion object{
+
+        private var preSync = 0L
+        val PRE_SYNC_CHANNEL = Identifier(AC.MOD_ID,"book_rand_pre_sync")
+
+        fun registerClient(){
+            ClientPlayNetworking.registerGlobalReceiver(PRE_SYNC_CHANNEL){_,_,b,_ ->
+                preSync = b.readLong()
+                println("Synced from server with seed: $preSync")
+            }
+        }
+
+        fun registerServer(){
+            ServerPlayConnectionEvents.JOIN.register {handler, _, _ ->
+                val player = handler.player
+                (player as SyncedRandomProviding).provider.preSync()
+            }
+        }
+
         fun addLoreKeyForREI(stack: ItemStack,augment: String){
             val nbt = stack.orCreateNbt
             if(!nbt.contains(NbtKeys.LORE_KEY.str())) {
@@ -154,4 +189,94 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             }
         }
     }
+
+    internal class ClientSyncedRandomProvider(player: ClientPlayerEntity): SyncedRandomProvider<ClientPlayerEntity>(player){
+
+        private var usedSinceSync = false
+        private var lastSyncBackSend = 0L
+        private val listEntry = MinecraftClient.getInstance().networkHandler?.getPlayerListEntry(player.uuid)
+
+        init{
+            setRandom(Random(preSync))
+            ClientPlayNetworking.registerGlobalReceiver(SYNC_CHANNEL){_,_,b,r ->
+                val seed = b.readLong()
+                setRandom(Random(seed))
+                usedSinceSync = false
+                lastSyncBackSend = System.currentTimeMillis()
+                val buf = PacketByteBufs.create()
+                buf.writeLong(seed)
+                ClientPlayNetworking.send(SYNC_BACK_CHANNEL, buf)
+            }
+        }
+
+        override fun sync() {
+            usedSinceSync = true
+        }
+
+        override fun isSynced(): Boolean {
+            return !usedSinceSync && System.currentTimeMillis() > lastSyncBackSend + (listEntry?.latency?.toLong()?.plus(10L)?:60L)
+        }
+
+    }
+
+    internal class ServerSyncedRandomProvider(player: ServerPlayerEntity): SyncedRandomProvider<ServerPlayerEntity>(player){
+
+        private var lastSyncCheck = 0L
+        private var thisSeed = 1L
+
+        init{
+            ServerPlayNetworking.registerGlobalReceiver(SYNC_BACK_CHANNEL){_,_,_,b,_ ->
+                lastSyncCheck = b.readLong()
+            }
+        }
+
+        override fun preSync() {
+            val seed = System.currentTimeMillis()
+            thisSeed = seed
+            lastSyncCheck = seed
+            setRandom(Random(seed))
+            val buf = PacketByteBufs.create()
+            buf.writeLong(seed)
+            ServerPlayNetworking.send(player,PRE_SYNC_CHANNEL,buf)
+        }
+
+        override fun sync() {
+            val seed = System.currentTimeMillis()
+            thisSeed = seed
+            setRandom(Random(seed))
+            val buf = PacketByteBufs.create()
+            buf.writeLong(seed)
+            ServerPlayNetworking.send(player,SYNC_CHANNEL,buf)
+        }
+
+        override fun isSynced(): Boolean {
+            return lastSyncCheck == thisSeed
+        }
+    }
+
+
+    internal abstract class SyncedRandomProvider<T: PlayerEntity>(protected val player:T) {
+
+        protected val SYNC_CHANNEL = Identifier(AC.MOD_ID,"book_rand_sync")
+        protected val SYNC_BACK_CHANNEL = Identifier(AC.MOD_ID,"book_rand_sync_back")
+        private var random: Random = Random(player.uuid.mostSignificantBits)
+
+
+        fun setRandom(random: Random){
+            this.random = random
+        }
+
+        fun getRandom(): Random{
+            return random
+        }
+
+        open fun preSync(){
+
+        }
+
+        abstract fun sync()
+
+        abstract fun isSynced(): Boolean
+    }
+
 }
