@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core
 
+import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
 import me.fzzyhmstrs.amethyst_core.registry.*
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
@@ -20,6 +21,7 @@ object AC: ModInitializer {
         ModifierRegistry.registerAll()
         GcChecker.registerProcessor()
         ScepterHelper.registerServer()
+        AbstractAugmentBookItem.registerServer()
     }
 }
 
@@ -29,5 +31,6 @@ object ACC: ClientModInitializer {
     override fun onInitializeClient() {
         RegisterBaseRenderer.registerAll()
         PlaceItemAugment.registerClient()
+        AbstractAugmentBookItem.registerClient()
     }
 }
