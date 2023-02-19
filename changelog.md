@@ -1,5 +1,2 @@
 ### Fixes
-* Fixed issue where the fallback spell (Magic Missile in AI) could be continually re-applied to a scepter by changing spells
-
-### Additions
-* If a scepter has no spells for some reason, it will now display "Active Spell: None"
+* Fixed lore books not syncing the spell shown when the book is read for the first time.
