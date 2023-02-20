@@ -102,5 +102,5 @@ modrinth {
         required.project("fzzy-core")
         optional.project("trinkets")
     }
-    debugMode.set(true)
+    debugMode.set(false)
 }
