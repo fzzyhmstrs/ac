@@ -173,7 +173,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         fun registerServer(){
             ServerPlayConnectionEvents.JOIN.register {handler, _, _ ->
                 val player = handler.player
-                ((player as SyncedRandomProviding).provider as ServerSyncedRandomProvider).sync(player)
+                (player as SyncedRandomProviding).provider.sync(player)
             }
         }
 
@@ -185,46 +185,27 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         }
     }
 
-    internal class ClientSyncedRandomProvider: SyncedRandomProvider<ClientPlayerEntity>(){
+    internal class SyncedRandomProvider {
+
+        private var random: Random
 
         init{
-            setRandom(Random(preSync))
-        }
-
-        override fun sync(player: ClientPlayerEntity) {
-            //usedSinceSync = true
-        }
-
-    }
-
-    internal class ServerSyncedRandomProvider: SyncedRandomProvider<ServerPlayerEntity>(){
-
-        override fun sync(player: ServerPlayerEntity) {
-            val seed = System.currentTimeMillis()
-            /*thisSeed = seed
-            lastSyncCheck = seed*/
-            setRandom(Random(seed))
-            val buf = PacketByteBufs.create()
-            buf.writeLong(seed)
-            ServerPlayNetworking.send(player,PRE_SYNC_CHANNEL,buf)
-        }
-    }
-
-
-    internal abstract class SyncedRandomProvider<T: PlayerEntity>() {
-
-        private var random: Random = Random(0L)
-
-
-        fun setRandom(random: Random){
-            this.random = random
+            random = Random(preSync)
         }
 
         fun getRandom(): Random{
             return random
         }
 
-        abstract fun sync(player: T)
+        fun sync(player: ServerPlayerEntity) {
+            val seed = System.currentTimeMillis()
+            /*thisSeed = seed
+            lastSyncCheck = seed*/
+            random = Random(seed)
+            val buf = PacketByteBufs.create()
+            buf.writeLong(seed)
+            ServerPlayNetworking.send(player,PRE_SYNC_CHANNEL,buf)
+        }
 
     }
 
