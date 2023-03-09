@@ -54,7 +54,7 @@ object ScepterHelper {
             return null
         }
         //cooldown modifier is a percentage modifier, so 20% will boost cooldown by 20%. -20% will take away 20% cooldown
-        val cooldown = (AugmentHelper.getAugmentCooldown(activeEnchantId).times(100.0+ cdMod).div(100.0)).toInt()
+        val cooldown = (AugmentHelper.getAugmentCooldown(activeEnchantId).times(100.0 + cdMod).div(100.0)).toInt()
         val time = world.time
 
         val lastUsedList = Nbt.getOrCreateSubCompound(scepterNbt, NbtKeys.LAST_USED_LIST.str())
