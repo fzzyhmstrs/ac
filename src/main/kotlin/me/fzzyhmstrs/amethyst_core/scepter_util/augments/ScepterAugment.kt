@@ -150,8 +150,8 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
 
     companion object{
 
-        const val augmentVersion = "_v1"
-        private const val oldAugmentVersion = "_v0"
+        const val augmentVersion = "_v2"
+        private const val oldAugmentVersion = "_v1"
 
         //small config class for syncing purposes
         class AugmentConfig(val id: String, stats: AugmentStats): SyncedConfigHelper.SyncedConfig{
@@ -182,19 +182,22 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
         class AugmentStats {
             var id: String = AC.fallbackId.toString()
             var enabled: Boolean = true
+            var pvpMode: Boolean = false
             var cooldown: Int = 20
             var manaCost: Int = 2
             var minLvl: Int = 1
         }
 
-        class AugmentStatsV0: SyncedConfigHelper.OldClass<AugmentStats> {
+        class AugmentStatsV1: SyncedConfigHelper.OldClass<AugmentStats> {
             var id: String = AC.fallbackId.toString()
+            var enabled: Boolean = true
             var cooldown: Int = 20
             var manaCost: Int = 2
             var minLvl: Int = 1
             override fun generateNewClass(): AugmentStats {
                 val augmentStats = AugmentStats()
                 augmentStats.id = id
+                augmentStats.enabled = enabled
                 augmentStats.cooldown = cooldown
                 augmentStats.manaCost = manaCost
                 augmentStats.minLvl = minLvl
@@ -210,7 +213,7 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
             } else {
                 ns
             }
-            val configuredStats = readOrCreateUpdated(file, oldFile,"augments", base, configClass = {configClass}, previousClass = {AugmentStatsV0()})
+            val configuredStats = readOrCreateUpdated(file, oldFile,"augments", base, configClass = {configClass}, previousClass = {AugmentStatsV1()})
             val config = AugmentConfig(file,configuredStats)
             return configuredStats
         }

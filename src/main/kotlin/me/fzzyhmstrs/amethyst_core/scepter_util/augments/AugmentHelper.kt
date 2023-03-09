@@ -59,13 +59,14 @@ object AugmentHelper {
         val type = stat.type
         augmentConfig.id = id
         augmentConfig.enabled = stat.enabled
+        augmentConfig.pvpMode = stat.pvpMode
         augmentConfig.cooldown = stat.cooldown
         augmentConfig.manaCost = stat.manaCost
         augmentConfig.minLvl = stat.minLvl
         val tier = stat.bookOfLoreTier
         val item = stat.keyItem
         val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
-        return AugmentDatapoint(type,augmentAfterConfig.cooldown,augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,tier,item, augmentAfterConfig.enabled)
+        return AugmentDatapoint(type,augmentAfterConfig.cooldown,augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,tier,item, augmentAfterConfig.enabled, augmentAfterConfig.pvpMode)
     }
 
     fun checkAugmentStat(id: String): Boolean{
@@ -110,13 +111,11 @@ object AugmentHelper {
         val cd = (augmentStats[id]?.cooldown) ?: 20
         return max(1,cd)
     }
-
     fun getAugmentImbueLevel(id: String): Int{
         if(!augmentStats.containsKey(id)) return (1)
         val cd = (augmentStats[id]?.imbueLevel) ?: 1
         return max(1,cd)
     }
-
     fun getAugmentTier(id: String): LoreTier {
         if (!augmentStats.containsKey(id)) return (LoreTier.NO_TIER)
         return (augmentStats[id]?.bookOfLoreTier) ?: LoreTier.NO_TIER
@@ -124,6 +123,10 @@ object AugmentHelper {
     fun getAugmentEnabled(id: String): Boolean {
         if (!augmentStats.containsKey(id)) return false
         return (augmentStats[id]?.enabled) ?: false
+    }
+    fun getAugmentPvpMode(id: String): Boolean {
+        if (!augmentStats.containsKey(id)) return false
+        return (augmentStats[id]?.pvpMode) ?: false
     }
 
     fun getAugmentDatapoint(id: String): AugmentDatapoint{
