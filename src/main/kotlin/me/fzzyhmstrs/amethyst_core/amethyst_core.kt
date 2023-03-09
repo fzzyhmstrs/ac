@@ -17,6 +17,7 @@ object AC: ModInitializer {
     val fallbackId = Identifier("vanishing_curse")
 
     override fun onInitialize() {
+        RegisterAttribute.registerAll()
         RegisterBaseEntity.registerAll()
         ModifierRegistry.registerAll()
         GcChecker.registerProcessor()

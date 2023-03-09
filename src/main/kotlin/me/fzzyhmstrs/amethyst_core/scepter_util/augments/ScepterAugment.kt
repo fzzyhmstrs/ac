@@ -1,8 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
 import me.fzzyhmstrs.fzzy_core.item_util.AcceptableItemStacks
@@ -10,6 +8,8 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
@@ -53,7 +53,12 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
             }
             return false
         }
-        val effectModifiers = AugmentEffect()
+        val effectModifiers = AugmentEffect(
+            PerLvlF(0f,0f,user.getAttributeValue(RegisterAttribute.SPELL_DAMAGE).toFloat()),
+            PerLvlI(user.getAttributeValue(RegisterAttribute.SPELL_AMPLIFIER).toInt()),
+            PerLvlI(0,0,user.getAttributeValue(RegisterAttribute.SPELL_DURATION).toInt()),
+            PerLvlD(0.0,0.0,user.getAttributeValue(RegisterAttribute.SPELL_RANGE))
+        )
         effectModifiers.plus(modifierData?.getEffectModifier()?: AugmentEffect())
         effectModifiers.plus(baseEffect)
         val bl = applyTasks(world,user,hand,level,effectModifiers)

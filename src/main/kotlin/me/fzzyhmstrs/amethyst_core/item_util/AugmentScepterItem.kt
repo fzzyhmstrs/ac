@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcCompat
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
@@ -127,11 +128,11 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
         }
         //val modifiers = ModifierHelper.getActiveModifiers(stack)
 
-        val cd : Int? = ScepterHelper.useScepter(activeEnchantId, testEnchant, stack, world, modifiers.compiledData.cooldownModifier)
+        val cd : Int? = ScepterHelper.useScepter(activeEnchantId, testEnchant, stack, world, modifiers.compiledData.cooldownModifier + user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN))
         return if (cd != null) {
-            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,modifiers.compiledData.manaCostModifier)
+            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,modifiers.compiledData.manaCostModifier + user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
             if (!checkManaCost(manaCost,stack, world, user)) return resetCooldown(stack,world,user,activeEnchantId)
-            val level = max(1,testLevel + modifiers.compiledData.levelModifier)
+            val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * (1.0 + user.getAttributeValue(RegisterAttribute.SPELL_LEVEL))).toInt())
             if (testEnchant.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
                 applyManaCost(manaCost,stack, world, user)
                 ScepterHelper.incrementScepterStats(stack.orCreateNbt, stack, activeEnchantId, modifiers.compiledData.getXpModifiers())
