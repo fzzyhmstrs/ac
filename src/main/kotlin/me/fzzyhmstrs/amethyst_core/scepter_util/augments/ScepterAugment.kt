@@ -148,6 +148,11 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
         return tier
     }
 
+    fun getPvpMode(): Boolean{
+        val id = Registries.ENCHANTMENT.getId(this)?:return false
+        return AugmentHelper.getAugmentPvpMode(id.toString())
+    }
+
     companion object{
 
         const val augmentVersion = "_v2"
