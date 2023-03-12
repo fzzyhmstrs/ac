@@ -1,19 +1,16 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
-import me.fzzyhmstrs.amethyst_core.modifier_util.GcCompat
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
-import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
-import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
-import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
@@ -27,20 +24,24 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
-import kotlin.math.max
 
 /**
- * Extended [ModifiableScepterItem] that integrates with the Scepter Augment System. This is the barebones scepter for use with [ScepterAugment]s.
+ * Extended [ModifiableScepterItem] that integrates with the Scepter Augment System. This is the bare-bones scepter for use with [ScepterAugment]s.
  *
- * Adds builder methods for adding default augments that are applied on craft/initilization.
+ * Adds builder methods for adding default augments that are applied on craft/initialization.
  *
  * Modifiers are specified to be [AugmentModifier] type in this class, which are codependent with Scepter Augments
  *
- * Adds the main [use] functionality for this style of scepter, including Augment selection, level checking, cooldown checking, and a separate [serverUse] and [clientUse] method for actions to take in those corresponding environments. By default calls the specified Augments [ScepterAugment.applyModifiableTasks] after determining and checking the compiled modifiers relevant to that augment.
+ * Adds the main [use] functionality for this style of scepter, including Augment selection, level checking, cooldown checking, and a separate [serverUse] and [clientUse] method for actions to take in those corresponding environments. By default, this calls the specified Augments [ScepterAugment.applyModifiableTasks] after determining and checking the compiled modifiers relevant to that augment.
  */
-@Suppress("SameParameterValue", "unused", "USELESS_IS_CHECK")
-abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Settings):
-    ModifiableScepterItem<AugmentModifier>(material, settings){
+@Suppress("SameParameterValue", "unused")
+abstract class AugmentScepterItem(
+    material: ScepterToolMaterial,
+    settings: Settings)
+    :
+    ModifiableScepterItem<AugmentModifier>(material, settings),
+    SpellCasting
+{
 
     var defaultAugments: List<ScepterAugment> = listOf()
     var noFallback: Boolean = false
@@ -73,15 +74,7 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
-        val level = ScepterHelper.getScepterStat(nbt,activeEnchantId).first
-        val minLvl = AugmentHelper.getAugmentMinLvl(activeEnchantId)
-        val maxLevel = (testEnchant.getAugmentMaxLevel()) + minLvl - 1
-        var testLevel = 1
-        if (level >= minLvl){
-            testLevel = level
-            if (testLevel > maxLevel) testLevel = maxLevel
-            testLevel -= (minLvl - 1)
-        }
+        val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 
         val stack2 = if (hand == Hand.MAIN_HAND) {
             user.offHandStack
@@ -118,48 +111,29 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
         }
     }
 
-    private fun serverUse(world: World, user: PlayerEntity, hand: Hand, stack: ItemStack,
-                          activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
-
-        val modifiers = if (GcChecker.gearCoreLoaded) {
-            GcCompat.modifyCompiledAugmentModifiers(ModifierHelper.getActiveModifiers(stack), user.uuid)
-        } else {
-            ModifierHelper.getActiveModifiers(stack)
-        }
-        //val modifiers = ModifierHelper.getActiveModifiers(stack)
-
-        val cd : Int? = ScepterHelper.useScepter(activeEnchantId, testEnchant, stack, world, modifiers.compiledData.cooldownModifier + user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN))
-        return if (cd != null) {
-            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,modifiers.compiledData.manaCostModifier + user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
-            if (!checkManaCost(manaCost,stack, world, user)) return resetCooldown(stack,world,user,activeEnchantId)
-            val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * (1.0 + user.getAttributeValue(RegisterAttribute.SPELL_LEVEL))).toInt())
-            if (testEnchant.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
-                applyManaCost(manaCost,stack, world, user)
-                ScepterHelper.incrementScepterStats(stack.orCreateNbt, stack, activeEnchantId, modifiers.compiledData.getXpModifiers())
-                user.itemCooldownManager.set(stack.item, cd)
-                if (user is ServerPlayerEntity) {
-                    ScepterHelper.CAST_SPELL.trigger(user, Identifier(activeEnchantId))
-                }
-                TypedActionResult.success(stack)
-            } else {
-                resetCooldown(stack,world,user,activeEnchantId)
-            }
-        } else {
-            resetCooldown(stack,world,user,activeEnchantId)
-        }
+    override fun <T> serverUse(
+        world: World,
+        user: T,
+        hand: Hand,
+        stack: ItemStack,
+        activeEnchantId: String,
+        spell: ScepterAugment,
+        testLevel: Int
+    ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
+        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
     }
     @Suppress("UNUSED_PARAMETER")
-    private fun clientUse(world: World, user: PlayerEntity, hand: Hand, stack: ItemStack,
+    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
                           activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }
 
-    private fun checkManaCost(cost: Int, stack: ItemStack, world: World, user: PlayerEntity): Boolean{
-        return (checkCanUse(stack,world,user, cost))
+    override fun checkManaCost(cost: Int, stack: ItemStack, world: World, user: LivingEntity): Boolean{
+        return checkCanUse(stack,world,user, cost)
     }
 
-    private fun applyManaCost(cost: Int, stack: ItemStack, world: World, user: PlayerEntity){
+    override fun applyManaCost(cost: Int, stack: ItemStack, world: World, user: LivingEntity){
         manaDamage(stack, world, user, cost)
     }
 
@@ -202,9 +176,9 @@ abstract class AugmentScepterItem(material: ScepterToolMaterial, settings: Setti
         scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
     }
 
-    open fun resetCooldown(stack: ItemStack, world: World, user: PlayerEntity, activeEnchant: String): TypedActionResult<ItemStack>{
+    override fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>{
         world.playSound(null,user.blockPos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS,0.6F,0.8F)
-        ScepterHelper.resetCooldown(world, stack, activeEnchant)
+        ScepterHelper.resetCooldown(world, stack, user, activeEnchant)
         return TypedActionResult.fail(stack)
     }
 

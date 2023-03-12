@@ -32,8 +32,12 @@ open class AugmentModifier(
     modifierId: Identifier = ModifierDefaults.BLANK_ID,
     open var levelModifier: Int = 0,
     open var cooldownModifier: Double = 0.0,
-    open var manaCostModifier: Double = 0.0
-    ): AbstractModifier<AugmentModifier>(modifierId) {
+    open var manaCostModifier: Double = 0.0,
+    internal val availableForRoll: Boolean = true,
+    internal val rollToll: Int = 5)
+    :
+    AbstractModifier<AugmentModifier>(modifierId)
+{
 
     protected val effects: AugmentEffect = AugmentEffect()
     protected val xpModifier: XpModifiers = XpModifiers()
@@ -138,5 +142,9 @@ open class AugmentModifier(
 
     override fun getModifierHelper(): AbstractModifierHelper<*> {
         return ModifierHelper
+    }
+
+    override fun getTranslationKey(): String {
+        return super.getTranslationKey()
     }
 }

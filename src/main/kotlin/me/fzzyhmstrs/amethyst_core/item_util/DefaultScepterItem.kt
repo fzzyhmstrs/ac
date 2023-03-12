@@ -3,15 +3,14 @@ package me.fzzyhmstrs.amethyst_core.item_util
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.LinkedHashMultimap
 import com.google.common.collect.Multimap
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
-import me.fzzyhmstrs.fzzy_core.coding_util.PlayerParticlesV2.scepterParticlePos
-import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
-import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
-import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.PlayerParticlesV2.scepterParticlePos
+import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
@@ -21,7 +20,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.attribute.EntityAttributes
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.server.network.ServerPlayerEntity
@@ -39,7 +37,7 @@ import net.minecraft.world.World
  * For more in depth implementations, this scepter is [Modifiable][me.fzzyhmstrs.fzzy_core.interfaces.Modifiable] and [ParticleEmitting], with all the functionality those interfaces offer.
  */
 
-@Suppress("SameParameterValue", "unused", "USELESS_IS_CHECK")
+@Suppress("SameParameterValue", "unused")
 abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Settings):
     AugmentScepterItem(material,settings), ParticleEmitting{
 
@@ -123,7 +121,7 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
     override fun resetCooldown(
         stack: ItemStack,
         world: World,
-        user: PlayerEntity,
+        user: LivingEntity,
         activeEnchant: String
     ): TypedActionResult<ItemStack> {
         if (user is ServerPlayerEntity) {

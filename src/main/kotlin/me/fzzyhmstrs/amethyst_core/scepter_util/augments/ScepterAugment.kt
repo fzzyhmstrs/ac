@@ -1,15 +1,12 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
-import me.fzzyhmstrs.fzzy_core.item_util.AcceptableItemStacks
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
+import me.fzzyhmstrs.amethyst_core.modifier_util.*
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.fzzy_core.coding_util.*
+import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
+import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
 import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
@@ -31,9 +28,22 @@ import net.minecraft.world.World
  * the base scepter augment. Any Augment-type scepter will be able to successfully cast an augment made with this class or one of the templates.
  */
 
-abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, target: EnchantmentTarget, vararg slot: EquipmentSlot): Enchantment(Rarity.VERY_RARE, target,slot) {
+abstract class ScepterAugment(
+    private val tier: Int,
+    private val maxLvl: Int,
+    target: EnchantmentTarget,
+    vararg slot: EquipmentSlot)
+    :
+    Enchantment(Rarity.VERY_RARE, target,slot)
+{
     
     open val baseEffect = AugmentEffect()
+    protected val id: Identifier? by lazy {
+        Registries.ENCHANTMENT.getId(this)
+    }
+    val augmentSpecificModifier: AugmentModifier by lazy {
+        generateUniqueModifier()
+    }
 
     /**
      * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
@@ -44,6 +54,11 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
      * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
      */
     abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
+
+    open fun generateUniqueModifier(): AugmentModifier{
+        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-10.0,false)
+        return UniqueAugmentModifier(augId,2,-25.0,-10.0)
+    }
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean{
         val aug = Registry.ENCHANTMENT.getId(this) ?: return false
@@ -69,6 +84,7 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
+            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand))
         }
         return bl
     }
@@ -168,9 +184,16 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
             }
 
             override fun readFromServer(buf: PacketByteBuf) {
-                augmentStats = gson.fromJson(buf.readString(), AugmentStats::class.java)
+                augmentStats = gson.fromJson(buf.readString(), AugmentStats::class.java).validate()
                 val currentDataPoint = AugmentHelper.getAugmentDatapoint(augmentStats.id)
-                val newDataPoint = currentDataPoint.copy(cooldown = augmentStats.cooldown, manaCost = augmentStats.manaCost, minLvl = augmentStats.minLvl, enabled = augmentStats.enabled)
+                val newDataPoint = currentDataPoint.copy(
+                    cooldown = augmentStats.getCooldown(),
+                    manaCost = augmentStats.manaCost,
+                    minLvl = augmentStats.minLvl,
+                    castXp = augmentStats.castXp,
+                    enabled = augmentStats.enabled,
+                    pvpMode = augmentStats.pvpMode
+                )
                 AugmentHelper.registerAugmentStat(augmentStats.id, newDataPoint,true)
             }
 
@@ -188,9 +211,29 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
             var id: String = AC.fallbackId.toString()
             var enabled: Boolean = true
             var pvpMode: Boolean = false
-            var cooldown: Int = 20
+            var cooldownBase: Int = 20
+            var coolDownPerLvl: Int = 0
             var manaCost: Int = 2
             var minLvl: Int = 1
+            var castXp: Int = 1
+
+            fun setCooldown(cooldown: PerLvlI){
+                cooldownBase = cooldown.base
+                coolDownPerLvl = cooldown.perLevel
+            }
+
+            fun getCooldown(): PerLvlI{
+                return PerLvlI(cooldownBase,coolDownPerLvl,0)
+            }
+
+            fun validate(): AugmentStats{
+                if (cooldownBase < 0) cooldownBase = 0
+                if (cooldownBase == 0 && coolDownPerLvl < 0) coolDownPerLvl = 0
+                if (manaCost < 0) manaCost = 0
+                if (minLvl < 1) minLvl = 1
+                if (castXp < 0) castXp = 0
+                return this
+            }
         }
 
         class AugmentStatsV1: SyncedConfigHelper.OldClass<AugmentStats> {
@@ -203,10 +246,10 @@ abstract class ScepterAugment(private val tier: Int, private val maxLvl: Int, ta
                 val augmentStats = AugmentStats()
                 augmentStats.id = id
                 augmentStats.enabled = enabled
-                augmentStats.cooldown = cooldown
+                augmentStats.cooldownBase = cooldown
                 augmentStats.manaCost = manaCost
                 augmentStats.minLvl = minLvl
-                return augmentStats
+                return augmentStats.validate()
             }
         }
 
