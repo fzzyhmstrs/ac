@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.Item
 import net.minecraft.item.Items
@@ -60,13 +61,14 @@ object AugmentHelper {
         augmentConfig.id = id
         augmentConfig.enabled = stat.enabled
         augmentConfig.pvpMode = stat.pvpMode
-        augmentConfig.cooldown = stat.cooldown
+        augmentConfig.setCooldown(stat.cooldown)
         augmentConfig.manaCost = stat.manaCost
         augmentConfig.minLvl = stat.minLvl
+        augmentConfig.castXp = stat.castXp
         val tier = stat.bookOfLoreTier
         val item = stat.keyItem
         val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
-        return AugmentDatapoint(type,augmentAfterConfig.cooldown,augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,tier,item, augmentAfterConfig.enabled, augmentAfterConfig.pvpMode)
+        return AugmentDatapoint(type,augmentAfterConfig.getCooldown(),augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,augmentAfterConfig.castXp, tier, item, augmentAfterConfig.enabled, augmentAfterConfig.pvpMode)
     }
 
     fun checkAugmentStat(id: String): Boolean{
@@ -106,10 +108,10 @@ object AugmentHelper {
         return max(0,cost)
     }
 
-    fun getAugmentCooldown(id: String): Int{
-        if(!augmentStats.containsKey(id)) return (20)
-        val cd = (augmentStats[id]?.cooldown) ?: 20
-        return max(1,cd)
+    private val DEFAULT_COOLDOWN = PerLvlI(20)
+    fun getAugmentCooldown(id: String): PerLvlI{
+        if(!augmentStats.containsKey(id)) return DEFAULT_COOLDOWN
+        return (augmentStats[id]?.cooldown) ?: DEFAULT_COOLDOWN
     }
     fun getAugmentImbueLevel(id: String): Int{
         if(!augmentStats.containsKey(id)) return (1)
@@ -127,6 +129,10 @@ object AugmentHelper {
     fun getAugmentPvpMode(id: String): Boolean {
         if (!augmentStats.containsKey(id)) return false
         return (augmentStats[id]?.pvpMode) ?: false
+    }
+    fun getAugmentCastXp(id: String): Int{
+        if (!augmentStats.containsKey(id)) return 1
+        return (augmentStats[id]?.castXp) ?: 1
     }
 
     fun getAugmentDatapoint(id: String): AugmentDatapoint{

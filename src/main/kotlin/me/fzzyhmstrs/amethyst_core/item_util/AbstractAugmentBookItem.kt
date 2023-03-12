@@ -2,24 +2,19 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import me.fzzyhmstrs.fzzy_core.coding_util.Dustbin
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
-import net.minecraft.client.network.AbstractClientPlayerEntity
-import net.minecraft.client.network.ClientPlayNetworkHandler
-import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -73,8 +68,15 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             val xpLevels = AugmentHelper.getAugmentImbueLevel(bola)
             tooltip.add(AcText.translatable("lore_book.xp_level", xpLevels.toString()).formatted(Formatting.WHITE))
             //tooltip.add(AcText.translatable("lore_book.xp_level").formatted(Formatting.WHITE).append(xpLevels.toString()))
-            val cooldown = AugmentHelper.getAugmentCooldown(bola).toFloat() / 20.0F
-            tooltip.add(AcText.translatable("lore_book.cooldown",cooldown.toString()).formatted(Formatting.WHITE))
+            val cooldown = AugmentHelper.getAugmentCooldown(bola)
+            val cooldownBase = cooldown.base / 20f
+            val cooldownPerLvl = cooldown.perLevel / 20f
+            val cooldownKey = if(cooldownPerLvl < 0){
+                "lore_book.cooldown.minus"
+            } else {
+                "lore_book.cooldown.plus"
+            }
+            tooltip.add(AcText.translatable(cooldownKey,cooldownBase.toString(),cooldownPerLvl.toString()).formatted(Formatting.WHITE))
             //tooltip.add(AcText.translatable("lore_book.cooldown").formatted(Formatting.WHITE).append(AcText.literal(cooldown.toString())).append(AcText.translatable("lore_book.cooldown1").formatted(Formatting.WHITE)))
             val manaCost = AugmentHelper.getAugmentManaCost(bola)
             tooltip.add(AcText.translatable("lore_book.mana_cost",manaCost.toString()).formatted(Formatting.WHITE))

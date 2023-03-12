@@ -11,6 +11,15 @@ import net.minecraft.util.Identifier
 
 object ModifierRegistry {
 
+    internal val modifierRollList: MutableList<AugmentModifier> = mutableListOf()
+
+    fun registerWithRolling(modifier: AugmentModifier){
+        if (modifier.availableForRoll){
+            modifierRollList.add(modifier)
+        }
+        ModifierRegistry.register(modifier)
+    }
+
     /**
      * example harmful [AugmentConsumer] that applies wither to targets specified to receive Harmful effects in the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment] implementation.
      */

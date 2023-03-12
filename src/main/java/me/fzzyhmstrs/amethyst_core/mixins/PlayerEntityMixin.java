@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
 import com.mojang.authlib.GameProfile;
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity;
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding;
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerEntity.class)
-public class PlayerEntityMixin implements SyncedRandomProviding {
+public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEntity {
 
     @Unique
     private AbstractAugmentBookItem.SyncedRandomProvider provider;
