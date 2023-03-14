@@ -280,10 +280,20 @@ object ScepterHelper {
     
     private fun checkXpForLevelUp(xp:Int, lvl:Int): Int{
         var lvlUp = 0
-        while (xp > (2 * (lvl + lvlUp) * (lvl + lvlUp) + 40 * (lvl + lvlUp))){
+        while (xp > calcXp(lvl + lvlUp)){
             lvlUp++
         }
         return lvlUp
+    }
+
+    private fun calcXp(lvl: Int): Int{
+        return if (lvl < 11){
+            (2 * lvl * lvl) + (40 * lvl)
+        } else if (lvl < 21){
+            (3 * lvl * lvl) + (24 * lvl) + 57
+        } else {
+            ((4.5 * lvl * lvl) - (35.5 * lvl) + 648).toInt()
+        }
     }
     
     private fun updateScepterAugments(scepter: ItemStack, scepterNbt: NbtCompound){

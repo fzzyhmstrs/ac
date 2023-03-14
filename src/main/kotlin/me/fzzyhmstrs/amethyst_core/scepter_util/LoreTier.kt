@@ -13,56 +13,59 @@ package me.fzzyhmstrs.amethyst_core.scepter_util
  *
  * [EXTREME_TIER]: Godly spells for modded late-late game. Extremely powerful spells that rain destruction on opponents, fully heal the caster, or other such hyperbolic effects. Cast by tier 4 scepters.
  */
-enum class LoreTier {
-    LOW_TIER{
-        private val bookOfLoreListT1: MutableList<String> =  mutableListOf()
+abstract class LoreTier {
 
-        override fun addToList(string: String) {
-            bookOfLoreListT1.addIfDistinct(string)
-        }
-        override fun list(): List<String> {
-            return bookOfLoreListT1
-        }
-    },
-    HIGH_TIER{
-        private val bookOfLoreListT2: MutableList<String> =  mutableListOf()
+    companion object{
+        val LOW_TIER = object: LoreTier() {
+            private val bookOfLoreListT1: MutableList<String> =  mutableListOf()
 
-        override fun addToList(string: String) {
-            bookOfLoreListT2.addIfDistinct(string)
+            override fun addToList(string: String) {
+                bookOfLoreListT1.addIfDistinct(string)
+            }
+            override fun list(): List<String> {
+                return bookOfLoreListT1
+            }
         }
-        override fun list(): List<String> {
-            return bookOfLoreListT2
-        }
-    },
-    EXTREME_TIER{
-        private val bookOfLoreListT3: MutableList<String> =  mutableListOf()
+        val HIGH_TIER = object: LoreTier() {
+            private val bookOfLoreListT2: MutableList<String> =  mutableListOf()
 
-        override fun addToList(string: String) {
-            bookOfLoreListT3.addIfDistinct(string)
+            override fun addToList(string: String) {
+                bookOfLoreListT2.addIfDistinct(string)
+            }
+            override fun list(): List<String> {
+                return bookOfLoreListT2
+            }
         }
-        override fun list(): List<String> {
-            return bookOfLoreListT3
-        }
-    },
-    ANY_TIER{
-        private val bookOfLoreListT12: MutableList<String> =  mutableListOf()
+        val EXTREME_TIER = object: LoreTier() {
+            private val bookOfLoreListT3: MutableList<String> =  mutableListOf()
 
-        override fun addToList(string: String) {
-            bookOfLoreListT12.addIfDistinct(string)
+            override fun addToList(string: String) {
+                bookOfLoreListT3.addIfDistinct(string)
+            }
+            override fun list(): List<String> {
+                return bookOfLoreListT3
+            }
         }
-        override fun list(): List<String> {
-            return bookOfLoreListT12
-        }
+        val ANY_TIER = object: LoreTier() {
+            private val bookOfLoreListT12: MutableList<String> =  mutableListOf()
 
-    },
-    NO_TIER{
-        override fun addToList(string: String) {
-        }
+            override fun addToList(string: String) {
+                bookOfLoreListT12.addIfDistinct(string)
+            }
+            override fun list(): List<String> {
+                return bookOfLoreListT12
+            }
 
-        override fun list(): List<String> {
-            return listOf()
         }
-    };
+        val NO_TIER = object: LoreTier() {
+            override fun addToList(string: String) {
+            }
+
+            override fun list(): List<String> {
+                return listOf()
+            }
+        }
+    }
 
     abstract fun addToList(string: String)
     abstract fun list(): List<String>

@@ -3,19 +3,25 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierInitializer
 import me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffects
+import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 
 object ModifierRegistry {
 
-    internal val modifierRollList: MutableList<AugmentModifier> = mutableListOf()
+    internal val modifierRollList: ArrayList<AugmentModifier> = ArrayList(150)
 
-    fun registerWithRolling(modifier: AugmentModifier){
+    fun registerWithRolling(modifier: AugmentModifier, weight: Int = 5){
         if (modifier.availableForRoll){
-            modifierRollList.add(modifier)
+            for (i in 1..5) {
+                modifierRollList.add(modifier)
+            }
         }
         ModifierRegistry.register(modifier)
     }
@@ -65,19 +71,33 @@ object ModifierRegistry {
     val MODIFIER_DEBUG_2 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
     val MODIFIER_DEBUG_3 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
 
+    val MODIFIER_TYPE = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
+
+    object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper")){
+        override fun getModifierIdKey(): String {
+            return "modifier_id"
+        }
+        override fun getModifiersKey(): String {
+            return "modifiers"
+        }
+        override fun getModifierInitializer(): ModifierInitializer {
+            return ModifierHelper
+        }
+    }
+
     internal fun registerAll(){
-        ModifierRegistry.register(GREATER_ATTUNED)
-        ModifierRegistry.register(ATTUNED)
-        ModifierRegistry.register(LESSER_ATTUNED)
-        ModifierRegistry.register(GREATER_THRIFTY)
-        ModifierRegistry.register(THRIFTY)
-        ModifierRegistry.register(LESSER_THRIFTY)
-        ModifierRegistry.register(GREATER_REACH)
-        ModifierRegistry.register(REACH)
-        ModifierRegistry.register(LESSER_REACH)
-        ModifierRegistry.register(GREATER_ENDURING)
-        ModifierRegistry.register(ENDURING)
-        ModifierRegistry.register(LESSER_ENDURING)
+        registerWithRolling(GREATER_ATTUNED,2)
+        registerWithRolling(ATTUNED,4)
+        registerWithRolling(LESSER_ATTUNED,6)
+        registerWithRolling(GREATER_THRIFTY,2)
+        registerWithRolling(THRIFTY,4)
+        registerWithRolling(LESSER_THRIFTY,6)
+        registerWithRolling(GREATER_REACH,2)
+        registerWithRolling(REACH,4)
+        registerWithRolling(LESSER_REACH,6)
+        registerWithRolling(GREATER_ENDURING,2)
+        registerWithRolling(ENDURING,4)
+        registerWithRolling(LESSER_ENDURING,6)
         ModifierRegistry.register(MODIFIER_DEBUG)
         ModifierRegistry.register(MODIFIER_DEBUG_2)
         ModifierRegistry.register(MODIFIER_DEBUG_3)

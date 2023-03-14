@@ -39,7 +39,7 @@ abstract class AugmentScepterItem(
     material: ScepterToolMaterial,
     settings: Settings)
     :
-    ModifiableScepterItem<AugmentModifier>(material, settings),
+    ModifiableScepterItem(material, settings),
     SpellCasting
 {
 
