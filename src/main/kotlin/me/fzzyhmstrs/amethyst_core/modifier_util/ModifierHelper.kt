@@ -52,28 +52,26 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         return TagKey.of(Registry.ENCHANTMENT_KEY, Identifier(AC.MOD_ID,path))
     }
 
-    private fun addUniqueModifier(modifier: Identifier, stack: ItemStack) {
-        val nbt = stack.nbt
-        if (nbt == null){
-            addModifier(modifier, stack)
-            return
-        }
-        val id = Nbt.getItemStackId(nbt)
-        if (!(id != -1L && checkDescendant(modifier, stack) != null)) {
-            addModifier(modifier, stack)
-        }
-    }
-
-    fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL){
+    fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
         val list = ModifierRegistry.modifierRollList
         val context = LootContext.Builder(world).random(world.random).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
-        var tollRemaining = (toll.nextFloat(context) + context.luck).toInt()
-        while (tollRemaining > 0){
-            val modChk = list[context.random.nextInt(list.size)]
-            tollRemaining -= modChk.rollToll
-            if (tollRemaining >= 0) {
-                addUniqueModifier(modChk.modifierId, stack)
+        val result: MutableList<Identifier> = mutableListOf()
+        do{
+            var tollRemaining = (toll.nextFloat(context) + context.luck).toInt()
+            while (tollRemaining > 0){
+                val modChk = list[context.random.nextInt(list.size)]
+                tollRemaining -= modChk.rollToll
+                if (tollRemaining >= 0) {
+                    result.add(modChk.modifierId)
+                }
             }
+        while (result.isEmpty())
+        return result
+    }
+        
+    fun addRolledModifier(stack: ItemStack, mods: List<Identifier>{
+        for (mod in mods){
+            addModifier(mod, stack)
         }
     }
 
