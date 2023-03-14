@@ -28,7 +28,7 @@ import net.minecraft.item.Items
  * [pvpMode]: (new in 1.1.0)
  */
 
-data class AugmentDatapoint(val type: SpellType = SpellType.NULL,
+data class AugmentDatapoint(val type: SpellType,
                             val cooldown: PerLvlI = PerLvlI(20,0,0),
                             val manaCost: Int = 20,
                             val minLvl: Int = 1,
@@ -38,4 +38,19 @@ data class AugmentDatapoint(val type: SpellType = SpellType.NULL,
                             val keyItem: Item = Items.AIR,
                             val enabled: Boolean = true,
                             val pvpMode: Boolean = false
-)
+){
+
+    constructor(type: SpellType = SpellType.NULL,
+                cooldown: Int = 20,
+                manaCost: Int = 20,
+                minLvl: Int = 1,
+                imbueLevel: Int = 1,
+                castXp: Int = 1,
+                bookOfLoreTier: LoreTier = LoreTier.NO_TIER,
+                keyItem: Item = Items.AIR,
+                enabled: Boolean = true,
+                pvpMode: Boolean = false)
+            :
+            this(type,PerLvlI(cooldown),manaCost, minLvl, imbueLevel, castXp, bookOfLoreTier, keyItem, enabled, pvpMode)
+
+}

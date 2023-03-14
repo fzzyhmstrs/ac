@@ -9,6 +9,7 @@ import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
@@ -158,5 +159,9 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     override fun getModifierByType(id: Identifier): AugmentModifier? {
         return me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry.getByType<AugmentModifier>(id)
+    }
+
+    override fun getType(): ModifierHelperType {
+        return ModifierRegistry.MODIFIER_TYPE
     }
 }

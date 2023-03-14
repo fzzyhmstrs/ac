@@ -38,7 +38,7 @@ abstract class ScepterAugment(
 {
     
     open val baseEffect = AugmentEffect()
-    protected val id: Identifier? by lazy {
+    val id: Identifier? by lazy {
         Registries.ENCHANTMENT.getId(this)
     }
     val augmentSpecificModifier: AugmentModifier by lazy {
@@ -84,7 +84,7 @@ abstract class ScepterAugment(
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
-            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand))
+            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand), this)
         }
         return bl
     }
