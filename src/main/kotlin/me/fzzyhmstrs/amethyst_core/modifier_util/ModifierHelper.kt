@@ -34,6 +34,10 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     private val DEFAULT_MODIFIER_TOLL = BinomialLootNumberProvider.create(25,0.24f)
     private val scepterAcceptableMap: MutableMap<Int,MutableList<ItemStack>> = mutableMapOf()
 
+    val TIER_1_SPELL_SCEPTER = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_1_spell_scepter"))
+    val TIER_2_SPELL_SCEPTER = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_2_spell_scepter"))
+    val TIER_3_SPELL_SCEPTER = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_3_spell_scepter"))
+
     fun addModifierForREI(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
         Nbt.makeItemStackId(stack)
@@ -65,11 +69,11 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
                     result.add(modChk.modifierId)
                 }
             }
-        while (result.isEmpty())
+        } while (result.isEmpty())
         return result
     }
         
-    fun addRolledModifier(stack: ItemStack, mods: List<Identifier>{
+    fun addRolledModifiers(stack: ItemStack, mods: List<Identifier>) {
         for (mod in mods){
             addModifier(mod, stack)
         }

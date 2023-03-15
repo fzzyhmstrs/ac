@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
@@ -24,7 +25,7 @@ import net.minecraft.world.World
 /**
  * Simple template that places a block item into the world. can be implemented in an Item Registry with no extension by defining the [_item] in the constructor.
  */
-abstract class PlaceItemAugment(tier: Int, maxLvl: Int,item: Item, vararg slot: EquipmentSlot): ScepterAugment(tier,maxLvl, EnchantmentTarget.WEAPON, *slot){
+abstract class PlaceItemAugment(tier: ScepterTier, maxLvl: Int,item: Item): ScepterAugment(tier,maxLvl){
     private val _item = item
 
     override val baseEffect: AugmentEffect

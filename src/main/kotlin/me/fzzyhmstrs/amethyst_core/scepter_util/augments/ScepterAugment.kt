@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.*
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
@@ -29,12 +30,10 @@ import net.minecraft.world.World
  */
 
 abstract class ScepterAugment(
-    private val tier: Int,
-    private val maxLvl: Int,
-    target: EnchantmentTarget,
-    vararg slot: EquipmentSlot)
+    private val tier: ScepterTier,
+    private val maxLvl: Int)
     :
-    Enchantment(Rarity.VERY_RARE, target,slot)
+    Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND))
 {
     
     open val baseEffect = AugmentEffect()
@@ -148,20 +147,11 @@ abstract class ScepterAugment(
 
 
     override fun isAcceptableItem(stack: ItemStack): Boolean {
-        acceptableItemStacks().forEach {
-            if (stack.isOf(it.item)){
-                return true
-            }
-        }
-        return false
-    }
-
-    open fun acceptableItemStacks(): MutableList<ItemStack> {
-        return ModifierHelper.scepterAcceptableItemStacks(tier)
+        return stack.isIn(tier.tag)
     }
 
     fun getTier(): Int{
-        return tier
+        return tier.tier
     }
 
     fun getPvpMode(): Boolean{

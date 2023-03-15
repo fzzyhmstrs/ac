@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -20,7 +21,7 @@ import net.minecraft.world.World
  *
  * [placeEntity] is the primary method to override for this template. Ensure you have a super call so the sound event and Modifier Consumers can be applied.
  */
-abstract class SummonEntityAugment(tier: Int, maxLvl: Int, vararg slot: EquipmentSlot): ScepterAugment(tier,maxLvl,EnchantmentTarget.WEAPON, *slot) {
+abstract class SummonEntityAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
 
     override val baseEffect: AugmentEffect
         get() = AugmentEffect().withRange(3.0,0.0,0.0)
