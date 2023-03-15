@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
@@ -60,19 +61,24 @@ abstract class SlashAugment(tier: ScepterTier, maxLvl: Int): MiscAugment(tier, m
                 effect.range(level * 2),
                 effect.range(level),
                 1.2)
+        val hostileEntityList = filter(entityList,user)
+        if (!effect(world, user, hostileEntityList, level, effect)) return false
+        world.playSound(null, user.blockPos, soundEvent(), SoundCategory.PLAYERS, 1.0F, 1.0F)
+        return true
+    }
+    
+    open fun filter(list: List<Entity>, user: LivingEntity): MutableList<Entity>{
         val hostileEntityList: MutableList<Entity> = mutableListOf()
         if (entityList.isNotEmpty()) {
             for (entity in entityList) {
                 if (entity !== user) {
-                    if (!entity.isTeammate(user)) {
-                        hostileEntityList.add(entity)
-                    }
+                    if (entity is SpellCastingEntity && !getPvpMode()) continue
+                    if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
+                    hostileEntityList.add(entity)
                 }
             }
         }
-        if (!effect(world, user, hostileEntityList, level, effect)) return false
-        world.playSound(null, user.blockPos, soundEvent(), SoundCategory.PLAYERS, 1.0F, 1.0F)
-        return true
+        return hostileEntityList
     }
 
     override fun effect(world: World, user: LivingEntity, entityList: MutableList<Entity>, level: Int, effect: AugmentEffect): Boolean {
