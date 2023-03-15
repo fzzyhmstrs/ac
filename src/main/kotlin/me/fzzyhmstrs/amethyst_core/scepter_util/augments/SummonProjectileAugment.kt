@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.entity_util.MissileEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
@@ -18,7 +19,7 @@ import net.minecraft.world.World
  *
  * see [MissileEntity] for an open class you can use to develop your own projectiles.
  */
-abstract class SummonProjectileAugment(tier: Int, maxLvl: Int, vararg slot: EquipmentSlot): ScepterAugment(tier,maxLvl,EnchantmentTarget.WEAPON, *slot) {
+abstract class SummonProjectileAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
 
     override fun applyTasks(
         world: World,

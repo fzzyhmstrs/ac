@@ -77,7 +77,16 @@ object ScepterHelper {
         }
     }
 
-    fun castSpell(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, spell: ScepterAugment, activeEnchantId: String, testLevel: Int, spellCaster: SpellCasting): TypedActionResult<ItemStack>{
+    fun castSpell(
+        world: World,
+        user: LivingEntity,
+        hand: Hand,
+        stack: ItemStack,
+        spell: ScepterAugment,
+        activeEnchantId: String,
+        testLevel: Int,
+        spellCaster: SpellCasting,
+        incrementStats: Boolean = true): TypedActionResult<ItemStack>{
         // Modify Modifiers event fires here //
         val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(stack))
         // Modify Spell Event fires here //
@@ -112,7 +121,14 @@ object ScepterHelper {
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
             if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
-                incrementScepterStats(stack.orCreateNbt, stack, activeEnchantId, modifiers.compiledData.getXpModifiers())
+                if (incrementStats) {
+                    incrementScepterStats(
+                        stack.orCreateNbt,
+                        stack,
+                        activeEnchantId,
+                        modifiers.compiledData.getXpModifiers()
+                    )
+                }
                 if (user is PlayerEntity) {
                     user.itemCooldownManager.set(stack.item, cooldown)
                 }
@@ -344,10 +360,10 @@ object ScepterHelper {
 
     fun resetCooldown(world: World, stack: ItemStack, user:LivingEntity, activeEnchantId: String){
         val nbt = stack.nbt?: return
-        val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
-        val modifiers = ModifierHelper.getActiveModifiers(stack)
         val testEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
         if (testEnchant !is ScepterAugment) return
+        val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
+        val modifiers = ModifierHelper.getActiveModifiers(stack)
         val testLevel = getTestLevel(nbt,activeEnchantId, testEnchant)
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * (1.0 + user.getAttributeValue(
             RegisterAttribute.SPELL_LEVEL))).toInt())

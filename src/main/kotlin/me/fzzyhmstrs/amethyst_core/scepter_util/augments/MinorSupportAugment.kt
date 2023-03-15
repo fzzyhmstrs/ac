@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
@@ -17,7 +18,7 @@ import net.minecraft.world.World
  * Implementation need not be limited to support effects. This template could also be used for an "instant damage" effect or a Life Drain spell, for a couple examples.
  */
 
-abstract class MinorSupportAugment(tier: Int, maxLvl: Int, vararg slot: EquipmentSlot): ScepterAugment(tier,maxLvl,EnchantmentTarget.WEAPON, *slot) {
+abstract class MinorSupportAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
 
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(6.0,0.0, 0.0)

@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
@@ -20,7 +21,7 @@ import net.minecraft.world.World
  * Either or both [effect] functions can be overridden to provide any number of implementations. Add [AugmentPersistentEffect] to the subclass to create an Augment that has an effect over time.
  */
 
-abstract class MiscAugment(tier: Int, maxLvl: Int, vararg slot: EquipmentSlot): ScepterAugment(tier,maxLvl,EnchantmentTarget.WEAPON, *slot) {
+abstract class MiscAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
 
     override fun applyTasks(
         world: World,

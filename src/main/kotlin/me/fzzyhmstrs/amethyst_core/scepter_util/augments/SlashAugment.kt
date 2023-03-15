@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
@@ -30,7 +31,7 @@ import java.util.*
  */
 
 @Suppress("SameParameterValue")
-abstract class SlashAugment(tier: Int, maxLvl: Int, vararg slot: EquipmentSlot): MiscAugment(tier, maxLvl, *slot){
+abstract class SlashAugment(tier: ScepterTier, maxLvl: Int): MiscAugment(tier, maxLvl){
 
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(2.5,0.25,0.0)
