@@ -15,10 +15,12 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
+import net.minecraft.tag.TagKey
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.HitResult
@@ -38,7 +40,7 @@ abstract class ScepterAugment(
     
     open val baseEffect = AugmentEffect()
     val id: Identifier? by lazy {
-        Registries.ENCHANTMENT.getId(this)
+        Registry.ENCHANTMENT.getId(this)
     }
     val augmentSpecificModifier: AugmentModifier by lazy {
         generateUniqueModifier()
@@ -154,8 +156,12 @@ abstract class ScepterAugment(
         return tier.tier
     }
 
+    fun getTag(): TagKey<Item> {
+        return tier.tag
+    }
+
     fun getPvpMode(): Boolean{
-        val id = Registries.ENCHANTMENT.getId(this)?:return false
+        val id = Registry.ENCHANTMENT.getId(this)?:return false
         return AugmentHelper.getAugmentPvpMode(id.toString())
     }
 

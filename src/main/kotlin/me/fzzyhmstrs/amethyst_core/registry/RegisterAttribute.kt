@@ -34,6 +34,9 @@ object RegisterAttribute {
     //player enchantability, acts as a multiplier on the enchantability of items they put into an enchanting table. A player with 0.1 enchantability will have 10% increased item enchantability
     val ENCHANTABILITY: EntityAttribute = make("enchantability", 0.0, -100.0, 300.0)
 
+    //damage multiplication, acts as a multiplier. Value of 0.1 will add 10% to the damage inflicted on the affected entity Max value will be a 3200x
+    val DAMAGE_MULTIPLICATION: EntityAttribute = make("damage_multiplication", 0.0, -1.0, 32.0)
+
     fun registerAll(){
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_cooldown"), SPELL_COOLDOWN)
