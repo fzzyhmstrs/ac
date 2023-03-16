@@ -25,6 +25,11 @@ repositories {
         url = uri("https://ladysnake.jfrog.io/artifactory/mods")
     }
 
+    maven {
+        name = "Jitpack"
+        url = uri("https://jitpack.io")
+    }
+
     flatDir {
         dirs("F:\\Documents\\Mod Libraries\\fc\\build\\libs")
     }
@@ -60,6 +65,10 @@ dependencies {
     modImplementation(":fzzy_core:$fcVersion"){
         exclude("net.fabricmc.fabric-api")
     }
+
+    val meVersion: String by project
+    implementation("com.github.LlamaLad7:MixinExtras:$meVersion")
+    annotationProcessor("com.github.LlamaLad7:MixinExtras:$meVersion")
 
 }
 tasks {
