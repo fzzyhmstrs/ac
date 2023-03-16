@@ -15,9 +15,11 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Hand
@@ -152,6 +154,10 @@ abstract class ScepterAugment(
 
     fun getTier(): Int{
         return tier.tier
+    }
+
+    fun getTag(): TagKey<Item>{
+        return tier.tag
     }
 
     fun getPvpMode(): Boolean{

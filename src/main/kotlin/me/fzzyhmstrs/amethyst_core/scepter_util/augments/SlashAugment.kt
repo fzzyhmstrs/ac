@@ -69,8 +69,8 @@ abstract class SlashAugment(tier: ScepterTier, maxLvl: Int): MiscAugment(tier, m
     
     open fun filter(list: List<Entity>, user: LivingEntity): MutableList<Entity>{
         val hostileEntityList: MutableList<Entity> = mutableListOf()
-        if (entityList.isNotEmpty()) {
-            for (entity in entityList) {
+        if (list.isNotEmpty()) {
+            for (entity in list) {
                 if (entity !== user) {
                     if (entity is SpellCastingEntity && !getPvpMode()) continue
                     if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
