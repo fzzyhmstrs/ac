@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "#amethyst_core:tier_two_spell_scepters",
+	"#amethyst_core:tier_three_spell_scepters"
+  ]
+}
