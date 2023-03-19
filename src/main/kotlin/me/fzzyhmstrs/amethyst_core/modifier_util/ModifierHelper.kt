@@ -79,6 +79,12 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         }
     }
 
+    fun removeRolledModifiers(stack: ItemStack, mods: List<Identifier>){
+        for (mod in mods){
+            removeModifier(stack,mod,stack.orCreateNbt)
+        }
+    }
+
     fun scepterAcceptableItemStacks(tier:Int): MutableList<ItemStack>{
         if (scepterAcceptableMap.containsKey(tier)){
             return scepterAcceptableMap[tier] ?: mutableListOf()
