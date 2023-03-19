@@ -30,7 +30,6 @@ abstract class LivingEntityMixin {
                 .add(RegisterAttribute.INSTANCE.getSPELL_AMPLIFIER())
                 .add(RegisterAttribute.INSTANCE.getSPELL_DURATION())
                 .add(RegisterAttribute.INSTANCE.getSPELL_RANGE())
-                .add(RegisterAttribute.INSTANCE.getENCHANTABILITY())
                 .add(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION());
     }
 
