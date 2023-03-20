@@ -44,6 +44,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     private var pierce: Boolean = false
     override var entityEffects: AugmentEffect = AugmentEffect().withDamage(3.0F)
+    open val maxAge = 200
 
     override fun passEffects(ae: AugmentEffect, level: Int) {
         super.passEffects(ae, level)
@@ -54,7 +55,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     override fun tick() {
         super.tick()
-        if (age > 200){
+        if (age > maxAge){
             discard()
         }
         val vec3d = velocity

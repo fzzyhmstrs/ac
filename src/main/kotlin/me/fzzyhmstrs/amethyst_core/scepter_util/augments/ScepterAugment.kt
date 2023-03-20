@@ -57,8 +57,8 @@ abstract class ScepterAugment(
     abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
 
     open fun generateUniqueModifier(): AugmentModifier{
-        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-10.0,false)
-        return UniqueAugmentModifier(augId,2,-25.0,-10.0)
+        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-15.0,false)
+        return UniqueAugmentModifier(augId,2,-25.0,-15.0)
     }
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean{
