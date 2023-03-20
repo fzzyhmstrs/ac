@@ -24,12 +24,14 @@ repositories {
         name = "Ladysnake Libs"
         url = uri("https://ladysnake.jfrog.io/artifactory/mods")
     }
-
     maven {
         name = "Jitpack"
         url = uri("https://jitpack.io")
     }
-
+    maven {
+        name = "Patbox"
+        url = uri("https://maven.nucleoid.xyz/")
+    }
     flatDir {
         dirs("F:\\Documents\\Mod Libraries\\fc\\build\\libs")
     }
@@ -69,6 +71,11 @@ dependencies {
     val meVersion: String by project
     implementation("com.github.LlamaLad7:MixinExtras:$meVersion")
     annotationProcessor("com.github.LlamaLad7:MixinExtras:$meVersion")
+
+    val cpaVersion: String by project
+    include(modImplementation("eu.pb4:common-protection-api:$cpaVersion"){
+        exclude("net.fabricmc.fabric-api")
+    })
 
 }
 tasks {
