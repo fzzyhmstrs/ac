@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
+import eu.pb4.common.protection.api.CommonProtection
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
@@ -34,7 +35,8 @@ abstract class PlaceItemAugment(tier: ScepterTier, maxLvl: Int,item: Item): Scep
     override fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean {
         if (user !is ServerPlayerEntity) return false
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
-        val bl = (hit != null && hit is BlockHitResult)
+        val bl = (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user))
+
         if (bl){
             return blockPlacing(hit as BlockHitResult,world, user, hand, level, effects)
         }
