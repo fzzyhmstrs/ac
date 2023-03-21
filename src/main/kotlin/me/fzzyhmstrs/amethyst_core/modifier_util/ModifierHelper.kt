@@ -110,6 +110,10 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     override fun addModifierTooltip(stack: ItemStack, tooltip: MutableList<Text>, context: TooltipContext){
         val modifierList = getModifiers(stack)
         if (modifierList.isEmpty()) return
+        addModifierTooltip(modifierList, tooltip, context)
+    }
+
+    fun addModifierTooltip(modifierList: List<Identifier>,tooltip: MutableList<Text>, context: TooltipContext){
         if ((context.isAdvanced && FcConfig.flavors.showFlavorDescOnAdvanced) || FcConfig.flavors.showFlavorDesc){
             modifierList.forEach {
                 val mod = getModifierByType(it)
@@ -137,7 +141,6 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
             }
         }
         tooltip.add(modifierText)
-
     }
 
     override fun gatherActiveModifiers(stack: ItemStack){
