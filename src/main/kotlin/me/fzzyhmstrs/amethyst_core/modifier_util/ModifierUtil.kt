@@ -18,7 +18,7 @@ object ModifierDefaults{
     val BLANK_AUG_MOD = AugmentModifier(BLANK_ID)
     val BLANK_EFFECT = AugmentEffect()
     val BLANK_XP_MOD = XpModifiers()
-    val BLANK_COMPILED_DATA = AbstractModifier.CompiledModifiers(listOf(), BLANK_AUG_MOD)
+    val BLANK_COMPILED_DATA = AbstractModifier.CompiledModifiers(arrayListOf(), BLANK_AUG_MOD)
 
 }
 
