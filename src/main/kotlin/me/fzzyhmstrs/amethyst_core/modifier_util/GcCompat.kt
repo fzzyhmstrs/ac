@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
 import java.util.*
+import kotlin.collections.ArrayList
 
 object GcCompat {
 
@@ -21,7 +22,7 @@ object GcCompat {
 
     fun modifyCompiledAugmentModifiers(original: AbstractModifier.CompiledModifiers<AugmentModifier>, uuid: UUID): AbstractModifier.CompiledModifiers<AugmentModifier>{
         val augments = augmentMap[uuid]?:return original
-        val list: MutableList<AugmentModifier> = mutableListOf()
+        val list: ArrayList<AugmentModifier> = arrayListOf()
         list.addAll(augments.modifiers)
         list.addAll(original.modifiers)
         return AbstractModifier.CompiledModifiers(list,AugmentModifier().plus(augments.compiledData).plus(original.compiledData))

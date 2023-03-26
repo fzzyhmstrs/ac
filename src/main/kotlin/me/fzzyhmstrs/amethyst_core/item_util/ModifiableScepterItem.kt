@@ -39,10 +39,6 @@ abstract class ModifiableScepterItem(material: ScepterToolMaterial, settings: Se
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
-    override fun addModifierTooltip(stack: ItemStack, tooltip: MutableList<Text>, context: TooltipContext) {
-        ModifierHelper.addModifierTooltip(stack, tooltip, context)
-    }
-
     override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
         super.initializeScepter(stack, scepterNbt)
         ModifierHelper.gatherActiveModifiers(stack)

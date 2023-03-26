@@ -133,7 +133,7 @@ open class AugmentModifier(
     }
 
     override fun compiler(): Compiler {
-        return Compiler(mutableListOf(), AugmentModifier())
+        return Compiler(arrayListOf(), AugmentModifier())
     }
 
     override fun getName(): Text {
