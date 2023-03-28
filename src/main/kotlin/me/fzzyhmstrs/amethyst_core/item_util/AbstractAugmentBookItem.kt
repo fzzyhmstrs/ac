@@ -28,6 +28,7 @@ import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
+import kotlin.math.abs
 import kotlin.random.Random
 
 /**
@@ -60,11 +61,9 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 //tooltip.add(AcText.translatable("lore_book.${type.str()}").formatted(type.fmt()).append(AcText.literal(lvl.toString())))
             }
             val item = AugmentHelper.getAugmentItem(bola)
-            if (item != Items.AIR) {
-                val itemText = item.name.copyContentOnly().formatted(Formatting.WHITE)
-                tooltip.add(AcText.translatable("lore_book.key_item",itemText).formatted(Formatting.WHITE))
-                //tooltip.add(AcText.translatable("lore_book.key_item").formatted(Formatting.WHITE).append(itemText))
-            }
+            val itemText = item.name.copyContentOnly().formatted(Formatting.WHITE)
+            tooltip.add(AcText.translatable("lore_book.key_item",itemText).formatted(Formatting.WHITE))
+            //tooltip.add(AcText.translatable("lore_book.key_item").formatted(Formatting.WHITE).append(itemText))
             val xpLevels = AugmentHelper.getAugmentImbueLevel(bola)
             tooltip.add(AcText.translatable("lore_book.xp_level", xpLevels.toString()).formatted(Formatting.WHITE))
             //tooltip.add(AcText.translatable("lore_book.xp_level").formatted(Formatting.WHITE).append(xpLevels.toString()))
@@ -73,10 +72,12 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             val cooldownPerLvl = cooldown.perLevel / 20f
             val cooldownKey = if(cooldownPerLvl < 0){
                 "lore_book.cooldown.minus"
+            } else if (cooldownPerLvl == 0f){
+                "lore_book.cooldown.basic"
             } else {
                 "lore_book.cooldown.plus"
             }
-            tooltip.add(AcText.translatable(cooldownKey,cooldownBase.toString(),cooldownPerLvl.toString()).formatted(Formatting.WHITE))
+            tooltip.add(AcText.translatable(cooldownKey,cooldownBase.toString(), abs(cooldownPerLvl).toString()).formatted(Formatting.WHITE))
             //tooltip.add(AcText.translatable("lore_book.cooldown").formatted(Formatting.WHITE).append(AcText.literal(cooldown.toString())).append(AcText.translatable("lore_book.cooldown1").formatted(Formatting.WHITE)))
             val manaCost = AugmentHelper.getAugmentManaCost(bola)
             tooltip.add(AcText.translatable("lore_book.mana_cost",manaCost.toString()).formatted(Formatting.WHITE))
@@ -88,6 +89,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                     AcText.translatable("lore_book.tier",spellTier.toString()).formatted(Formatting.WHITE)
                 )//AcText.translatable("lore_book.tier").formatted(Formatting.WHITE).append(AcText.literal(spellTier.toString()))
             }
+            val castXp = AugmentHelper.getAugmentCastXp(bola)
+            tooltip.add(AcText.translatable("lore_book.cast_xp",castXp.toString()).formatted(Formatting.WHITE))
         } else {
             addFlavorText(tooltip, context)
         }
