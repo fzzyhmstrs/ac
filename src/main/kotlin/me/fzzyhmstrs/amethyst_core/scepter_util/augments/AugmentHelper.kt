@@ -102,9 +102,9 @@ object AugmentHelper {
         return testLevel
     }
 
-    fun getAugmentManaCost(id: String, reduction: Double = 0.0): Int{
-        if(!augmentStats.containsKey(id)) return (10 * (100.0 + reduction) / 100.0).toInt()
-        val cost = (augmentStats[id]?.manaCost?.times(100.0 + reduction)?.div(100.0))?.toInt() ?: (10 * (100.0 + reduction) / 100.0).toInt()
+    fun getAugmentManaCost(id: String, reduction: Double = 1.0): Int{
+        if(!augmentStats.containsKey(id)) return (10 * reduction).toInt()
+        val cost = (augmentStats[id]?.manaCost?.times(reduction))?.toInt() ?: (10 * reduction).toInt()
         return max(0,cost)
     }
 
