@@ -10,29 +10,35 @@ import net.minecraft.util.Identifier
 object RegisterAttribute {
 
     //spell level, acts as a multiplier. Value of 0.1 will add 10% to a spells effective level
-    val SPELL_LEVEL: EntityAttribute = make("spell_level", 0.0, -1.0, 10.0)
+    val SPELL_LEVEL: EntityAttribute = make("spell_level", 1.0, 0.0, 10.0)
 
     //spell cooldown, acts as a multiplier. A player with -0.1 spell cooldown has 10% increased casting speed (0.9 the normal cooldown)
-    val SPELL_COOLDOWN: EntityAttribute = make("spell_cooldown", 0.0, -100.0, 1000.0)
+    val SPELL_COOLDOWN: EntityAttribute = make("spell_cooldown", 1.0, 0.0, 10.0)
 
     //spell mana cost, acts as a multiplier. A player with -0.1 spell mana cost has 10% reduced mana costs
-    val SPELL_MANA_COST: EntityAttribute = make("spell_mana_cost", 0.0, -100.0, 1000.0)
+    val SPELL_MANA_COST: EntityAttribute = make("spell_mana_cost", 1.0, 0.0, 10.0)
 
     //spell damage, acts as a multiplier. A player with -10.0 spell damage has 10% reduced damage
-    val SPELL_DAMAGE: EntityAttribute = make("spell_damage", 0.0, -100.0, 3200.0)
+    val SPELL_DAMAGE: EntityAttribute = make("spell_damage", 1.0, 0.0, 32.0)
 
     //spell amplifier, a flat addition. Any non-integer values of this attribute may not do anything.
     // A spell amplifier of 1.0 will add 1 to the status effect level/amplifier of applied effects
     val SPELL_AMPLIFIER: EntityAttribute = make("spell_amplifier", 0.0, 0.0, 32.0)
 
     //spell duration, acts as a multiplier. A player with 0.1 spell duration has 10% increased duration of spell effects
-    val SPELL_DURATION: EntityAttribute = make("spell_duration", 0.0, -100.0, 3200.0)
+    val SPELL_DURATION: EntityAttribute = make("spell_duration", 1.0, 0.0, 32.0)
 
     //spell range, acts as a multiplier. A player with -0.1 spell damage has 10% reduced damage
-    val SPELL_RANGE: EntityAttribute = make("spell_range", 0.0, -100.0, 500.0)
+    val SPELL_RANGE: EntityAttribute = make("spell_range", 1.0, 0.0, 5.0)
+
+    //spell range, acts as a multiplier. A player with -0.1 spell damage has 10% reduced damage
+    val SPELL_EXPERIENCE: EntityAttribute = make("spell_experience", 1.0, 0.0, 32.0)
 
     //damage multiplication, acts as a multiplier. Value of 0.1 will add 10% to the damage inflicted on the affected entity Max value will be a 3200x
-    val DAMAGE_MULTIPLICATION: EntityAttribute = make("damage_multiplication", 0.0, -1.0, 32.0)
+    val DAMAGE_MULTIPLICATION: EntityAttribute = make("damage_multiplication", 1.0, 0.0, 32.0)
+
+    //
+    val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
 
     fun registerAll(){
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
@@ -42,6 +48,9 @@ object RegisterAttribute {
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_amplifier"), SPELL_AMPLIFIER)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_duration"), SPELL_DURATION)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
+        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
+        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
+        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {

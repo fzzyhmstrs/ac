@@ -70,10 +70,10 @@ abstract class ScepterAugment(
             return false
         }
         val effectModifiers = AugmentEffect(
-            PerLvlF(0f,0f,user.getAttributeValue(RegisterAttribute.SPELL_DAMAGE).toFloat()),
+            PerLvlF(0f,0f,(user.getAttributeValue(RegisterAttribute.SPELL_DAMAGE).toFloat() - 1f) * 100f),
             PerLvlI(user.getAttributeValue(RegisterAttribute.SPELL_AMPLIFIER).toInt()),
-            PerLvlI(0,0,user.getAttributeValue(RegisterAttribute.SPELL_DURATION).toInt()),
-            PerLvlD(0.0,0.0,user.getAttributeValue(RegisterAttribute.SPELL_RANGE))
+            PerLvlI(0,0,(user.getAttributeValue(RegisterAttribute.SPELL_DURATION).toInt() - 1) * 100),
+            PerLvlD(0.0,0.0,(user.getAttributeValue(RegisterAttribute.SPELL_RANGE) - 1.0) * 100.0)
         )
         effectModifiers.plus(modifierData?.getEffectModifier()?: AugmentEffect())
         effectModifiers.plus(baseEffect)
