@@ -147,8 +147,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         val nbt = stack.nbt
         if (nbt != null) {
             val id = Nbt.getItemStackId(nbt)
-            if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) return
-            val activeEnchant = Identifier(nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()))
+            val activeEnchant = if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())) ModifierDefaults.BLANK_ID else Identifier(nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()))
             //println(getModifiers(stack))
             val compiled = gatherActiveAbstractModifiers(stack, activeEnchant, ModifierDefaults.BLANK_AUG_MOD.compiler())
             //println(compiled.modifiers)
