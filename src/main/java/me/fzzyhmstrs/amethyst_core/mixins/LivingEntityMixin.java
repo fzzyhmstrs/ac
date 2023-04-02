@@ -32,11 +32,12 @@ abstract class LivingEntityMixin {
                 .add(RegisterAttribute.INSTANCE.getSPELL_RANGE())
                 .add(RegisterAttribute.INSTANCE.getSPELL_EXPERIENCE())
                 .add(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION())
-                .add(RegisterAttribute.INSTANCE.getSHIELDING());
+                .add(RegisterAttribute.INSTANCE.getSHIELDING())
+                .add(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
     }
 
     @WrapOperation(method = "applyDamage", at = @At(value = "INVOKE", target = "net/minecraft/entity/LivingEntity.applyArmorToDamage (Lnet/minecraft/entity/damage/DamageSource;F)F"))
     private float amethyst_core_applyMultiplicationAttributeToDamage(LivingEntity instance, DamageSource source, float amount, Operation<Float> operation){
-        return operation.call(instance,source,amount) * ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()));
+        return operation.call(instance,source,amount * ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()))) ;
     }
 }

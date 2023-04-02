@@ -37,6 +37,9 @@ object RegisterAttribute {
     //damage multiplication, acts as a multiplier. Value of 0.1 will add 10% to the damage inflicted on the affected entity Max value will be a 3200x
     val DAMAGE_MULTIPLICATION: EntityAttribute = make("damage_multiplication", 1.0, 0.0, 32.0)
 
+    //Player experience bonus gained. every 1.0 in this attribute will be an extra 1 XP gained whenever a player entity gains XP.
+    val PLAYER_EXPERIENCE: EntityAttribute = make("player_experience", 0.0, 0.0, 10.0)
+
     //
     val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
 

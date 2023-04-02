@@ -11,6 +11,8 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
@@ -179,6 +181,9 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             ServerPlayConnectionEvents.JOIN.register {handler, _, _ ->
                 val player = handler.player
                 (player as SyncedRandomProviding).provider.sync(player)
+            }
+            ServerPlayerEvents.AFTER_RESPAWN.register {_,newPlayer,_ ->
+                (newPlayer as SyncedRandomProviding).provider.sync(newPlayer)
             }
         }
 
