@@ -70,8 +70,8 @@ dependencies {
     }
 
     val meVersion: String by project
-    implementation("com.github.LlamaLad7:MixinExtras:$meVersion")
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:$meVersion")
+    implementation("com.github.LlamaLad7.mixinextras:mixinextras-fabric:$meVersion")
+    annotationProcessor("com.github.LlamaLad7.mixinextras:mixinextras-fabric:$meVersion")
 
     val cpaVersion: String by project
     include(modImplementation("eu.pb4:common-protection-api:$cpaVersion"){
