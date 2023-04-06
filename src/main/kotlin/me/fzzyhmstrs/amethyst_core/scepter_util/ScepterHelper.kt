@@ -390,7 +390,7 @@ object ScepterHelper {
     }
 
     fun xpToNextLevel(xp: Int,lvl: Int): Int{
-        val xpNext = (2 * lvl * lvl + 40 * lvl)
+        val xpNext = calcXp(lvl)
         return (xpNext - xp + 1)
     }
 
