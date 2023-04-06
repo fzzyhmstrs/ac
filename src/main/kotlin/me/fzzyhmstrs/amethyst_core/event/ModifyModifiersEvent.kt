@@ -31,7 +31,7 @@ fun interface ModifyModifiersEvent {
             ModifyModifiersEvent {world,user,stack,modifiers ->
                 var checkedModifiers = modifiers
                 for (listener in listeners) {
-                    checkedModifiers = listener.modifyModifiers(world, user, stack, modifiers)
+                    checkedModifiers = listener.modifyModifiers(world, user, stack, checkedModifiers)
                 }
                 return@ModifyModifiersEvent checkedModifiers
             }
