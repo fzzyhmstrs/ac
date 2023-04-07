@@ -34,10 +34,6 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     private val DEFAULT_MODIFIER_TOLL = BinomialLootNumberProvider.create(25,0.24f)
     private val scepterAcceptableMap: MutableMap<Int,MutableList<ItemStack>> = mutableMapOf()
 
-    val TIER_1_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_one_spell_scepters"))
-    val TIER_2_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_two_spell_scepters"))
-    val TIER_3_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_three_spell_scepters"))
-
     fun addModifierForREI(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
         Nbt.makeItemStackId(stack)

@@ -110,6 +110,9 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         val stack = user.getStackInHand(hand)
         val item = stack.item
         if (item !is AbstractAugmentBookItem) return TypedActionResult.fail(stack)
+        if (stack.hasNbt() && stack.nbt?.contains(NbtKeys.LORE_KEY.str()) == true){
+            return useAfterWriting(stack, world, user, hand)
+        }
         //if (world !is ServerWorld) return TypedActionResult.fail(stack)
         do {
             val shouldOffer: Boolean
@@ -155,7 +158,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
     }
 
     open fun useAfterWriting(stack: ItemStack, world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack>{
-        return TypedActionResult.pass(stack)
+        return TypedActionResult.success(stack)
     }
 
     open fun getRandomBookAugment(list: List<String>, user: PlayerEntity, hand: Hand): String{
