@@ -53,6 +53,7 @@ object RegisterAttribute {
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
+        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
         Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
     }
 
