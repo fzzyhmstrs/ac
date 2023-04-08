@@ -39,11 +39,11 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
         return provider;
     }
 
-    @ModifyVariable(method = "addExperience", at = @At("LOAD"), argsOnly = true)
+    @ModifyVariable(method = "addExperience", at = @At(value = "LOAD", ordinal = 0), argsOnly = true)
     private int amethyst_core_modifyXpUsingAttribute(int original){
         int newXp = original;
-        double bonus = (int)((PlayerEntity)(Object) this).getAttributeValue(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
-        while (bonus > 1.0){
+        double bonus = ((PlayerEntity)(Object) this).getAttributeValue(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
+        while (bonus >= 1.0){
             newXp += 1;
             bonus -= 1.0;
         }
