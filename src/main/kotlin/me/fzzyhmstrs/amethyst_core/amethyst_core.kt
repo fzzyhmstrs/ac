@@ -7,9 +7,9 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PlaceItemAugment
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.registry.tag.TagKey
+import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 import kotlin.random.Random
 
 
@@ -18,9 +18,9 @@ object AC: ModInitializer {
     val acRandom = Random(System.currentTimeMillis())
     val fallbackId = Identifier("vanishing_curse")
 
-    val TIER_1_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_one_spell_scepters"))
-    val TIER_2_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_two_spell_scepters"))
-    val TIER_3_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_three_spell_scepters"))
+    val TIER_1_SPELL_SCEPTERS = TagKey.of(Registry.ITEM_KEY, Identifier(AC.MOD_ID,"tier_one_spell_scepters"))
+    val TIER_2_SPELL_SCEPTERS = TagKey.of(Registry.ITEM_KEY, Identifier(AC.MOD_ID,"tier_two_spell_scepters"))
+    val TIER_3_SPELL_SCEPTERS = TagKey.of(Registry.ITEM_KEY, Identifier(AC.MOD_ID,"tier_three_spell_scepters"))
 
     override fun onInitialize() {
         RegisterAttribute.registerAll()
