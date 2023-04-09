@@ -2,9 +2,9 @@ package me.fzzyhmstrs.amethyst_core.modifier_util
 
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.registry.Registries
 import net.minecraft.text.MutableText
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 
 class UniqueAugmentModifier(
     private val augmentId: Identifier,
@@ -21,7 +21,7 @@ class UniqueAugmentModifier(
 {
 
     private val enchant: Enchantment? by lazy {
-        Registries.ENCHANTMENT.get(augmentId)
+        Registry.ENCHANTMENT.get(augmentId)
     }
 
     override fun getTranslation(): MutableText {
