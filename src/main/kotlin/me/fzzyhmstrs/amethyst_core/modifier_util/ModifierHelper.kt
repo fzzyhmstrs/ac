@@ -114,14 +114,19 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         if ((context.isAdvanced && FcConfig.flavors.showFlavorDescOnAdvanced) || FcConfig.flavors.showFlavorDesc){
             modifierList.forEach {
                 val mod = getModifierByType(it)
-                val text = mod?.getTranslation()?:AcText.translatable(getTranslationKeyFromIdentifier(it))
-                val descText = mod?.getDescTranslation()?:AcText.translatable(getDescTranslationKeyFromIdentifier(it))
-                tooltip.add(text.formatted(Formatting.GOLD)
-                    .append(AcText.literal(" - ").formatted(Formatting.GOLD))
-                    .append(
-                        descText.formatted(Formatting.GOLD)
-                            .formatted(Formatting.ITALIC)
-                    ))
+                if (mod != null) {
+                    val text = mod.getTranslation()
+                    val descText =
+                        mod.getDescTranslation()
+                    tooltip.add(
+                        text.formatted(Formatting.GOLD)
+                            .append(AcText.literal(" - ").formatted(Formatting.GOLD))
+                            .append(
+                                descText.formatted(Formatting.GOLD)
+                                    .formatted(Formatting.ITALIC)
+                            )
+                    )
+                }
             }
             return
         }
