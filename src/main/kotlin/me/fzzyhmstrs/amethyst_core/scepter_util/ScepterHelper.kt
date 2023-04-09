@@ -296,7 +296,7 @@ object ScepterHelper {
             updateScepterAugments(scepter, scepterNbt)
         }
     }
-    
+
     private fun checkXpForLevelUp(xp:Int, lvl:Int): Int{
         var lvlUp = 0
         while (xp > calcXp(lvl + lvlUp)){
@@ -314,7 +314,7 @@ object ScepterHelper {
             ((4.5 * lvl * lvl) - (35.5 * lvl) + 648).toInt()
         }
     }
-    
+
     private fun updateScepterAugments(scepter: ItemStack, scepterNbt: NbtCompound){
         val enchantMap = EnchantmentHelper.get(scepter)
         for (e in enchantMap){
@@ -363,7 +363,7 @@ object ScepterHelper {
 
     fun resetCooldown(world: World, stack: ItemStack, user:LivingEntity, activeEnchantId: String, givenLevel: Int = 0){
         val nbt = stack.nbt?: return
-        val testEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
+        val testEnchant = Registry.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
         if (testEnchant !is ScepterAugment) return
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
         val modifiers = ModifierHelper.getActiveModifiers(stack)
