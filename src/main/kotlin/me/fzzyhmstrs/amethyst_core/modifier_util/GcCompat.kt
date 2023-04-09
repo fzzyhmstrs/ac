@@ -38,14 +38,14 @@ object GcCompat {
             for (stack1 in stacks) {
                 val chk = stack1.item
                 if (chk is ModifierTracking) {
-                    list.addAll(chk.getModifiers(stack1))
+                    list.addAll(chk.getModifiers(stack1, ModifierHelper.getType()))
                 }
             }
         }
         for(armor in entity.armorItems) {
             val chk = armor.item
             if (chk is ModifierTracking){
-                list.addAll(chk.getModifiers(armor))
+                list.addAll(chk.getModifiers(armor, ModifierHelper.getType()))
             }
         }
         if (list.isNotEmpty()){
