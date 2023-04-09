@@ -3,9 +3,8 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 
 object RegisterAttribute {
 
@@ -44,17 +43,17 @@ object RegisterAttribute {
     val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_cooldown"), SPELL_COOLDOWN)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_mana_cost"), SPELL_MANA_COST)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_damage"), SPELL_DAMAGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_amplifier"), SPELL_AMPLIFIER)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_duration"), SPELL_DURATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_cooldown"), SPELL_COOLDOWN)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_mana_cost"), SPELL_MANA_COST)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_damage"), SPELL_DAMAGE)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_amplifier"), SPELL_AMPLIFIER)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_duration"), SPELL_DURATION)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
