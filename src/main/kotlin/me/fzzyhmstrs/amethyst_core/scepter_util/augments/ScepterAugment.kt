@@ -35,7 +35,7 @@ abstract class ScepterAugment(
     private val tier: ScepterTier,
     private val maxLvl: Int)
     :
-    Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND))
+    Enchantment(Rarity.VERY_RARE,null, arrayOf(EquipmentSlot.MAINHAND))
 {
     
     open val baseEffect = AugmentEffect()
