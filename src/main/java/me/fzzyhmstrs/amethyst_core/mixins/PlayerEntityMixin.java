@@ -11,6 +11,7 @@ import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.network.encryption.PlayerPublicKey;
@@ -24,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEntity {
@@ -53,5 +55,13 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
             newXp += ((PlayerEntity)(Object) this).world.random.nextDouble() < bonus ? 1 : 0;
         }
         return newXp;
+    }
+
+    @Inject(
+            method = "createPlayerAttributes",
+            require = 1, allow = 1, at = @At("RETURN"))
+    private static void amethyst_core_addPlayerAttributes(final CallbackInfoReturnable<DefaultAttributeContainer.Builder> info) {
+        info.getReturnValue()
+                .add(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
     }
 }

@@ -39,8 +39,11 @@ object RegisterAttribute {
     //Player experience bonus gained. every 1.0 in this attribute will be an extra 1 XP gained whenever a player entity gains XP.
     val PLAYER_EXPERIENCE: EntityAttribute = make("player_experience", 0.0, 0.0, 10.0)
 
-    //
+    //shielding represents a fractional chance that damage is entirely blocked
     val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
+
+    //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection
+    val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
         Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
@@ -54,6 +57,7 @@ object RegisterAttribute {
         Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
         Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
         Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
+        Registry.register(Registry.ATTRIBUTE, Identifier(AC.MOD_ID, "magic_resistance"), MAGIC_RESISTANCE)
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
