@@ -91,7 +91,7 @@ object ScepterHelper {
         // Modify Modifiers event fires here //
         val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(stack))
         // Modify Spell Event fires here //
-        val result = ModifySpellEvent.EVENT.invoker().modifySpell(world,user,hand,modifiers)
+        val result = ModifySpellEvent.EVENT.invoker().modifySpell(spell,world,user,hand,modifiers)
         if (result == ActionResult.CONSUME) {
             useScepter(
                 activeEnchantId,
