@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.event
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
@@ -56,6 +57,6 @@ fun interface ModifySpellEvent {
     }
 
 
-    fun modifySpell(spell: ScepterAugment,world: World, user: LivingEntity, hand: Hand, modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>): ActionResult
+    fun modifySpell(spell: ScepterAugment, world: World, user: LivingEntity, hand: Hand, modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>): ActionResult
 
 }
