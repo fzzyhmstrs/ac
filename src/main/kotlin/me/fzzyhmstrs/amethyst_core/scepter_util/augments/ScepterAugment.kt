@@ -56,6 +56,8 @@ abstract class ScepterAugment(
      * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
      */
     abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
+    
+    abstract fun augmentType(): AugmentType
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedSpell: ScepterAugment? = null): Boolean{
         val aug = Registries.ENCHANTMENT.getId(this) ?: return false
