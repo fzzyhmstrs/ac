@@ -8,13 +8,15 @@ class ModificationInfo private constructor(
     val damageModificationType: ModificationType,
     val amplifierModificationType: ModificationType,
     val durabilityModificationType: ModificationType,
-    val rangeModificationType: ModificationType
+    val rangeModificationType: ModificationType,
+    val damageSourceModificationType: ModificationType
 ) {
 
     companion object{
         fun empty(): ModificationInfo{
             return ModificationInfo(ModificationType.DEFER,PerLvlI(),
                                     1f,
+                                    ModificationType.DEFER,
                                     ModificationType.DEFER,
                                     ModificationType.DEFER,
                                     ModificationType.DEFER,
