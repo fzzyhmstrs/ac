@@ -4,27 +4,35 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.*
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
 import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
-import net.minecraft.enchantment.Enchantment
-import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.particle.ParticleEffect
+import net.minecraft.particle.ParticleTypes
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
+import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 /**
@@ -35,33 +43,19 @@ abstract class ScepterAugment(
     private val tier: ScepterTier,
     private val maxLvl: Int)
     :
-    Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND))
+    BaseScepterAugment()
 {
     
     open val baseEffect = AugmentEffect()
-    val id: Identifier? by lazy {
-        Registries.ENCHANTMENT.getId(this)
-    }
-    val augmentSpecificModifier: AugmentModifier by lazy {
-        generateUniqueModifier()
-    }
-
-    /**
-     * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
-     */
-    abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean
+    open val modificationEffect = AugmentEffect()
+    open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
 
     /**
      * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
      */
     abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
 
-    open fun generateUniqueModifier(): AugmentModifier{
-        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-15.0,false)
-        return UniqueAugmentModifier(augId,2,-25.0,-15.0)
-    }
-
-    fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean{
+    fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedSpell: ScepterAugment? = null): Boolean{
         val aug = Registries.ENCHANTMENT.getId(this) ?: return false
         if (!AugmentHelper.getAugmentEnabled(aug.toString())) {
             if (user is PlayerEntity){
@@ -69,19 +63,13 @@ abstract class ScepterAugment(
             }
             return false
         }
-        val effectModifiers = AugmentEffect(
-            PerLvlF(0f,0f,(user.getAttributeValue(RegisterAttribute.SPELL_DAMAGE).toFloat() - 1f) * 100f),
-            PerLvlI(user.getAttributeValue(RegisterAttribute.SPELL_AMPLIFIER).toInt()),
-            PerLvlI(0,0,(user.getAttributeValue(RegisterAttribute.SPELL_DURATION).toInt() - 1) * 100),
-            PerLvlD(0.0,0.0,(user.getAttributeValue(RegisterAttribute.SPELL_RANGE) - 1.0) * 100.0)
-        )
-        effectModifiers.plus(modifierData?.getEffectModifier()?: AugmentEffect())
-        effectModifiers.plus(baseEffect)
-        val bl = applyTasks(world,user,hand,level,effectModifiers)
+        val pairedAugments = PairedAugments(this,pairedSpell)
+        val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
+        val bl = applyTasks(world,user,hand,level,effectModifiers,pairedAugments)
         if (bl) {
             modifiers.forEach {
                 if (it.hasSecondaryEffect()) {
-                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), null)
+                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier())
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
@@ -89,6 +77,11 @@ abstract class ScepterAugment(
         }
         return bl
     }
+
+    /**
+     * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
+     */
+    abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): Boolean
 
     /**
      * If your scepter has some client side effects/tasks, extend them here. This can be something like adding visual effects, or affecting a GUI, and so on.
@@ -102,11 +95,76 @@ abstract class ScepterAugment(
     open fun entityTask(world: World, target: Entity, user: LivingEntity, level: Double, hit: HitResult?, effects: AugmentEffect){
     }
 
+    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity,hand: Hand,level: Int, effects: AugmentEffect): ActionResult{
+        return ActionResult.PASS
+    }
+    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity,hand: Hand,level: Int, effects: AugmentEffect): ActionResult{
+        return ActionResult.PASS
+    }
+
+    open fun damageModificationType(): ModificationType{
+        return ModificationType.DEFER
+    }
+    open fun amplifierModificationType(): ModificationType{
+        return ModificationType.DEFER
+    }
+    open fun durationModificationType(): ModificationType{
+        return ModificationType.DEFER
+    }
+    open fun rangeModificationType(): ModificationType{
+        return ModificationType.DEFER
+    }
+
     /**
      * This method defines the sound that plays when the spell is cast. override this with your preferred sound event
      */
     open fun soundEvent(): SoundEvent {
         return SoundEvents.BLOCK_BEACON_ACTIVATE
+    }
+
+    open fun castSoundEvent(world: World, blockPos: BlockPos){
+    }
+    open fun hitSoundEvent(world: World, blockPos: BlockPos){
+    }
+    open fun castParticleType(): ParticleEffect {
+        return ParticleTypes.CRIT
+    }
+    open fun hitParticleType(hit: HitResult): ParticleEffect {
+        return ParticleTypes.CRIT
+    }
+
+    fun augmentName(nbt: NbtCompound, level: Int): Text{
+        val spell = ScepterHelper.getPairedSpell(nbt)
+        return augmentName(spell,level)
+    }
+    open fun augmentName(pairedSpell: ScepterAugment?, level: Int): Text{
+        return getName(level)
+    }
+    open fun provideNoun(): Text{
+        return AcText.translatable(getTranslationKey() + ".noun")
+    }
+    open fun provideVerb(): Text{
+        return AcText.translatable(getTranslationKey() + ".verb")
+    }
+    open fun provideAdjective(): Text{
+        return AcText.translatable(getTranslationKey() + ".adjective")
+    }
+
+    open fun getAugmentMaxLevel(): Int{
+        return maxLvl
+    }
+    override fun isAcceptableItem(stack: ItemStack): Boolean {
+        return stack.isIn(tier.tag)
+    }
+    fun getTier(): Int{
+        return tier.tier
+    }
+    fun getTag(): TagKey<Item>{
+        return tier.tag
+    }
+    fun getPvpMode(): Boolean{
+        val id = Registries.ENCHANTMENT.getId(this)?:return false
+        return AugmentHelper.getAugmentPvpMode(id.toString())
     }
 
     protected fun toLivingEntityList(list: List<Entity>): List<LivingEntity>{
@@ -117,52 +175,6 @@ abstract class ScepterAugment(
             }
         }
         return newList
-    }
-
-    override fun getMinPower(level: Int): Int {
-        return 30
-    }
-
-    override fun getMaxPower(level: Int): Int {
-        return 50
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    open fun getAugmentMaxLevel(): Int{
-        return maxLvl
-    }
-
-    override fun isTreasure(): Boolean {
-        return true
-    }
-
-    override fun isAvailableForEnchantedBookOffer(): Boolean {
-        return false
-    }
-
-    override fun isAvailableForRandomSelection(): Boolean {
-        return false
-    }
-
-
-    override fun isAcceptableItem(stack: ItemStack): Boolean {
-        return stack.isIn(tier.tag)
-    }
-
-    fun getTier(): Int{
-        return tier.tier
-    }
-
-    fun getTag(): TagKey<Item>{
-        return tier.tag
-    }
-
-    fun getPvpMode(): Boolean{
-        val id = Registries.ENCHANTMENT.getId(this)?:return false
-        return AugmentHelper.getAugmentPvpMode(id.toString())
     }
 
     companion object{
@@ -258,8 +270,13 @@ abstract class ScepterAugment(
                 ns
             }
             val configuredStats = readOrCreateUpdated(file, oldFile,"augments", base, configClass = {configClass}, previousClass = {AugmentStatsV1()})
-            val config = AugmentConfig(file,configuredStats)
+            @Suppress("UNUSED_VARIABLE") val config = AugmentConfig(file,configuredStats)
             return configuredStats
         }
+    }
+
+
+    fun interface DamageProviderFunction{
+        fun provideDamageSource(dealer: LivingEntity, source: Entity): DamageSource
     }
 }

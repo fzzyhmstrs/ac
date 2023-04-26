@@ -72,6 +72,11 @@ abstract class AugmentScepterItem(
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
+        val pairedEnchantId: String? = getPairedEnchant(stack)
+        if (pairedEnchantId != null) {
+            val pairedEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(pairedEnchantId)) ?: return resetCooldown(stack, world, user, activeEnchantId)
+            if (pairedEnchant !is ScepterAugment) return resetCooldown(stack, world, user, activeEnchantId)
+        }
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 
@@ -91,7 +96,7 @@ abstract class AugmentScepterItem(
                     }
                 }
             }
-            return clientUse(world, user, hand, stack, activeEnchantId, testEnchant, testLevel)
+            return clientUse(world, user, hand, stack, activeEnchantId,pairedEnchantId, testEnchant, testLevel)
         } else {
             if (!stack2.isEmpty) {
                 if (stack2.item is BlockItem) {
@@ -106,7 +111,7 @@ abstract class AugmentScepterItem(
                     }
                 }
             }
-            return serverUse(world, user, hand, stack, activeEnchantId, testEnchant, testLevel)
+            return serverUse(world, user, hand, stack, activeEnchantId,pairedEnchantId, testEnchant, testLevel)
         }
     }
 
@@ -116,14 +121,15 @@ abstract class AugmentScepterItem(
         hand: Hand,
         stack: ItemStack,
         activeEnchantId: String,
+        pairedEnchantId: String?,
         spell: ScepterAugment,
         testLevel: Int
     ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
-        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
+        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,pairedEnchantId,testLevel,this)
     }
     @Suppress("UNUSED_PARAMETER")
-    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
-                          activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
+    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
+                           pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }
@@ -188,6 +194,15 @@ abstract class AugmentScepterItem(
         } else {
             initializeScepter(stack,nbt)
             nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+        }
+    }
+
+    fun getPairedEnchant(stack: ItemStack): String?{
+        val nbt: NbtCompound = stack.orCreateNbt
+        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ACTIVE_PAIRED_ENCHANT.str())){
+            nbt.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ACTIVE_PAIRED_ENCHANT.str())
+        } else {
+            null
         }
     }
 }

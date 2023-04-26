@@ -13,9 +13,11 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 interface ModifiableEffectEntity {
 
     var entityEffects: AugmentEffect
+    var level: Int
 
     fun passEffects(ae: AugmentEffect, level: Int){
-        entityEffects.setConsumers(ae)
+        entityEffects = AugmentEffect().plus(ae)
+        this.level = level
     }
 
 }

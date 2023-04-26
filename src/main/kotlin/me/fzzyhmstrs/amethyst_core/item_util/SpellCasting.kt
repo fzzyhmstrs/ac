@@ -10,15 +10,15 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 interface SpellCasting {
-    fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack, activeEnchantId: String, spell: ScepterAugment, testLevel: Int)
+    fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack, activeEnchantId: String, pairedEnchantId: String?, spell: ScepterAugment, testLevel: Int)
     : TypedActionResult<ItemStack>
     where T: LivingEntity,
     T: SpellCastingEntity
     {
-        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
+        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,pairedEnchantId,testLevel,this)
     }
-    fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
-                  activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
+    fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
+                  pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }

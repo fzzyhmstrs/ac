@@ -76,70 +76,84 @@ data class AugmentEffect(
     fun withDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentEffect {
         return this.copy(damageData = PerLvlF(damage, damagePerLevel, damagePercent))
     }
-    fun addDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F){
+    fun addDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentEffect{
         damageData.plus(PerLvlF(damage, damagePerLevel, damagePercent))
+        return this
     }
-    fun addDamage(ae: AugmentEffect){
+    fun addDamage(ae: AugmentEffect): AugmentEffect{
         damageData.plus(ae.damageData)
+        return this
     }
-    fun setDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F){
+    fun setDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentEffect{
         damageData = PerLvlF(damage, damagePerLevel, damagePercent)
+        return this
     }
     fun withAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect {
         return this.copy(amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent))
     }
-    fun addAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0){
+    fun addAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect{
         amplifierData.plus(PerLvlI(amplifier, amplifierPerLevel, amplifierPercent))
+        return this
     }
-    fun addAmplifier(ae: AugmentEffect){
+    fun addAmplifier(ae: AugmentEffect): AugmentEffect{
         amplifierData.plus(ae.amplifierData)
+        return this
     }
-    fun setAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0){
+    fun setAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect{
         amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent)
+        return this
     }
     fun withDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentEffect {
         return this.copy(durationData = PerLvlI(duration, durationPerLevel, durationPercent))
     }
-    fun addDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0){
+    fun addDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentEffect{
         durationData.plus(PerLvlI(duration, durationPerLevel, durationPercent))
+        return this
     }
-    fun addDuration(ae: AugmentEffect){
+    fun addDuration(ae: AugmentEffect): AugmentEffect{
         durationData.plus(ae.durationData)
+        return this
     }
-    fun setDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0){
+    fun setDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentEffect{
         durationData = PerLvlI(duration, durationPerLevel, durationPercent)
+        return this
     }
     fun withRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect {
         return this.copy(rangeData = PerLvlD(range, rangePerLevel, rangePercent))
     }
-    fun addRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0){
+    fun addRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect{
         rangeData.plus(PerLvlD(range, rangePerLevel, rangePercent))
+        return this
     }
-    fun addRange(ae: AugmentEffect){
+    fun addRange(ae: AugmentEffect): AugmentEffect{
         rangeData.plus(ae.rangeData)
+        return this
     }
-    fun setRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0){
+    fun setRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect{
         rangeData = PerLvlD(range, rangePerLevel, rangePercent)
+        return this
     }
     fun withConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentEffect {
         addConsumer(consumer, type)
         return this
     }
-    fun addConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type){
+    fun addConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentEffect{
         consumers.put(type,AugmentConsumer(consumer, type))
+        return this
     }
-    fun addConsumers(list: List<AugmentConsumer>){
+    fun addConsumers(list: List<AugmentConsumer>): AugmentEffect{
         list.forEach {
             consumers.put(it.type,AugmentConsumer(it.consumer, it.type))
-
-
         }
+        return this
     }
-    fun setConsumers(list: MutableList<AugmentConsumer>, type: AugmentConsumer.Type){
+    fun setConsumers(list: MutableList<AugmentConsumer>, type: AugmentConsumer.Type): AugmentEffect{
         consumers[type].clear()
         consumers.putAll(type,list)
+        return this
     }
-    fun setConsumers(ae: AugmentEffect){
+    fun setConsumers(ae: AugmentEffect): AugmentEffect{
         consumers = ae.consumers
+        return this
     }
 }

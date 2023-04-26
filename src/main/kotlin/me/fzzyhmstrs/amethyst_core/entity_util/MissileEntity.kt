@@ -3,6 +3,9 @@ package me.fzzyhmstrs.amethyst_core.entity_util
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
+import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -13,6 +16,8 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
@@ -31,8 +36,8 @@ import net.minecraft.world.World
 
 open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity {
 
-    constructor(world: World,owner: LivingEntity,_pierce: Boolean) : this(RegisterBaseEntity.MISSILE_ENTITY,world){
-        this.pierce = _pierce
+    constructor(world: World,owner: LivingEntity,augments: PairedAugments) : this(RegisterBaseEntity.MISSILE_ENTITY,world){
+        this.augment = augments
         this.owner = owner
         this.setPosition(
             owner.x,
@@ -42,14 +47,12 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         this.setRotation(owner.yaw, owner.pitch)
     }
 
-    private var pierce: Boolean = false
-    override var entityEffects: AugmentEffect = AugmentEffect().withDamage(3.0F)
-    open val maxAge = 200
+    var augment: PairedAugments = PairedAugments()
 
-    override fun passEffects(ae: AugmentEffect, level: Int) {
-        super.passEffects(ae, level)
-        entityEffects.setDamage(ae.damage(level))
-    }
+    override var entityEffects: AugmentEffect = AugmentEffect()
+    override var level: Int = 0
+    open val maxAge = 200
+    open val colorData = ColorData()
 
     override fun initDataTracker() {}
 
@@ -90,28 +93,15 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
         super.onEntityHit(entityHitResult)
+        onMissileEntityHit(entityHitResult)
+        discard()
+    }
+
+    open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            val entity2 = entityHitResult.entity
-            val bl: Boolean = if(pierce){
-                entity2.damage(
-                    DamageSource.magic(this, entity).setProjectile(),
-                    entityEffects.damage(0)
-                )
-            } else {
-                entity2.damage(
-                    DamageSource.thrownProjectile(this, entity).setProjectile(),
-                    entityEffects.damage(0)
-                )
-            }
-            if (bl) {
-                applyDamageEffects(entity, entity2)
-                if (entity2 is LivingEntity) {
-                    entityEffects.accept(entity2, AugmentConsumer.Type.HARMFUL)
-                }
-            }
+            augment.processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
         }
-        discard()
     }
 
     override fun onBlockHit(blockHitResult: BlockHitResult) {
@@ -121,14 +111,10 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
-    }
-
-    override fun writeCustomDataToNbt(nbt: NbtCompound) {
-        super.writeCustomDataToNbt(nbt)
-    }
-
-    override fun readCustomDataFromNbt(nbt: NbtCompound) {
-        super.readCustomDataFromNbt(nbt)
+        val entity = owner
+        if (entity is LivingEntity) {
+            augment.processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+        }
     }
 
     override fun damage(source: DamageSource, amount: Float): Boolean {
@@ -144,7 +130,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     override fun getParticleType(): ParticleEffect? {
-        return ParticleTypes.CRIT
+        return augment.getCastParticleType()
     }
 
     override fun onSpawnPacket(packet: EntitySpawnS2CPacket) {
@@ -156,31 +142,15 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     open fun addParticles(x2: Double, y2: Double, z2: Double){
+        val particleWorld = world
+        if (particleWorld !is ServerWorld) return
         if (this.isTouchingWater) {
-            for (i in 0..2) {
-                world.addParticle(
-                    ParticleTypes.BUBBLE,
-                    this.x + x2 * (world.random.nextFloat()-0.5f),
-                    this.y + y2 * (world.random.nextFloat()-0.5f),
-                    this.z + z2 * (world.random.nextFloat()-0.5f),
-                    0.0,
-                    0.0,
-                    0.0
-                )
-            }
+                particleWorld.spawnParticles(ParticleTypes.BUBBLE,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         } else {
-            for (i in 0..2) {
-                world.addParticle(
-                    particleType,
-                    this.x + x2 * (world.random.nextFloat()-0.5f),
-                    this.y + y2 * (world.random.nextFloat()-0.5f),
-                    this.z + z2 * (world.random.nextFloat()-0.5f),
-                    0.0,
-                    0.0,
-                    0.0
-                )
-            }
+            particleWorld.spawnParticles(particleType,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         }
     }
+
+    class ColorData(val r: Float = 1.0f, val g: Float = 1.0f, val b: Float = 1.0f, val downScale: Float = 0.5f, val upScale: Float = 1.5f)
 
 }

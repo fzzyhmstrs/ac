@@ -113,6 +113,11 @@ object AugmentHelper {
         if(!augmentStats.containsKey(id)) return DEFAULT_COOLDOWN
         return (augmentStats[id]?.cooldown) ?: DEFAULT_COOLDOWN
     }
+    private val DEFAULT_MODIFICATION_INFO = ModificationInfo.empty()
+    fun getAugmentModificationInfo(id: String): ModificationInfo{
+        if(!augmentStats.containsKey(id)) return DEFAULT_MODIFICATION_INFO
+        return (augmentStats[id]?.modificationInfo) ?: DEFAULT_MODIFICATION_INFO
+    }
     fun getAugmentImbueLevel(id: String): Int{
         if(!augmentStats.containsKey(id)) return (1)
         val cd = (augmentStats[id]?.imbueLevel) ?: 1

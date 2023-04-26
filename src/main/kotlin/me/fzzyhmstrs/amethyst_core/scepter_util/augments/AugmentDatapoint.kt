@@ -37,7 +37,8 @@ data class AugmentDatapoint(val type: SpellType,
                             val bookOfLoreTier: LoreTier = LoreTier.NO_TIER,
                             val keyItem: Item = Items.AIR,
                             val enabled: Boolean = true,
-                            val pvpMode: Boolean = false
+                            val pvpMode: Boolean = false,
+                            val modificationInfo: ModificationInfo = ModificationInfo.empty()
 ){
 
     constructor(type: SpellType = SpellType.NULL,
@@ -49,8 +50,9 @@ data class AugmentDatapoint(val type: SpellType,
                 bookOfLoreTier: LoreTier = LoreTier.NO_TIER,
                 keyItem: Item = Items.AIR,
                 enabled: Boolean = true,
-                pvpMode: Boolean = false)
+                pvpMode: Boolean = false,
+                modificationInfo: ModificationInfo = ModificationInfo.empty())
             :
-            this(type,PerLvlI(cooldown),manaCost, minLvl, imbueLevel, castXp, bookOfLoreTier, keyItem, enabled, pvpMode)
+            this(type,PerLvlI(cooldown),manaCost, minLvl, imbueLevel, castXp, bookOfLoreTier, keyItem, enabled, pvpMode, modificationInfo)
 
 }

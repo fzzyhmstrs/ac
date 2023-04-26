@@ -15,16 +15,6 @@ enum class NbtKeys {
             return "angelic"
         }
     },
-    ALTAR_KEY{
-        override fun str(): String {
-            return "altar_used"
-        }
-    },
-    ALTAR_KEY_1{
-        override fun str(): String {
-            return "altar_used_1"
-        }
-    },
     MAX_XP{
         override fun str(): String {
             return "max_xp"
@@ -61,64 +51,14 @@ enum class NbtKeys {
             return "disenchant_count"
         }
     },
-    LOCK_POS{
+    ACTIVE_PAIRED_ENCHANT{
         override fun str(): String {
-            return "lock_pos"
+            return "active_paired_enchant_id"
         }
     },
-    LOCKS{
+    PAIRED_ENCHANT{
         override fun str(): String {
-            return "switch_locks"
-        }
-    },
-    DOORS{
-        override fun str(): String {
-            return "switch_doors"
-        }
-    },
-    DOOR_POS{
-        override fun str(): String {
-            return "door_pos"
-        }
-    },
-    KEY_ITEM{
-        override fun str(): String {
-            return "key_item"
-        }
-    },
-    HELD_ITEM{
-        override fun str(): String {
-            return "held_item"
-        }
-    },
-    KEY_NUM{
-        override fun str(): String {
-            return "key_num"
-        }
-    },
-    PORTAL_KEY{
-        override fun str(): String {
-            return "portal_key"
-        }
-    },
-    FRAME_LIST{
-        override fun str(): String {
-            return "frame_list"
-        }
-    },
-    FRAME_POS{
-        override fun str(): String {
-            return "frame_pos"
-        }
-    },
-    PORTAL_LIST{
-        override fun str(): String {
-            return "portal_list"
-        }
-    },
-    PORTAL_POS{
-        override fun str(): String {
-            return "portal_pos"
+            return "paired_enchant_id"
         }
     };
 

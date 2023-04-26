@@ -20,7 +20,7 @@ import net.minecraft.util.math.RotationAxis
  * The color and overall scales of the entity can be set directly in the constructor.
  */
 @Suppress("PrivatePropertyName", "SpellCheckingInspection")
-class MissileEntityRenderer(context: EntityRendererFactory.Context, val r: Float = 1.0f, val g: Float = 1.0f, val b: Float = 1.0f, val downScale: Float = 0.5f, val upScale: Float = 1.5f): EntityRenderer<MissileEntity>(context) {
+class MissileEntityRenderer(context: EntityRendererFactory.Context): EntityRenderer<MissileEntity>(context) {
 
 
     private val TEXTURE = Identifier("textures/entity/shulker/spark.png")
@@ -45,10 +45,10 @@ class MissileEntityRenderer(context: EntityRendererFactory.Context, val r: Float
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MathHelper.sin(k * 0.1f) * 180.0f))
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(MathHelper.cos(k * 0.1f) * 180.0f))
         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(k * 0.15f) * 360.0f))
-        matrixStack.scale(-downScale, -downScale, downScale)
+        matrixStack.scale(-missileEntity.colorData.downScale, -missileEntity.colorData.downScale, missileEntity.colorData.downScale)
         val vertexConsumer = vertexConsumerProvider.getBuffer(model.getLayer(TEXTURE))
-        model.render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, r, g, b, 1.0f)
-        matrixStack.scale(upScale, upScale, upScale)
+        model.render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, missileEntity.colorData.r, missileEntity.colorData.g, missileEntity.colorData.b, 1.0f)
+        matrixStack.scale(missileEntity.colorData.upScale, missileEntity.colorData.upScale, missileEntity.colorData.upScale)
         val vertexConsumer2 = vertexConsumerProvider.getBuffer(LAYER)
         model.render(matrixStack, vertexConsumer2, i, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, 0.15f)
         matrixStack.pop()
