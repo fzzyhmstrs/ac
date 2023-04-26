@@ -50,6 +50,7 @@ abstract class ScepterAugment(
     open val baseEffect = AugmentEffect()
     open val modificationEffect = AugmentEffect()
     open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
+    var augmentData: AugmentDatapoint = augmentStat(1)
 
     /**
      * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
@@ -76,7 +77,7 @@ abstract class ScepterAugment(
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
             AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand),bl.value, this)
         }
-        return bl
+        return bl.result.isAccepted()
     }
 
     /**
@@ -90,30 +91,26 @@ abstract class ScepterAugment(
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
 
-    /**
-     * optional open method that you can use for applying effects to secondary entities. See Amethyst Imbuements Freezing augment for an example.
-     */
-    open fun entityTask(world: World, target: Entity, user: LivingEntity, level: Double, hit: HitResult?, effects: AugmentEffect){
-    }
-
-    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity,hand: Hand,level: Int, effects: AugmentEffect): ActionResult{
+    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
         return ActionResult.PASS
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity,hand: Hand,level: Int, effects: AugmentEffect): ActionResult{
+    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
         return ActionResult.PASS
     }
+    open fun onEntityKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
+        return ActionResult.PASS
+    }
+    open fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+        return amount
+    }
+    open fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
+        return damageSource.provideDamageSource(user,source)
+    }
+    open fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+    }
 
-    open fun damageModificationType(): ModificationType{
-        return ModificationType.DEFER
-    }
-    open fun amplifierModificationType(): ModificationType{
-        return ModificationType.DEFER
-    }
-    open fun durationModificationType(): ModificationType{
-        return ModificationType.DEFER
-    }
-    open fun rangeModificationType(): ModificationType{
-        return ModificationType.DEFER
+    fun modificationInfo(): ModificationInfo{
+        return augmentData.modificationInfo
     }
 
     /**
@@ -164,8 +161,7 @@ abstract class ScepterAugment(
         return tier.tag
     }
     fun getPvpMode(): Boolean{
-        val id = Registries.ENCHANTMENT.getId(this)?:return false
-        return AugmentHelper.getAugmentPvpMode(id.toString())
+        return augmentData.pvpMode
     }
 
     protected fun toLivingEntityList(list: List<Entity>): List<LivingEntity>{
@@ -194,16 +190,19 @@ abstract class ScepterAugment(
 
             override fun readFromServer(buf: PacketByteBuf) {
                 augmentStats = gson.fromJson(buf.readString(), AugmentStats::class.java).validate()
-                val currentDataPoint = AugmentHelper.getAugmentDatapoint(augmentStats.id)
-                val newDataPoint = currentDataPoint.copy(
-                    cooldown = augmentStats.getCooldown(),
-                    manaCost = augmentStats.manaCost,
-                    minLvl = augmentStats.minLvl,
-                    castXp = augmentStats.castXp,
-                    enabled = augmentStats.enabled,
-                    pvpMode = augmentStats.pvpMode
-                )
-                AugmentHelper.registerAugmentStat(augmentStats.id, newDataPoint,true)
+                val augment = Registries.ENCHANTMENT.get(Identifier(id))
+                if (augment != null && augment is ScepterAugment){
+                    val currentDataPoint = augment.augmentData
+                    val newDataPoint = currentDataPoint.copy(
+                        cooldown = augmentStats.getCooldown(),
+                        manaCost = augmentStats.manaCost,
+                        minLvl = augmentStats.minLvl,
+                        castXp = augmentStats.castXp,
+                        enabled = augmentStats.enabled,
+                        pvpMode = augmentStats.pvpMode
+                    )
+                    augment.augmentData = newDataPoint
+                }
             }
 
             override fun writeToClient(buf: PacketByteBuf) {
@@ -278,6 +277,6 @@ abstract class ScepterAugment(
 
 
     fun interface DamageProviderFunction{
-        fun provideDamageSource(dealer: LivingEntity, source: Entity): DamageSource
+        fun provideDamageSource(dealer: LivingEntity, source: Entity?): DamageSource
     }
 }
