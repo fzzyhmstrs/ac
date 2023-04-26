@@ -13,7 +13,12 @@ class ModificationInfo private constructor(
 
     companion object{
         fun empty(): ModificationInfo{
-            return ModificationInfo(ModificationType.DEFER,PerLvlI(),1f)
+            return ModificationInfo(ModificationType.DEFER,PerLvlI(),
+                                    1f,
+                                    ModificationType.DEFER,
+                                    ModificationType.DEFER,
+                                    ModificationType.DEFER,
+                                    ModificationType.DEFER)
         }
 
     }
