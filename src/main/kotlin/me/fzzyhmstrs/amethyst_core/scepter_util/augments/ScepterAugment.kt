@@ -140,13 +140,13 @@ abstract class ScepterAugment(
     open fun augmentName(pairedSpell: ScepterAugment?, level: Int): Text{
         return getName(level)
     }
-    open fun provideNoun(): Text{
+    open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")
     }
-    open fun provideVerb(): Text{
+    open fun provideVerb(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".verb")
     }
-    open fun provideAdjective(): Text{
+    open fun provideAdjective(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".adjective")
     }
 
