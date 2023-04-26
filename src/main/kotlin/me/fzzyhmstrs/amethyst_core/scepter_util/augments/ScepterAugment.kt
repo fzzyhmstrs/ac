@@ -33,6 +33,7 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 /**
@@ -66,14 +67,14 @@ abstract class ScepterAugment(
         val pairedAugments = PairedAugments(this,pairedSpell)
         val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
         val bl = applyTasks(world,user,hand,level,effectModifiers,pairedAugments)
-        if (bl) {
+        if (bl.result.isAccepted()) {
             modifiers.forEach {
                 if (it.hasSecondaryEffect()) {
                     it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier())
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
-            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand), this)
+            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand),bl.value, this)
         }
         return bl
     }
