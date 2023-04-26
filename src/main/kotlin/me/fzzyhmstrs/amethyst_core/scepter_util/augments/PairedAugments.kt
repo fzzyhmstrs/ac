@@ -70,13 +70,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             Type.EMPTY ->
                 effectModifiers
             Type.PAIRED -> {
-                when (augments[1].damageModificationType()){
+                when (augments[1].modificationInfo().damageModificationType){
                     ModificationType.DEFER ->
                         effectModifiers.addDamage(augments[0].baseEffect)
                     ModificationType.MODIFY ->
                         effectModifiers.addDamage(augments[0].baseEffect).addDamage(augments[1].modificationEffect)
                     ModificationType.REPLACE ->
-                        when(augments[0].damageModificationType()){
+                        when(augments[0].modificationInfo().damageModificationType){
                             ModificationType.DEFER ->
                                 effectModifiers.addDamage(augments[1].baseEffect)
                             ModificationType.MODIFY ->
@@ -85,13 +85,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                                 effectModifiers.addDamage(augments[1].baseEffect)
                         }
                 }
-                when (augments[1].amplifierModificationType()){
+                when (augments[1].modificationInfo().amplifierModificationType){
                     ModificationType.DEFER ->
                         effectModifiers.addAmplifier(augments[0].baseEffect)
                     ModificationType.MODIFY ->
                         effectModifiers.addAmplifier(augments[0].baseEffect).addAmplifier(augments[1].modificationEffect)
                     ModificationType.REPLACE ->
-                        when(augments[0].amplifierModificationType()){
+                        when(augments[0].modificationInfo().amplifierModificationType){
                             ModificationType.DEFER ->
                                 effectModifiers.addAmplifier(augments[1].baseEffect)
                             ModificationType.MODIFY ->
@@ -100,13 +100,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                                 effectModifiers.addAmplifier(augments[1].baseEffect)
                         }
                 }
-                when (augments[1].durationModificationType()){
+                when (augments[1].modificationInfo().durationModificationType){
                     ModificationType.DEFER ->
                         effectModifiers.addDuration(augments[0].baseEffect)
                     ModificationType.MODIFY ->
                         effectModifiers.addDuration(augments[0].baseEffect).addDuration(augments[1].modificationEffect)
                     ModificationType.REPLACE ->
-                        when(augments[0].durationModificationType()){
+                        when(augments[0].modificationInfo().durationModificationType){
                             ModificationType.DEFER ->
                                 effectModifiers.addDuration(augments[1].baseEffect)
                             ModificationType.MODIFY ->
@@ -115,13 +115,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                                 effectModifiers.addDuration(augments[1].baseEffect)
                         }
                 }
-                when (augments[1].rangeModificationType()){
+                when (augments[1].modificationInfo().rangeModificationType){
                     ModificationType.DEFER ->
                         effectModifiers.addRange(augments[0].baseEffect)
                     ModificationType.MODIFY ->
                         effectModifiers.addRange(augments[0].baseEffect).addRange(augments[1].modificationEffect)
                     ModificationType.REPLACE ->
-                        when(augments[0].rangeModificationType()){
+                        when(augments[0].modificationInfo().rangeModificationType){
                             ModificationType.DEFER ->
                                 effectModifiers.addRange(augments[1].baseEffect)
                             ModificationType.MODIFY ->
@@ -147,6 +147,41 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         for (augment in augments){
             val result = augment.onBlockHit(blockHitResult, world, user,hand,level, effects)
             if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+        }
+    }
+    
+    fun processOnKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        for (augment in augments){
+            val result = augment.onEntityKill(entityHitResult, world, user,hand,level, effects)
+            if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+        }
+    }
+    
+    fun modifyDamage(amount: Float,entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+        if (type == Type.PAIRED){
+            return augments[1].modifyDamage(entityHitResult, amount, user, world, hand, level, effects)
+        }
+        return amount
+    }
+    
+    fun provideDamageSource(entityHitResult: EntityHitResult,source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
+        return when (type){
+            Type.SINGLE ->
+                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects)
+            Type.EMPTY ->
+                DamageSource.GENERIC
+            Type.PAIRED ->
+                when (augments[1].modificationInfo().damageSourceModificationType){
+                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
+                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
+                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
+                }
+        }
+    }
+    
+    fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+        if (type == Type.PAIRED){
+            augments[1].modifySummons(summon, user, world, hand, level, effects)
         }
     }
 
