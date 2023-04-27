@@ -11,6 +11,7 @@ class AugmentType{
         val AOE_POSITIVE = AugmentType()
         val AOE_NEGATIVE = AugmentType()
         val SUMMON = AugmentType()
+        val BLOCK_TARGET = AugmentType()
     }
 
 }
