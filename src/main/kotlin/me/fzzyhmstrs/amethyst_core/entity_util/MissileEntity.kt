@@ -53,6 +53,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     override var level: Int = 0
     open val maxAge = 200
     open val colorData = ColorData()
+    private val particle by lazy{
+        augment.getCastParticleType()
+    }
 
     override fun initDataTracker() {}
 
@@ -78,7 +81,8 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         val f = this.z + z2
         this.updateRotation()
         val g = drag.toDouble()
-        addParticles(x2, y2, z2)
+        if (age % 4 == 0)
+            addParticles(x2, y2, z2)
         val gg: Double = if (this.isTouchingWater) {
             0.95
         } else {
@@ -133,7 +137,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     override fun getParticleType(): ParticleEffect? {
-        return augment.getCastParticleType()
+        return particle
     }
 
     override fun onSpawnPacket(packet: EntitySpawnS2CPacket) {
