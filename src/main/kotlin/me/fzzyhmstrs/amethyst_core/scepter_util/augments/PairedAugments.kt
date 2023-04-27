@@ -170,7 +170,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             val result = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
-                val result2 = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                val result2 = augments[0].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
                 if (result2.result.isAccepted){
                     returnList.addAll(result.value)
                 }
@@ -219,7 +219,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
-                val result2 = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                val result2 = augments[0].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
                 if (result2.result.isAccepted){
                     returnList.addAll(result.value)
                 }
@@ -239,7 +239,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         if (type == Type.PAIRED){
             val result = augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
-                augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY, this)
+                augments[0].onEntityKill(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY, this)
             }
         } else {
             for (augment in augments) {
