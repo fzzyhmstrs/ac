@@ -40,9 +40,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     private val castParticleEffect by lazy{
         when(type){
-            Type.EMPTY -> ParticleTypes.CRIT
             Type.SINGLE -> augments[0].castParticleType()
             Type.PAIRED -> augments[1].castParticleType()
+            Type.EMPTY -> ParticleTypes.CRIT
         }
     }
 
@@ -52,9 +52,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     fun getHitParticleType(hit: HitResult): ParticleEffect {
         return when(type){
-            Type.EMPTY -> ParticleTypes.CRIT
             Type.SINGLE -> augments[0].hitParticleType(hit)
             Type.PAIRED -> augments[1].hitParticleType(hit)
+            Type.EMPTY -> ParticleTypes.CRIT
         }
     }
 
@@ -69,8 +69,6 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return when (type){
             Type.SINGLE ->
                 effectModifiers.plus(augments[0].baseEffect)
-            Type.EMPTY ->
-                effectModifiers
             Type.PAIRED -> {
                 when (augments[1].modificationInfo().damageModificationType){
                     ModificationType.DEFER ->
@@ -134,7 +132,8 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 }
                 effectModifiers
             }
-
+            Type.EMPTY ->
+                effectModifiers
         }
     }
 
@@ -191,14 +190,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return when (type){
             Type.SINGLE ->
                 augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects, AugmentType.EMPTY)
-            Type.EMPTY ->
-                DamageSource.GENERIC
             Type.PAIRED ->
                 when (augments[1].modificationInfo().damageSourceModificationType){
                     ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
                     ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, AugmentType.EMPTY)
                     ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
                 }
+            Type.EMPTY ->
+                DamageSource.GENERIC
         }
     }
     
