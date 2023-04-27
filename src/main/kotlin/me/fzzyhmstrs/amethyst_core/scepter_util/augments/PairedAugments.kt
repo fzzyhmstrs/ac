@@ -138,29 +138,29 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun processEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
-            val result = augments[1].onEntityHit(entityHitResult, world, user,hand,level, effects,augments[0].augmentType)
+            val result = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType)
             if (result.isAccepted){
-                augments[1].onEntityHit(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+                augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY)
             }
         } else {
             for (augment in augments) {
-                val result = augment.onEntityHit(entityHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
+                val result = augment.onEntityHit(entityHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY)
                 if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
             }
         }
     }
 
-    fun processBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processBlockHit(blockHitResult: BlockHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
-            val result = augments[1].onBlockHit(blockHitResult, world, user,hand,level, effects,augments[0].augmentType)
+            val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType)
             if (result.isAccepted){
-                augments[1].onBlockHit(blockHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+                augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY)
             }
         } else {
             for (augment in augments) {
-                val result = augment.onBlockHit(blockHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
+                val result = augment.onBlockHit(blockHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY)
                 if (!result.isAccepted) break
             }
         }
