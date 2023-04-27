@@ -100,7 +100,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+            augment.processSingleEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
                 augment.processOnKill(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
             }
@@ -116,7 +116,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+            augment.processSingleSingleHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
         }
     }
 
