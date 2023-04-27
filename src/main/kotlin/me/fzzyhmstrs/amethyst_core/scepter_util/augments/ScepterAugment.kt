@@ -90,10 +90,10 @@ abstract class ScepterAugment(
     open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
         return ActionResult.PASS
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
+    open fun onEntityHit(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
         return ActionResult.PASS
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
+    open fun onEntityKill(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
         return ActionResult.PASS
     }
     open fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
