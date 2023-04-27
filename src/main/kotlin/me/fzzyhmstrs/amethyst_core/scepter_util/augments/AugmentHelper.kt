@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
+import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
@@ -20,6 +21,14 @@ import kotlin.math.max
 object AugmentHelper {
 
     private val augmentStats: MutableMap<String, AugmentDatapoint> = mutableMapOf()
+
+    val PROJECTILE_FIRED = Identifier(AC.MOD_ID,"projectile_fired")
+    val APPLIED_POSITIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_positive_effects")
+    val APPLIED_NEGATIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_negative_effects")
+    val SUMMONED_MOB = Identifier(AC.MOD_ID,"summoned_mob")
+    val SLASHED = Identifier(AC.MOD_ID,"slashed")
+    val BROKE_BLOCK = Identifier(AC.MOD_ID,"broke_block")
+    val PLACED_BLOCK = Identifier(AC.MOD_ID,"broke_block")
 
     fun registerAugmentStat(id: String, dataPoint: AugmentDatapoint, overwrite: Boolean = false){
         if(!augmentStats.containsKey(id) || overwrite){
@@ -55,7 +64,7 @@ object AugmentHelper {
      * takes a provided ScepterAugment, scrapes its current stats into an AugmentStat class and then runs that default set of stats through configAugment, which reads or creates a json config file to store and/or alter the base info.
      */
     private fun configAugmentStat(augment: ScepterAugment, id: String, imbueLevel: Int = 1): AugmentDatapoint {
-        val stat = augment.augmentStat(imbueLevel)
+        val stat = augment.augmentData
         val augmentConfig = ScepterAugment.Companion.AugmentStats()
         val type = stat.type
         augmentConfig.id = id

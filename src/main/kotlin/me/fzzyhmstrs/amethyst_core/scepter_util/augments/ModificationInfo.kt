@@ -7,7 +7,7 @@ class ModificationInfo private constructor(
     val pairingCostMultiplier: Float,
     val damageModificationType: ModificationType,
     val amplifierModificationType: ModificationType,
-    val durabilityModificationType: ModificationType,
+    val durationModificationType: ModificationType,
     val rangeModificationType: ModificationType,
     val damageSourceModificationType: ModificationType
 ) {

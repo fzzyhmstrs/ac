@@ -6,7 +6,9 @@ import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.util.ActionResult
@@ -137,51 +139,72 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     fun processEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
-        for (augment in augments){
-            val result = augment.onEntityHit(entityHitResult, world, user,hand,level, effects)
-            if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+        if (type == Type.PAIRED){
+            val result = augments[1].onEntityHit(entityHitResult, world, user,hand,level, effects,augments[0].augmentType)
+            if (result.isAccepted){
+                augments[1].onEntityHit(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+            }
+        } else {
+            for (augment in augments) {
+                val result = augment.onEntityHit(entityHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
+                if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+            }
         }
     }
 
     fun processBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
-        for (augment in augments){
-            val result = augment.onBlockHit(blockHitResult, world, user,hand,level, effects)
-            if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
-        }
-    }
-    
-    fun processOnKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
-        for (augment in augments){
-            val result = augment.onEntityKill(entityHitResult, world, user,hand,level, effects)
-            if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
-        }
-    }
-    
-    fun modifyDamage(amount: Float,entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
         if (type == Type.PAIRED){
-            return augments[1].modifyDamage(entityHitResult, amount, user, world, hand, level, effects)
+            val result = augments[1].onBlockHit(blockHitResult, world, user,hand,level, effects,augments[0].augmentType)
+            if (result.isAccepted){
+                augments[1].onBlockHit(blockHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+            }
+        } else {
+            for (augment in augments) {
+                val result = augment.onBlockHit(blockHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
+                if (!result.isAccepted) break
+            }
+        }
+    }
+
+    fun processOnKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        if (type == Type.PAIRED){
+            val result = augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects,augments[0].augmentType)
+            if (result.isAccepted){
+                augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+            }
+        } else {
+            for (augment in augments) {
+                val result = augment.onEntityKill(entityHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
+                if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+            }
+        }
+    }
+    
+    fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+        if (type == Type.PAIRED){
+            return augments[1].modifyDamage(amount, entityHitResult, user, world, hand, level, effects, augments[0].augmentType)
         }
         return amount
     }
     
-    fun provideDamageSource(entityHitResult: EntityHitResult,source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
+    fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
         return when (type){
             Type.SINGLE ->
-                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects)
+                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects, AugmentType.EMPTY)
             Type.EMPTY ->
                 DamageSource.GENERIC
             Type.PAIRED ->
                 when (augments[1].modificationInfo().damageSourceModificationType){
-                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
-                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
-                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects)
+                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
+                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, AugmentType.EMPTY)
+                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
                 }
         }
     }
     
     fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
-            augments[1].modifySummons(summon, user, world, hand, level, effects)
+            augments[1].modifySummons(summon, user, world, hand, level, effects, augments[0].augmentType)
         }
     }
 

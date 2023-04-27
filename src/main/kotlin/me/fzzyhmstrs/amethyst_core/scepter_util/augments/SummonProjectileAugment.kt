@@ -10,6 +10,8 @@ import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
 import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
+import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 /**
@@ -19,23 +21,36 @@ import net.minecraft.world.World
  *
  * see [MissileEntity] for an open class you can use to develop your own projectiles.
  */
-abstract class SummonProjectileAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+abstract class SummonProjectileAugment(
+    tier: ScepterTier,
+    maxLvl: Int,
+    augmentData: AugmentDatapoint,
+    augmentType: AugmentType)
+    :
+    ScepterAugment(
+        tier,
+        maxLvl,
+        augmentData,
+        augmentType
+    )
+{
 
     override fun applyTasks(
         world: World,
         user: LivingEntity,
         hand: Hand,
         level: Int,
-        effects: AugmentEffect
-    ): Boolean {
-        return spawnProjectileEntity(world, user, entityClass(world, user, level, effects), soundEvent())
+        effects: AugmentEffect,
+        spells: PairedAugments
+    ): TypedActionResult<List<Identifier>> {
+        return spawnProjectileEntity(world, user, entityClass(world, user, level, effects, spells), soundEvent())
     }
 
-    open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect): ProjectileEntity {
-        return MissileEntity(world, user, false)
+    open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect, spells: PairedAugments): ProjectileEntity {
+        return MissileEntity(world, user, spells)
     }
 
-    private fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity, soundEvent: SoundEvent): Boolean{
+    private fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity, soundEvent: SoundEvent): TypedActionResult<List<Identifier>>{
         val bl = world.spawnEntity(projectile)
         if(bl) {
             world.playSound(
@@ -47,6 +62,6 @@ abstract class SummonProjectileAugment(tier: ScepterTier, maxLvl: Int): ScepterA
                 world.getRandom().nextFloat() * 0.4f + 0.8f
             )
         }
-        return bl
+        return if(bl) TypedActionResult.success(listOf(AugmentHelper.PROJECTILE_FIRED)) else TypedActionResult.fail(listOf())
     }
 }

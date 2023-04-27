@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 class AugmentType{
 
     companion object{
+        val EMPTY = AugmentType()
         val BOLT = AugmentType()
         val SINGLE_TARGET_OR_SELF = AugmentType()
         val SINGLE_TARGET = AugmentType()

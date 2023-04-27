@@ -101,6 +101,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         val entity = owner
         if (entity is LivingEntity) {
             augment.processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+            if (!entityHitResult.entity.isAlive){
+                augment.processOnKill(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+            }
         }
     }
 

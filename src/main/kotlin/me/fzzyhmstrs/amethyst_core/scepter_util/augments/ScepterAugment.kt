@@ -42,7 +42,9 @@ import net.minecraft.world.World
 
 abstract class ScepterAugment(
     private val tier: ScepterTier,
-    private val maxLvl: Int)
+    private val maxLvl: Int,
+    var augmentData: AugmentDatapoint,
+    val augmentType: AugmentType)
     :
     BaseScepterAugment()
 {
@@ -50,14 +52,6 @@ abstract class ScepterAugment(
     open val baseEffect = AugmentEffect()
     open val modificationEffect = AugmentEffect()
     open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
-    var augmentData: AugmentDatapoint = augmentStat(1)
-
-    /**
-     * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
-     */
-    abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
-    
-    abstract fun augmentType(): AugmentType
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedSpell: ScepterAugment? = null): Boolean{
         val aug = Registries.ENCHANTMENT.getId(this) ?: return false
@@ -70,7 +64,7 @@ abstract class ScepterAugment(
         val pairedAugments = PairedAugments(this,pairedSpell)
         val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
         val bl = applyTasks(world,user,hand,level,effectModifiers,pairedAugments)
-        if (bl.result.isAccepted()) {
+        if (bl.result.isAccepted) {
             modifiers.forEach {
                 if (it.hasSecondaryEffect()) {
                     it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier())
@@ -79,13 +73,13 @@ abstract class ScepterAugment(
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
             AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand),bl.value, this)
         }
-        return bl.result.isAccepted()
+        return bl.result.isAccepted
     }
 
     /**
      * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
      */
-    abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): Boolean
+    abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): TypedActionResult<List<Identifier>>
 
     /**
      * If your scepter has some client side effects/tasks, extend them here. This can be something like adding visual effects, or affecting a GUI, and so on.
@@ -93,22 +87,22 @@ abstract class ScepterAugment(
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
 
-    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
+    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType): ActionResult{
         return ActionResult.PASS
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
+    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType): ActionResult{
         return ActionResult.PASS
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): ActionResult{
+    open fun onEntityKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType): ActionResult{
         return ActionResult.PASS
     }
-    open fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+    open fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType): Float{
         return amount
     }
-    open fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
+    open fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType): DamageSource{
         return damageSource.provideDamageSource(user,source)
     }
-    open fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+    open fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType){
     }
 
     fun modificationInfo(): ModificationInfo{
@@ -148,6 +142,15 @@ abstract class ScepterAugment(
     }
     open fun provideAdjective(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".adjective")
+    }
+    open fun provideNounDesc(pairedSpell: ScepterAugment?): Text{
+        return AcText.translatable(getTranslationKey() + ".noun.desc")
+    }
+    open fun provideVerbDesc(pairedSpell: ScepterAugment?): Text{
+        return AcText.translatable(getTranslationKey() + ".verb.desc")
+    }
+    open fun provideAdjectiveDesc(pairedSpell: ScepterAugment?): Text{
+        return AcText.translatable(getTranslationKey() + ".adjective.desc")
     }
 
     open fun getAugmentMaxLevel(): Int{
