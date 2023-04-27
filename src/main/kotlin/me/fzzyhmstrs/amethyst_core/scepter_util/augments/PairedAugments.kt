@@ -137,7 +137,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun processMulitpleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processMulitpleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
         var successes = 0
         for (entityHitResult in entityHitResults){
             if(processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)) {
@@ -153,7 +153,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
         val bl = processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
         if (bl){
             val entity = entityHitResult.entity
@@ -186,7 +186,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return returnList
     }
     
-    fun processMulitpleBlockHits(blockHitResults: List<BlockHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processMulitpleBlockHits(blockHitResults: List<BlockHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
         var successes = 0
         for (blockHitResult in blockHitResults){
             if(processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)) {
@@ -202,7 +202,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
         val bl = processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
         if (bl){
             val entity = entityHitResult.entity
