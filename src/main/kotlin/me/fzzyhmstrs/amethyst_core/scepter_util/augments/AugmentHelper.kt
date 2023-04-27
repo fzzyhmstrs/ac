@@ -28,8 +28,9 @@ object AugmentHelper {
     val APPLIED_NEGATIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_negative_effects")
     val SUMMONED_MOB = Identifier(AC.MOD_ID,"summoned_mob")
     val SLASHED = Identifier(AC.MOD_ID,"slashed")
-    val BROKE_BLOCK = Identifier(AC.MOD_ID,"broke_block")
-    val PLACED_BLOCK = Identifier(AC.MOD_ID,"broke_block")
+    val BLOCK_HIT = Identifier(AC.MOD_ID,"block_hit")
+    val BLOCK_BROKE = Identifier(AC.MOD_ID,"block_broke")
+    val BLOCK_PLACED = Identifier(AC.MOD_ID,"block_placed")
 
     fun registerAugmentStat(id: String, dataPoint: AugmentDatapoint, overwrite: Boolean = false){
         if(!augmentStats.containsKey(id) || overwrite){
