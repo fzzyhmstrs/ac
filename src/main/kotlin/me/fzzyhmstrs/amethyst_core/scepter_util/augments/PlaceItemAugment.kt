@@ -26,14 +26,24 @@ import net.minecraft.world.World
 /**
  * Simple template that places a block item into the world. can be implemented in an Item Registry with no extension by defining the [_item] in the constructor.
  */
-abstract class PlaceItemAugment(tier: ScepterTier, maxLvl: Int,item: Item): ScepterAugment(tier,maxLvl){
-    private val _item = item
-
+abstract class PlaceItemAugment(
+    tier: ScepterTier, 
+    maxLvl: Int,
+    private val item: Item,
+    augmentData: AugmentDatapoint,
+    augmentType: AugmentType = AugmentType.BLOCK_TARGET)
+: 
+ScepterAugment(
+    tier,
+    maxLvl,
+    augmentData,
+    augmentType)
+{    
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(4.5)
 
-    override fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean {
-        if (user !is ServerPlayerEntity) return false
+    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
+        if (user !is ServerPlayerEntity) return actionResult(ActionResult.FAIL)
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
         val bl = (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user))
 
@@ -42,75 +52,43 @@ abstract class PlaceItemAugment(tier: ScepterTier, maxLvl: Int,item: Item): Scep
         }
         return bl
     }
-
-    open fun blockPlacing(hit: BlockHitResult, world: World, user: ServerPlayerEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
-        val stack = itemToPlace(world,user)
-        when (val testItem = stack.item) {
+    
+    override fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
+        when (item) {
             is BlockItem -> {
-                if (!testItem.place(ItemPlacementContext(user, hand, ItemStack(testItem),hit)).isAccepted) return false
-                val group = testItem.block.defaultState.soundGroup
-                val sound = group.placeSound
-                world.playSound(null,hit.blockPos,sound,SoundCategory.BLOCKS,(group.volume + 1.0f)/2.0f,group.pitch * 0.8f)
+                val stack = itemToPlace(world,user)
+                if (!testItem.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return actionResult(ActionResult.FAIL)
+                hitSoundEvent(world, blockHitResult.blockPos)
                 //sendItemPacket(user, stack, hand, hit)
-                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
-                return true
+                return actionResult(ActionResult.SUCCESS, AugmentHelper.BLOCK_PLACED)
             }
             is BucketItem -> {
                 if (!testItem.placeFluid(user,world,hit.blockPos,hit)) return false
-                world.playSound(null,hit.blockPos,soundEvent(),SoundCategory.BLOCKS,1.0f,1.0f)
-                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
-                return true
+                hitSoundEvent(world, blockHitResult.blockPos)
+                return actionResult(ActionResult.SUCCESS, AugmentHelper.BLOCK_PLACED)
             }
             else -> {
-                return false
+                return actionResult(ActionResult.FAIL)
             }
         }
     }
-
-    protected fun sendItemPacket(user: ServerPlayerEntity,stack: ItemStack,hand: Hand,hit: BlockHitResult){
-        ServerPlayNetworking.send(user,PLACE_ITEM_PACKET,placeItemPacket(stack,hand,hit))
+    
+    open fun customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        return actionResult(ActionResult.PASS)
     }
-
-    private fun placeItemPacket(itemStack: ItemStack, hand: Hand, hit: BlockHitResult): PacketByteBuf{
-        val buf = PacketByteBufs.create()
-        buf.writeItemStack(itemStack)
-        buf.writeEnumConstant(hand)
-        buf.writeBlockHitResult(hit)
-        return buf
+    
+    override fun hitSoundEvent(world: World, blockPos: BlockPos){
+        if (item is BlockItem){
+            val group = item.block.defaultState.soundGroup
+            val sound = group.placeSound
+            world.playSound(null,blockPos,sound,SoundCategory.BLOCKS,(group.volume + 1.0f)/2.0f,group.pitch * 0.8f)
+        } else {
+            world.playSound(null,blockPos,soundEvent(),SoundCategory.BLOCKS,1.0f,1.0f)
+        }
     }
 
     open fun itemToPlace(world: World, user: LivingEntity): ItemStack {
-        return ItemStack(_item)
+        return ItemStack(item)
     }
-
-    companion object{
-
-        val PLACE_ITEM_PACKET = Identifier(AC.MOD_ID,"place_item_packet")
-
-        fun registerClient(){
-            ClientPlayNetworking.registerGlobalReceiver(PLACE_ITEM_PACKET)
-            { client,_,packetByteBuf,_ ->
-                val player = client.player?:return@registerGlobalReceiver
-                val stack = packetByteBuf.readItemStack()
-                val hand = packetByteBuf.readEnumConstant(Hand::class.java)
-                val hit = packetByteBuf.readBlockHitResult()
-                placeItem(player.world,player,stack, hand, hit)
-            }
-        }
-
-        private fun placeItem(world: World, user: PlayerEntity, itemStack: ItemStack, hand: Hand, hit: HitResult){
-            when (val testItem = itemStack.item) {
-                is BlockItem -> {
-                    testItem.place(ItemPlacementContext(user, hand, ItemStack(testItem),hit as BlockHitResult))
-                }
-                is BucketItem -> {
-                    testItem.placeFluid(user,world,(hit as BlockHitResult).blockPos,hit)
-                }
-                else -> {
-                    return
-                }
-            }
-        }
-    }
-
 }
