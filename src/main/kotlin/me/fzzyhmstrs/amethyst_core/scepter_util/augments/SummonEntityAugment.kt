@@ -21,18 +21,22 @@ import net.minecraft.world.World
  *
  * [placeEntity] is the primary method to override for this template. Ensure you have a super call so the sound event and Modifier Consumers can be applied.
  */
-abstract class SummonEntityAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+abstract class SummonEntityAugment(
+    tier: ScepterTier, 
+    maxLvl: Int
+    augmentData: AugmentDatapoint,
+    augmentType: AugmentType = AugmentType.SUMMON)
+: 
+ScepterAugment(
+    tier,
+    maxLvl,
+    augmentData,
+    augmentType) {
 
     override val baseEffect: AugmentEffect
-        get() = AugmentEffect().withRange(3.0,0.0,0.0)
+        get() = AugmentEffect().withRange(3.0)
 
-    override fun applyTasks(
-        world: World,
-        user: LivingEntity,
-        hand: Hand,
-        level: Int,
-        effects: AugmentEffect
-    ): Boolean {
+    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
         if (user !is PlayerEntity) return false
         val hit = RaycasterUtil.raycastHit(
             distance = effects.range(level),
