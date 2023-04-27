@@ -87,14 +87,14 @@ abstract class ScepterAugment(
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
 
-    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
-        return ActionResult.PASS
+    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        return TypedActionResult.pass(listOf())
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
-        return ActionResult.PASS
+    open fun onEntityHit(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        return TypedActionResult.pass(listOf())
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ActionResult{
-        return ActionResult.PASS
+    open fun onEntityKill(entityHitResult: EntityHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        return TypedActionResult.pass(listOf())
     }
     open fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
         return amount
@@ -184,6 +184,16 @@ abstract class ScepterAugment(
         const val augmentVersion = "_v2"
         private const val oldAugmentVersion = "_v1"
 
+        fun actionResult(result: ActionResult,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
+            return when(result){
+                SUCCESS -> TypedActionResult.success(ids.asList())
+                CONSUME -> TypedActionResult.consume(ids.asList())
+                CONSUME_PARTIAL -> TypedActionResult.consume(ids.asList())
+                PASS -> TypedActionResult.pass(ids.asList())
+                FAIL -> TypedActionResult.fail(ids.asList())
+            }
+        }
+        
         //small config class for syncing purposes
         class AugmentConfig(val id: String, stats: AugmentStats): SyncedConfigHelper.SyncedConfig{
 
