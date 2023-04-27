@@ -126,6 +126,12 @@ abstract class ScepterAugment(
     open fun hitParticleType(hit: HitResult): ParticleEffect {
         return ParticleTypes.CRIT
     }
+    open fun splashParticles(hitResult: HitResult, world: World, x: Double, y: Double, z: Double, spells: PairedAugments){
+        if (world is ServerWorld){
+            val particle = spells.getHitParticleType(hitResult)
+            world.spawnParticles(particle,x,y,z,20,.25,.25,.25,0.2)
+        }
+    }
 
     fun augmentName(nbt: NbtCompound, level: Int): Text{
         val spell = ScepterHelper.getPairedSpell(nbt)
