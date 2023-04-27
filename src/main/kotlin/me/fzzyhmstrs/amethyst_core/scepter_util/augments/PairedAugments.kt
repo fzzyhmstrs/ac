@@ -137,51 +137,121 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun processEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processMulitpleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        var successes = 0
+        for (entityHitResult in entityHitResults){
+            if(processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)) {
+                successes++
+                val entity = entityHitResult.entity
+                if (entity is LivingEntity){
+                    effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+                }
+            }
+        }
+        if (successes > 0){
+            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+        }
+    }
+    
+    fun processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        val bl = processEntityHit(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+        if (bl){
+            val entity = entityHitResult.entity
+            if (entity is LivingEntity){
+                effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+            }
+            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+        }
+    }
+    
+    private fun processEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+        var returnList: MutableList<Identifier>
         if (type == Type.PAIRED){
-            val result = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType)
-            if (result.isAccepted){
-                augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY)
+            val result = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+                val result2 = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                if (result2.result.isAccepted){
+                    returnList.addAll(result.value)
+                }
             }
         } else {
             for (augment in augments) {
-                val result = augment.onEntityHit(entityHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY)
-                if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+                val result = augment.onEntityHit(entityHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+                if (result.result.isAccepted){
+                    returnList.addAll(result.value)
+                }
             }
+        }
+        return returnList
+    }
+    
+    fun processMulitpleBlockHits(blockHitResults: List<BlockHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        var successes = 0
+        for (blockHitResult in blockHitResults){
+            if(processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)) {
+                successes++
+                val entity = entityHitResult.entity
+                if (entity is LivingEntity){
+                    effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+                }
+            }
+        }
+        if (successes > 0){
+            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
         }
     }
 
-    fun processBlockHit(blockHitResult: BlockHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+    fun processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
+        val bl = processBlockHit(blockHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+        if (bl){
+            val entity = entityHitResult.entity
+            if (entity is LivingEntity){
+                effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+            }
+            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+        }
+    }
+    
+    private fun processBlockHit(blockHitResult: BlockHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean{
+        var returnList: MutableList<Identifier>
         if (type == Type.PAIRED){
-            val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType)
-            if (result.isAccepted){
-                augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY)
+            val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+                val result2 = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                if (result2.result.isAccepted){
+                    returnList.addAll(result.value)
+                }
             }
         } else {
             for (augment in augments) {
-                val result = augment.onBlockHit(blockHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY)
-                if (!result.isAccepted) break
+                val result = augment.onBlockHit(blockHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+                if (result.result.isAccepted){
+                    returnList.addAll(result.value)
+                }
             }
         }
+        return returnList
     }
 
     fun processOnKill(entityHitResult: EntityHitResult, world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
-            val result = augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects,augments[0].augmentType)
-            if (result.isAccepted){
-                augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY)
+            val result = augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects,augments[0].augmentType, this)
+            if (result.result.isAccepted){
+                augments[1].onEntityKill(entityHitResult, world, user,hand,level, effects, AugmentType.EMPTY, this)
             }
         } else {
             for (augment in augments) {
-                val result = augment.onEntityKill(entityHitResult, world, user, hand, level, effects, AugmentType.EMPTY)
-                if (result == ActionResult.SUCCESS || result == ActionResult.FAIL) break
+                val result = augment.onEntityKill(entityHitResult, world, user, hand, level, effects, AugmentType.EMPTY, this)
+                if (!result.result.isAccepted) break
             }
         }
     }
     
     fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
         if (type == Type.PAIRED){
-            return augments[1].modifyDamage(amount, entityHitResult, user, world, hand, level, effects, augments[0].augmentType)
+            return augments[1].modifyDamage(amount, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
         }
         return amount
     }
@@ -189,12 +259,12 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
         return when (type){
             Type.SINGLE ->
-                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects, AugmentType.EMPTY)
+                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects, AugmentType.EMPTY, this)
             Type.PAIRED ->
                 when (augments[1].modificationInfo().damageSourceModificationType){
-                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
-                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, AugmentType.EMPTY)
-                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType)
+                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType, this)
+                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, AugmentType.EMPTY, this)
+                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType, this)
                 }
             Type.EMPTY ->
                 DamageSource.GENERIC
@@ -203,7 +273,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     
     fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
-            augments[1].modifySummons(summon, user, world, hand, level, effects, augments[0].augmentType)
+            augments[1].modifySummons(summon, user, world, hand, level, effects, augments[0].augmentType, this)
         }
     }
 
