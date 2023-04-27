@@ -23,6 +23,7 @@ object AugmentHelper {
     private val augmentStats: MutableMap<String, AugmentDatapoint> = mutableMapOf()
 
     val PROJECTILE_FIRED = Identifier(AC.MOD_ID,"projectile_fired")
+    val PROJECTILE_HIT = Identifier(AC.MOD_ID,"projectile_hit")
     val APPLIED_POSITIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_positive_effects")
     val APPLIED_NEGATIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_negative_effects")
     val SUMMONED_MOB = Identifier(AC.MOD_ID,"summoned_mob")
