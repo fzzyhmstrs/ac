@@ -15,30 +15,26 @@ import kotlin.collections.ArrayList
 object GcCompat {
 
     private val augmentMap: MutableMap<UUID, AbstractModifier.CompiledModifiers<AugmentModifier>> = mutableMapOf()
-
+    
+    fun markDirty(user: LivingEntity){
+        augmentMap.remove(user.uuid)
+    }
+    
     fun registerAugmentModifierProcessor(){
-        EquipmentModifierHelper.registerModifierProcessor {stack, entity -> processEquipmentAugmentModifiers(stack, entity)}
+        ModifyModifiersEvent.EVENT.register{world,user,stack,modifiers ->
+            val newMods = augmentMap[uuid]?:processEquipmentAugmentModifiers(user)
+            return@register modifiers.combineWith(newMods, AugmentModifier())
+        }
     }
 
-    fun modifyCompiledAugmentModifiers(original: AbstractModifier.CompiledModifiers<AugmentModifier>, uuid: UUID): AbstractModifier.CompiledModifiers<AugmentModifier>{
-        val augments = augmentMap[uuid]?:return original
-        val list: ArrayList<AugmentModifier> = arrayListOf()
-        list.addAll(augments.modifiers)
-        list.addAll(original.modifiers)
-        return AbstractModifier.CompiledModifiers(list,AugmentModifier().plus(augments.compiledData).plus(original.compiledData))
-    }
-
-    private fun processEquipmentAugmentModifiers(stack: ItemStack, entity: LivingEntity){
-        val item = stack.item
-        if (item !is ModifierTracking) return
-        val uuid = entity.uuid
+    private fun processEquipmentAugmentModifiers(entity: LivingEntity): AbstractModifier.CompiledModifiers<AugmentModifier>{
         val list: MutableList<Identifier> = mutableListOf()
         if (TrinketChecker.trinketsLoaded) {
             val stacks = TrinketUtil.getTrinketStacks(entity)
             for (stack1 in stacks) {
                 val chk = stack1.item
                 if (chk is ModifierTracking) {
-                    list.addAll(chk.getModifiers(stack1,ModifierHelper.getType()))
+                    list.addAll(chk.getModifiers(stack1,ModifierHelper.getType())
                 }
             }
         }
@@ -47,6 +43,16 @@ object GcCompat {
             if (chk is ModifierTracking){
                 list.addAll(chk.getModifiers(armor,ModifierHelper.getType()))
             }
+        }
+        val mainHand = entity.mainHandStack
+        val chkMain = mainHand.item
+        if (chkMain is ModifierTracking){
+            list.addAll(chk.getModifiers(mainHand,ModifierHelper.getType()))
+        }
+        val offHand = entity.offHandStack
+        val chkOff = offHand.item
+        if (chkOff is ModifierTracking){
+            list.addAll(chk.getModifiers(mainHand,ModifierHelper.getType()))
         }
         if (list.isNotEmpty()){
             val list2: MutableList<AugmentModifier> = mutableListOf()
@@ -58,7 +64,10 @@ object GcCompat {
             list2.forEach {
                 compiler.add(it)
             }
-            augmentMap[uuid] = compiler.compile()
+            val mods = compiler.compile()
+            augmentMap[entity.uuid] = mods
+            return mods
         }
+        return ModifierDefaults.BLANK_COMPILED_DATA
     }
 }
