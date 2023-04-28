@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.enchantment.EnchantmentTarget
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -17,15 +18,15 @@ import net.minecraft.item.*
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
+import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-/**
- * Simple template that places a block item into the world. can be implemented in an Item Registry with no extension by defining the [_item] in the constructor.
- */
 abstract class PlaceItemAugment(
     tier: ScepterTier, 
     maxLvl: Int,
@@ -43,33 +44,37 @@ ScepterAugment(
         get() = super.baseEffect.withRange(4.5)
 
     override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
-        if (user !is ServerPlayerEntity) return actionResult(ActionResult.FAIL)
+        if (user !is ServerPlayerEntity) return FAIL
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
-        val bl = (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user))
-
-        if (bl){
-            return blockPlacing(hit as BlockHitResult,world, user, hand, level, effects)
+        if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
+            val list = spells.processSingleBlockHit(hit,world,null,user, hand, level, effects)
+            return if (list.isNotEmpty()){
+                actionResult(ActionResult.SUCCESS,*list.toTypedArray())
+            } else {
+                FAIL
+            }
         }
-        return bl
+        return FAIL
     }
     
     override fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
+        if (user !is ServerPlayerEntity) return FAIL
         when (item) {
             is BlockItem -> {
                 val stack = itemToPlace(world,user)
-                if (!testItem.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return actionResult(ActionResult.FAIL)
+                if (!item.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
                 hitSoundEvent(world, blockHitResult.blockPos)
                 //sendItemPacket(user, stack, hand, hit)
                 return actionResult(ActionResult.SUCCESS, AugmentHelper.BLOCK_PLACED)
             }
             is BucketItem -> {
-                if (!testItem.placeFluid(user,world,hit.blockPos,hit)) return false
+                if (!item.placeFluid(user,world,blockHitResult.blockPos,blockHitResult)) return FAIL
                 hitSoundEvent(world, blockHitResult.blockPos)
                 return actionResult(ActionResult.SUCCESS, AugmentHelper.BLOCK_PLACED)
             }
             else -> {
-                return actionResult(ActionResult.FAIL)
+                return FAIL
             }
         }
     }

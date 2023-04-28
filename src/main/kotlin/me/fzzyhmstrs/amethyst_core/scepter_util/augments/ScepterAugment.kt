@@ -23,6 +23,7 @@ import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.TagKey
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
@@ -102,7 +103,8 @@ abstract class ScepterAugment(
     open fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSource{
         return damageSource.provideDamageSource(user,source)
     }
-    open fun modifySummons(summon: LivingEntity, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments){
+    open fun modifySummons(summons: List<Entity>, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
+        return summons
     }
 
     fun modificationInfo(): ModificationInfo{
@@ -190,13 +192,14 @@ abstract class ScepterAugment(
         const val augmentVersion = "_v2"
         private const val oldAugmentVersion = "_v1"
 
+        val FAIL = actionResult(ActionResult.FAIL)
         fun actionResult(result: ActionResult,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
             return when(result){
-                SUCCESS -> TypedActionResult.success(ids.asList())
-                CONSUME -> TypedActionResult.consume(ids.asList())
-                CONSUME_PARTIAL -> TypedActionResult.consume(ids.asList())
-                PASS -> TypedActionResult.pass(ids.asList())
-                FAIL -> TypedActionResult.fail(ids.asList())
+                ActionResult.SUCCESS -> TypedActionResult.success(ids.asList())
+                ActionResult.CONSUME -> TypedActionResult.consume(ids.asList())
+                ActionResult.CONSUME_PARTIAL -> TypedActionResult.consume(ids.asList())
+                ActionResult.PASS -> TypedActionResult.pass(ids.asList())
+                ActionResult.FAIL -> TypedActionResult.fail(ids.asList())
             }
         }
         

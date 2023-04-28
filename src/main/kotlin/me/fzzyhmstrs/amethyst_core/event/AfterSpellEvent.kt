@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
+import net.minecraft.util.Identifier
 import net.minecraft.world.World
 
 /**
@@ -23,5 +24,5 @@ fun interface AfterSpellEvent {
             }
     }
 
-    fun afterCast(world: World, user: LivingEntity, stack: ItemStack,actions: List<Identifier>, spell: ScepterAugment)
+    fun afterCast(world: World, user: LivingEntity, stack: ItemStack, actions: List<Identifier>, spell: ScepterAugment)
 }

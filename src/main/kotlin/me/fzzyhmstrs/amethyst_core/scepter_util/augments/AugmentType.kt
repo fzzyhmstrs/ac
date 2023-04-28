@@ -1,17 +1,17 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
-class AugmentType{
+class AugmentType(val block: Boolean, val entity: Boolean, val empty: Boolean = false){
 
     companion object{
-        val EMPTY = AugmentType()
-        val BOLT = AugmentType()
-        val SINGLE_TARGET_OR_SELF = AugmentType()
-        val SINGLE_TARGET = AugmentType()
-        val SLASH = AugmentType()
-        val AOE_POSITIVE = AugmentType()
-        val AOE_NEGATIVE = AugmentType()
-        val SUMMON = AugmentType()
-        val BLOCK_TARGET = AugmentType()
+        val EMPTY = AugmentType(block = false, entity = false, empty = true)
+        val BOLT = AugmentType(block = true, entity = true)
+        val SINGLE_TARGET_OR_SELF = AugmentType(block = false, entity = true)
+        val SINGLE_TARGET = AugmentType(block = false, entity = true)
+        val DIRECTED_ENERGY = AugmentType(block = true, entity = true)
+        val AOE_POSITIVE = AugmentType(block = false, entity = true)
+        val AOE_NEGATIVE = AugmentType(block = false, entity = true)
+        val SUMMON = AugmentType(block = true, entity = false)
+        val BLOCK_TARGET = AugmentType(block = true, entity = false)
     }
 
 }
