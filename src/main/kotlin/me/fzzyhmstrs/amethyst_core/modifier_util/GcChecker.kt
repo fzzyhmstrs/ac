@@ -7,6 +7,12 @@ object GcChecker {
     val gearCoreLoaded: Boolean by lazy{
         FabricLoader.getInstance().isModLoaded("gear_core")
     }
+    
+    fun markDirty(entity: LivingEntity){
+        if (gearCoreLoaded){
+            GcCompat.markDirty(entity)
+        }
+    }
 
     fun registerProcessor(){
         if (gearCoreLoaded){
