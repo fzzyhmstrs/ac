@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
+import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketUtil
@@ -21,8 +22,8 @@ object GcCompat {
     }
     
     fun registerAugmentModifierProcessor(){
-        ModifyModifiersEvent.EVENT.register{world,user,stack,modifiers ->
-            val newMods = augmentMap[uuid]?:processEquipmentAugmentModifiers(user)
+        ModifyModifiersEvent.EVENT.register{ world, user, stack, modifiers ->
+            val newMods = augmentMap[user.uuid]?:processEquipmentAugmentModifiers(user)
             return@register modifiers.combineWith(newMods, AugmentModifier())
         }
     }
@@ -34,7 +35,7 @@ object GcCompat {
             for (stack1 in stacks) {
                 val chk = stack1.item
                 if (chk is ModifierTracking) {
-                    list.addAll(chk.getModifiers(stack1,ModifierHelper.getType())
+                    list.addAll(chk.getModifiers(stack1,ModifierHelper.getType()))
                 }
             }
         }
@@ -47,12 +48,12 @@ object GcCompat {
         val mainHand = entity.mainHandStack
         val chkMain = mainHand.item
         if (chkMain is ModifierTracking){
-            list.addAll(chk.getModifiers(mainHand,ModifierHelper.getType()))
+            list.addAll(chkMain.getModifiers(mainHand,ModifierHelper.getType()))
         }
         val offHand = entity.offHandStack
         val chkOff = offHand.item
         if (chkOff is ModifierTracking){
-            list.addAll(chk.getModifiers(mainHand,ModifierHelper.getType()))
+            list.addAll(chkOff.getModifiers(offHand,ModifierHelper.getType()))
         }
         if (list.isNotEmpty()){
             val list2: MutableList<AugmentModifier> = mutableListOf()

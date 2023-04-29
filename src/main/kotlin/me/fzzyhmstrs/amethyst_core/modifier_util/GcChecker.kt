@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.entity.LivingEntity
 
 object GcChecker {
 
