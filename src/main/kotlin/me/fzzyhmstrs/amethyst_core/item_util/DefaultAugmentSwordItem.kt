@@ -38,8 +38,19 @@ import net.minecraft.world.World
  */
 
 @Suppress("SameParameterValue", "unused")
-abstract class DefaultAugmentSwordItem(material: ScepterToolMaterial, settings: Settings):
-    AugmentScepterItem(material,settings), ParticleEmitting{
+abstract class DefaultAugmentSwordItem(
+    material: ScepterToolMaterial, 
+    damage: Int,
+    attackSpeed: Float,
+    settings: Settings)
+:
+    AugmentScepterItem(
+        material,
+        damage,
+        attackSpeed
+        settings), 
+    ParticleEmitting
+{
 
     init{
         if(FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
