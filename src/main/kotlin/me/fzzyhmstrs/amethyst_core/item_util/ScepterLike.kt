@@ -19,6 +19,11 @@ import net.minecraft.world.World
 interface ScepterLike{
 
     /**
+     * the fallback ID is used when a scepter needs a starting state, like a spell, modifier, or whatever other implementation. For Augment Scepters, this is the base augment added by default (Magic Missile for Amethyst Imbuement)
+     */
+    val fallbackId: Identifier
+    
+    /**
      * Defines the spell power level of the scepter, generally 1, 2, or 3 (low, medium, high), but can be higher if higher tier spells are implemented.
      */
   
