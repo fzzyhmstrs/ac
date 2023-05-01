@@ -41,9 +41,6 @@ import net.minecraft.world.World
 abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Settings):
     AugmentScepterItem(material,settings), ParticleEmitting{
 
-    private val attributeModifiers: Multimap<EntityAttribute, EntityAttributeModifier>
-    private val damage: Double
-
     init{
         if(FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
             try {
@@ -52,38 +49,6 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
                 println("oops!")
             }
         }
-        damage = material.attackDamage.toDouble()
-        if (damage > 0.0) {
-            val builder = ImmutableMultimap.builder<EntityAttribute, EntityAttributeModifier>()
-            builder.put(
-                EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                EntityAttributeModifier(
-                    ATTACK_DAMAGE_MODIFIER_ID,
-                    "Weapon modifier",
-                    material.attackDamage.toDouble(),
-                    EntityAttributeModifier.Operation.ADDITION
-                )
-            )
-            builder.put(
-                EntityAttributes.GENERIC_ATTACK_SPEED,
-                EntityAttributeModifier(
-                    ATTACK_SPEED_MODIFIER_ID,
-                    "Weapon modifier",
-                    material.getAttackSpeed(),
-                    EntityAttributeModifier.Operation.ADDITION
-                )
-            )
-            attributeModifiers = builder.build()
-        } else {
-            attributeModifiers = LinkedHashMultimap.create()
-        }
-    }
-
-    override fun getAttributeModifiers(slot: EquipmentSlot): Multimap<EntityAttribute, EntityAttributeModifier> {
-        if (slot == EquipmentSlot.MAINHAND && damage > 0) {
-            return attributeModifiers
-        }
-        return super.getAttributeModifiers(slot)
     }
 
     override fun appendTooltip(
