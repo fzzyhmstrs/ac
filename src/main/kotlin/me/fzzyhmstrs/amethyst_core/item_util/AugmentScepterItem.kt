@@ -39,12 +39,25 @@ abstract class AugmentScepterItem(
     material: ScepterToolMaterial,
     settings: Settings)
     :
-    ModifiableScepterItem(material, settings),
-    SpellCasting
+    CustomFlavorToolItem(material, settings),
+    SpellCasting, ScepterLike, Modifiable, ManaItem
 {
 
     var defaultAugments: List<ScepterAugment> = listOf()
+    val defaultModifiers: MutableList<Identifier> = mutableListOf()
     var noFallback: Boolean = false
+    private val tickerManaRepair: Int = material.healCooldown().toInt()
+
+    override fun getTier(): Int{
+        return material.scepterTier()
+    }
+
+    fun withModifiers(defaultMods: List<AugmentModifier> = listOf()): AugmentScepterItem{
+        defaultMods.forEach {
+            defaultModifiers.add(it.modifierId)
+        }
+        return this
+    }
 
     fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentScepterItem{
         defaultAugments = startingAugments
@@ -55,6 +68,10 @@ abstract class AugmentScepterItem(
         defaultAugments = startingAugments
         noFallback = noFallbackAugment
         return this
+    }
+
+    override fun defaultModifiers(type: ModifierHelperType): MutableList<Identifier> {
+        return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
     /**
@@ -69,8 +86,13 @@ abstract class AugmentScepterItem(
         super.use(world, user, hand)
         val stack = user.getStackInHand(hand)
         val nbt = stack.orCreateNbt
-        val activeEnchantId: String = getActiveEnchant(stack)
+
+        if (needsInitialization(stack, nbt) && !world.isClient){
+            initializeScepter(stack, nbt)
+        }
+        val activeEnchantId: String = ScepterHelper.getActiveEnchant(stack)
         val testEnchant: Enchantment = Registry.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
+
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
@@ -111,20 +133,18 @@ abstract class AugmentScepterItem(
         }
     }
 
-    override fun <T> serverUse(
-        world: World,
-        user: T,
-        hand: Hand,
-        stack: ItemStack,
-        activeEnchantId: String,
-        spell: ScepterAugment,
-        testLevel: Int
-    ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
+    override fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack,
+        activeEnchantId: String,spell: ScepterAugment,testLevel: Int)
+    :
+    TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
         return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
     }
+
     @Suppress("UNUSED_PARAMETER")
     override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
-                          activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
+        activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int)
+    :
+    TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }
@@ -137,27 +157,18 @@ abstract class AugmentScepterItem(
         manaDamage(stack, world, user, cost)
     }
 
+    override fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>{
+        world.playSound(null,user.blockPos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS,0.6F,0.8F)
+        ScepterHelper.resetCooldown(world, stack, user, activeEnchant)
+        return TypedActionResult.fail(stack)
+    }
+
     override fun onCraft(stack: ItemStack, world: World, player: PlayerEntity) {
-        super.onCraft(stack, world, player)
-        addDefaultEnchantments(stack, stack.orCreateNbt)
-    }
-
-    override fun writeDefaultNbt(stack: ItemStack, scepterNbt: NbtCompound) {
-        super.writeDefaultNbt(stack, scepterNbt)
-        addDefaultEnchantments(stack, scepterNbt)
-        activeNbtCheck(scepterNbt)
-        ScepterHelper.getScepterStats(stack)
-    }
-
-    private fun activeNbtCheck(scepterNbt: NbtCompound){
-        if(!scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
-            val identifier = fallbackId
-            scepterNbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
+        if (!world.isClient) {
+            val nbt = stack.orCreateNbt
+            initializeScepter(stack, nbt)
         }
-    }
-
-    override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
-        return super.needsInitialization(stack, scepterNbt) || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
+        addDefaultEnchantments(stack, stack.orCreateNbt)
     }
 
     open fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
@@ -176,19 +187,60 @@ abstract class AugmentScepterItem(
         scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
     }
 
-    override fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>{
-        world.playSound(null,user.blockPos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS,0.6F,0.8F)
-        ScepterHelper.resetCooldown(world, stack, user, activeEnchant)
-        return TypedActionResult.fail(stack)
+
+    override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
+        return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
     }
 
-    fun getActiveEnchant(stack: ItemStack): String{
-        val nbt: NbtCompound = stack.orCreateNbt
-        return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
-            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
-        } else {
-            initializeScepter(stack,nbt)
-            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+    override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
+        writeDefaultNbt(stack, scepterNbt)
+        ManaHelper.initializeManaItem(stack)
+        ModifierHelper.gatherActiveModifiers(stack)
+    }
+
+    override fun writeDefaultNbt(stack: ItemStack, scepterNbt: NbtCompound) {
+        super.writeDefaultNbt(stack, scepterNbt)
+        addDefaultEnchantments(stack, scepterNbt)
+        activeNbtCheck(scepterNbt)
+        ScepterHelper.getScepterStats(stack)
+    }
+
+    private fun activeNbtCheck(scepterNbt: NbtCompound){
+        if(!scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
+            val identifier = fallbackId
+            scepterNbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
+        }
+    }
+
+    override fun canBeModifiedBy(type: ModifierHelperType): Boolean {
+        return (type == ModifierRegistry.MODIFIER_TYPE)
+    }
+
+    override fun getRepairTime(): Int{
+        return tickerManaRepair
+    }
+
+    override fun isFireproof(): Boolean {
+        return true
+    }
+
+    override fun getItemBarColor(stack: ItemStack): Int {
+        return MathHelper.hsvToRgb(0.66f,1.0f,1.0f)
+    }
+
+    override fun getUseAction(stack: ItemStack): UseAction {
+        return UseAction.BLOCK
+    }
+
+    override fun inventoryTick(stack: ItemStack, world: World, entity: Entity, slot: Int, selected: Boolean) {
+        if (world.isClient) return
+        val nbt = stack.orCreateNbt
+        if (needsInitialization(stack, nbt) && !world.isClient){
+            initializeScepter(stack, nbt)
+        }
+        //slowly heal damage over time
+        if (ManaHelper.tickHeal(stack)){
+            healDamage(1,stack)
         }
     }
 }
