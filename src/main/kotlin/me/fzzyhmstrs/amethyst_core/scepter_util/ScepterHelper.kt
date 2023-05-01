@@ -52,7 +52,7 @@ object ScepterHelper {
     private val SCEPTER_SYNC_PACKET = Identifier(AC.MOD_ID,"scepter_sync_packet")
     val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
     val USED_KNOWLEDGE_BOOK = TickCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
-
+    
     fun useScepter(activeEnchantId: String, activeEnchant: ScepterAugment, stack: ItemStack, world: World, level: Int, cdMod: Double = 1.0, checkEnchant: Boolean = true): Int?{
         if (world !is ServerWorld){return null}
         val scepterNbt = stack.orCreateNbt
@@ -266,6 +266,16 @@ object ScepterHelper {
                 nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
             }
             item.initializeScepter(stack, nbt)
+        }
+    }
+    
+    fun getActiveEnchant(stack: ItemStack): String{
+        val nbt: NbtCompound = stack.orCreateNbt
+        return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+        } else {
+            initializeScepter(stack,nbt)
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         }
     }
 
