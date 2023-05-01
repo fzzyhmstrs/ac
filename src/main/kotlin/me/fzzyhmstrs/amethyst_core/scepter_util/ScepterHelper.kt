@@ -173,7 +173,7 @@ object ScepterHelper {
 
     private fun updateScepterActiveEnchant(stack: ItemStack, user: PlayerEntity, up: Boolean){
         val item = stack.item
-        if (item !is AbstractScepterItem) return
+        if (item !is ScepterLike) return
         val nbt = stack.orCreateNbt
 
         if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
@@ -254,7 +254,7 @@ object ScepterHelper {
     private fun fixActiveEnchantWhenMissing(stack: ItemStack) {
         val nbt = stack.orCreateNbt
         val item = stack.item
-        if (item is AugmentScepterItem) {
+        if (item is ScepterLike) {
             val newEnchant = EnchantmentHelper.get(stack).keys.firstOrNull()
             val identifier = if (newEnchant != null) {
                 Registry.ENCHANTMENT.getId(newEnchant)
