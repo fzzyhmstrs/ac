@@ -89,12 +89,9 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
             val list: MutableList<ItemStack> = mutableListOf()
             for (entry in entries){
                 val item = entry.value()
-                if (item is AbstractScepterItem){
-                    val material = item.material
-                    if (material is ScepterToolMaterial){
-                        if (material.scepterTier() >= tier){
-                            list.add(ItemStack(item,1))
-                        }
+                if (item is ScepterLike){
+                    if (item.getTier() >= tier){
+                        list.add(ItemStack(item,1))
                     }
                 }
             }
