@@ -36,9 +36,11 @@ import net.minecraft.world.World
 @Suppress("SameParameterValue", "unused")
 abstract class AugmentSwordItem(
     material: ScepterToolMaterial,
+    damage: Int,
+    attackSpeed: Float,
     settings: Settings)
     :
-    SwordItem(material, settings),
+    SwordItem(material,damage,attackSpeed, settings),
     SpellCasting, ScepterLike, Modifiable, ManaItem, Flavorful<AugmentSwordItem>
 {
 
