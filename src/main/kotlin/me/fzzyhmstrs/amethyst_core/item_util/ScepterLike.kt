@@ -18,7 +18,13 @@ import net.minecraft.world.World
 
 interface ScepterLike{
 
-  /**
+    /**
+     * Defines the spell power level of the scepter, generally 1, 2, or 3 (low, medium, high), but can be higher if higher tier spells are implemented.
+     */
+  
+    fun getTier(): Int
+  
+    /**
      * as needed implementations can add nbt needed for their basic funcitoning.
      *
      * Remember to call super.
