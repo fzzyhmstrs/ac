@@ -2,14 +2,23 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
+import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
@@ -21,12 +30,12 @@ import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
+import net.minecraft.util.UseAction
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 
 /**
- * Extended [ModifiableScepterItem] that integrates with the Scepter Augment System. This is the bare-bones scepter for use with [ScepterAugment]s.
- *
  * Adds builder methods for adding default augments that are applied on craft/initialization.
  *
  * Modifiers are specified to be [AugmentModifier] type in this class, which are codependent with Scepter Augments
@@ -35,7 +44,7 @@ import net.minecraft.world.World
  */
 @Suppress("SameParameterValue", "unused")
 abstract class AugmentScepterItem(
-    material: ScepterToolMaterial,
+    private val material: ScepterToolMaterial,
     settings: Settings)
     :
     CustomFlavorToolItem(material, settings),

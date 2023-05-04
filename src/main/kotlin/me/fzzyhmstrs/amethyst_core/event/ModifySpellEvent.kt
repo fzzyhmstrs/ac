@@ -44,7 +44,7 @@ fun interface ModifySpellEvent {
             {listeners ->
                 ModifySpellEvent {spell,world,user,hand,modifiers ->
                     for (listener in listeners) {
-                        val result = listener.modifySpell(spell,world, user, hand, modifiers)
+                        val result = listener.modifySpell(spell, world, user, hand, modifiers)
                         if (result== ActionResult.PASS || result == ActionResult.SUCCESS){
                             continue
                         } else {
