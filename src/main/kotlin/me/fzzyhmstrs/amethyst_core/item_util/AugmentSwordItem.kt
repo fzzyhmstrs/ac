@@ -2,31 +2,43 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
+import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
+import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
+import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
+import net.minecraft.item.SwordItem
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
-import net.minecraft.util.Hand
-import net.minecraft.util.Identifier
-import net.minecraft.util.TypedActionResult
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.*
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 
 /**
- * Extended [ModifiableScepterItem] that integrates with the Scepter Augment System. This is the bare-bones scepter for use with [ScepterAugment]s.
- *
  * Adds builder methods for adding default augments that are applied on craft/initialization.
  *
  * Modifiers are specified to be [AugmentModifier] type in this class, which are codependent with Scepter Augments
@@ -35,7 +47,7 @@ import net.minecraft.world.World
  */
 @Suppress("SameParameterValue", "unused")
 abstract class AugmentSwordItem(
-    material: ScepterToolMaterial,
+    private val material: ScepterToolMaterial,
     damage: Int,
     attackSpeed: Float,
     settings: Settings)
@@ -65,19 +77,19 @@ abstract class AugmentSwordItem(
         return material.scepterTier()
     }
 
-    fun withModifiers(defaultMods: List<AugmentModifier> = listOf()): AugmentScepterItem{
+    fun withModifiers(defaultMods: List<AugmentModifier> = listOf()): AugmentSwordItem{
         defaultMods.forEach {
             defaultModifiers.add(it.modifierId)
         }
         return this
     }
     
-    fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentScepterItem{
+    fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentSwordItem{
         defaultAugments = startingAugments
         return this
     }
 
-    fun withAugments(startingAugments: List<ScepterAugment> = listOf(), noFallbackAugment: Boolean): AugmentScepterItem{
+    fun withAugments(startingAugments: List<ScepterAugment> = listOf(), noFallbackAugment: Boolean): AugmentSwordItem{
         defaultAugments = startingAugments
         noFallback = noFallbackAugment
         return this
@@ -90,7 +102,7 @@ abstract class AugmentSwordItem(
     /**
      * when called during building, won't add the fallback augment when initializing a scepter. If no default augments are provided, this will result in an empty scepter (requires manually adding spells to function at all)
      */
-    fun withNoFallback(): AugmentScepterItem{
+    fun withNoFallback(): AugmentSwordItem{
         noFallback = true
         return this
     }
@@ -291,7 +303,7 @@ abstract class AugmentSwordItem(
         return flavorTextDesc
     }
 
-    override fun getFlavorItem(): CustomFlavorToolItem {
+    override fun getFlavorItem(): AugmentSwordItem {
         return this
     }
 }

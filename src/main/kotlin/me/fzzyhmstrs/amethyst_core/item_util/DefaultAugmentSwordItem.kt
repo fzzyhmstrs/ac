@@ -44,10 +44,10 @@ abstract class DefaultAugmentSwordItem(
     attackSpeed: Float,
     settings: Settings)
 :
-    AugmentScepterItem(
+    AugmentSwordItem(
         material,
         damage,
-        attackSpeed
+        attackSpeed,
         settings), 
     ParticleEmitting
 {
