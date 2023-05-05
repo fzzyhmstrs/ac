@@ -97,7 +97,7 @@ abstract class AugmentScepterItem(
         if (needsInitialization(stack, nbt) && !world.isClient){
             initializeScepter(stack, nbt)
         }
-        val activeEnchantId: String = ScepterHelper.getActiveEnchant(stack)
+        val activeEnchantId: String = getActiveEnchant(stack)
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
@@ -177,7 +177,7 @@ abstract class AugmentScepterItem(
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
     
-    open fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+    override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && !noFallback){

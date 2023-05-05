@@ -5,8 +5,8 @@ package me.fzzyhmstrs.amethyst_core.scepter_util
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
-import me.fzzyhmstrs.amethyst_core.item_util.AbstractScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
+import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
@@ -269,15 +269,7 @@ object ScepterHelper {
         }
     }
     
-    fun getActiveEnchant(stack: ItemStack): String{
-        val nbt: NbtCompound = stack.orCreateNbt
-        return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
-            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
-        } else {
-            initializeScepter(stack,nbt)
-            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
-        }
-    }
+
 
     fun getTestLevel(nbt: NbtCompound, activeEnchantId: String, testEnchant: ScepterAugment): Int{
         val level = getScepterStat(nbt,activeEnchantId).first
