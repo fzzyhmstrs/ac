@@ -179,8 +179,8 @@ abstract class AugmentScepterItem(
         }
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
-
-    open fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+    
+    override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registry.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && !noFallback){

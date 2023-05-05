@@ -5,6 +5,7 @@ import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
+import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -51,4 +52,17 @@ interface ScepterLike{
      */
     fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean
 
+
+    fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound)
+
+    fun getActiveEnchant(stack: ItemStack): String{
+        val nbt: NbtCompound = stack.orCreateNbt
+        return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+        } else {
+            val item = stack.item
+            initializeScepter(stack,nbt)
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+        }
+    }
 }

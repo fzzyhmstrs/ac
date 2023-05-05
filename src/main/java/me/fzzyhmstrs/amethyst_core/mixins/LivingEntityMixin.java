@@ -1,13 +1,17 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
+import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,7 +48,7 @@ abstract class LivingEntityMixin {
     
     @WrapOperation(method = "getEquipmentChanges", at = @At(value = "INVOKE", target = "net/minecraft/item/ItemStack.getAttributeModifiers (Lnet/minecraft/entity/EquipmentSlot;)Lcom/google/common/collect/Multimap;"))
     private Multimap<EntityAttribute, EntityAttributeModifier> amethyst_core_markModifiersDirtyOnEquipChange(ItemStack instance, EquipmentSlot slot, Operation<Multimap<EntityAttribute, EntityAttributeModifier>> operation){
-        GcChecker.markDirty((LivingEntity)(Object) this)
+        GcChecker.INSTANCE.markDirty((LivingEntity)(Object) this);
         return operation.call(instance, slot);
 
     }
