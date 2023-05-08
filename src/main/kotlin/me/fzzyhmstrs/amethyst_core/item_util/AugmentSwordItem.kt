@@ -97,6 +97,10 @@ abstract class AugmentSwordItem(
         noFallback = noFallbackAugment
         return this
     }
+
+    open fun defaultAugments(): List<ScepterAugment>{
+        return defaultAugments
+    }
     
     override fun defaultModifiers(type: ModifierHelperType): MutableList<Identifier> {
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
@@ -108,6 +112,10 @@ abstract class AugmentSwordItem(
     fun withNoFallback(): AugmentSwordItem{
         noFallback = true
         return this
+    }
+
+    open fun hasFallback(): Boolean{
+        return !noFallback
     }
 
     override fun use(world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
@@ -200,12 +208,12 @@ abstract class AugmentSwordItem(
     override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
-        if (enchantToAdd != null && !noFallback){
+        if (enchantToAdd != null && hasFallback()){
             if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
                 stack.addEnchantment(enchantToAdd,1)
             }
         }
-        defaultAugments.forEach {
+        defaultAugments().forEach {
             if (EnchantmentHelper.getLevel(it,stack) == 0){
                 stack.addEnchantment(it,1)
             }
