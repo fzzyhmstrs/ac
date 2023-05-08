@@ -16,6 +16,7 @@ import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
@@ -24,13 +25,13 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
-import net.minecraft.item.SwordItem
+import net.minecraft.item.MiningToolItem
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.MutableText
@@ -49,14 +50,15 @@ import net.minecraft.world.World
  * Adds the main [use] functionality for this style of scepter, including Augment selection, level checking, cooldown checking, and a separate [serverUse] and [clientUse] method for actions to take in those corresponding environments. By default, this calls the specified Augments [ScepterAugment.applyModifiableTasks] after determining and checking the compiled modifiers relevant to that augment.
  */
 @Suppress("SameParameterValue", "unused")
-abstract class AugmentSwordItem(
+abstract class AugmentMiningItem(
     private val material: ScepterToolMaterial,
-    damage: Int,
+    damage: Float,
     attackSpeed: Float,
+    effectiveBlocks: TagKey<Block>,
     settings: Settings)
     :
-    SwordItem(material,damage,attackSpeed, settings),
-    SpellCasting, ScepterLike, Modifiable, ManaItem, Flavorful<AugmentSwordItem>
+    MiningToolItem(damage,attackSpeed,material,effectiveBlocks, settings),
+    SpellCasting, ScepterLike, Modifiable, ManaItem, Flavorful<AugmentMiningItem>
 {
 
     var defaultAugments: List<ScepterAugment> = listOf()
@@ -80,19 +82,19 @@ abstract class AugmentSwordItem(
         return material.scepterTier()
     }
 
-    fun withModifiers(defaultMods: List<AugmentModifier> = listOf()): AugmentSwordItem{
+    fun withModifiers(defaultMods: List<AugmentModifier> = listOf()): AugmentMiningItem{
         defaultMods.forEach {
             defaultModifiers.add(it.modifierId)
         }
         return this
     }
     
-    fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentSwordItem{
+    fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentMiningItem{
         defaultAugments = startingAugments
         return this
     }
 
-    fun withAugments(startingAugments: List<ScepterAugment> = listOf(), noFallbackAugment: Boolean): AugmentSwordItem{
+    fun withAugments(startingAugments: List<ScepterAugment> = listOf(), noFallbackAugment: Boolean): AugmentMiningItem{
         defaultAugments = startingAugments
         noFallback = noFallbackAugment
         return this
@@ -105,7 +107,7 @@ abstract class AugmentSwordItem(
     /**
      * when called during building, won't add the fallback augment when initializing a scepter. If no default augments are provided, this will result in an empty scepter (requires manually adding spells to function at all)
      */
-    fun withNoFallback(): AugmentSwordItem{
+    fun withNoFallback(): AugmentMiningItem{
         noFallback = true
         return this
     }
@@ -306,7 +308,7 @@ abstract class AugmentSwordItem(
         return flavorTextDesc
     }
 
-    override fun getFlavorItem(): AugmentSwordItem {
+    override fun getFlavorItem(): AugmentMiningItem {
         return this
     }
 }

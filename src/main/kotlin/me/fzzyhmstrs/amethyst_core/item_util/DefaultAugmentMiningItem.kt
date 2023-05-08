@@ -13,6 +13,7 @@ import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.block.Block
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.entity.EquipmentSlot
@@ -22,6 +23,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -30,7 +32,7 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 /**
- * The default Amethyst Imbuement style scepter, but sword style.
+ * The default Amethyst Imbuement style scepter.
  *
  * For the most basic implementation, extend this and set the fallback ID; that's it. Define characteristics in the [ScepterToolMaterial] as with any tool, and register! You have your very own AI style scepter fully compatible with Scepter Augments and with all the functionality AIs scepters come with.
  *
@@ -38,19 +40,15 @@ import net.minecraft.world.World
  */
 
 @Suppress("SameParameterValue", "unused")
-abstract class DefaultAugmentSwordItem(
-    material: ScepterToolMaterial, 
-    damage: Int,
+abstract class DefaultAugmentMiningItem(
+    material: ScepterToolMaterial,
+    damage: Float,
     attackSpeed: Float,
-    settings: Settings)
-:
-    AugmentSwordItem(
-        material,
-        damage,
-        attackSpeed,
-        settings), 
-    ParticleEmitting
-{
+    effectiveBlocks: TagKey<Block>,
+    settings: Settings
+) :
+    AugmentMiningItem(material, damage, attackSpeed, effectiveBlocks, settings),
+    ParticleEmitting{
 
     override fun appendTooltip(
         stack: ItemStack,
@@ -96,7 +94,7 @@ abstract class DefaultAugmentSwordItem(
         return super.resetCooldown(stack, world, user, activeEnchant)
     }
 
-    companion object {
+    companion object{
         private const val smokePacketId = "scepter_smoke_emitter"
     }
 }
