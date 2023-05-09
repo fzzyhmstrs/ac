@@ -5,13 +5,9 @@ import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketUtil
 import me.fzzyhmstrs.gear_core.interfaces.ModifierTracking
-import me.fzzyhmstrs.gear_core.modifier_util.EquipmentModifierHelper
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
 import java.util.*
-import kotlin.collections.ArrayList
 
 object GcCompat {
 

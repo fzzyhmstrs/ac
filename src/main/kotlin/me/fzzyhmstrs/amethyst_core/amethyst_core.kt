@@ -2,7 +2,10 @@ package me.fzzyhmstrs.amethyst_core
 
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
-import me.fzzyhmstrs.amethyst_core.registry.*
+import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
+import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
+import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseRenderer
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PlaceItemAugment
 import net.fabricmc.api.ClientModInitializer

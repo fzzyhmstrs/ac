@@ -24,7 +24,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Hand
@@ -32,8 +31,8 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
 import net.minecraft.util.UseAction
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.registry.Registry
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
 /**
@@ -107,7 +106,7 @@ abstract class AugmentScepterItem(
         if (needsInitialization(stack, nbt) && !world.isClient){
             initializeScepter(stack, nbt)
         }
-        val activeEnchantId: String = ScepterHelper.getActiveEnchant(stack)
+        val activeEnchantId: String = getActiveEnchant(stack)
         val testEnchant: Enchantment = Registry.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
 
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
