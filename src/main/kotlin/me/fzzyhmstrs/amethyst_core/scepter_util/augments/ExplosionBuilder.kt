@@ -37,10 +37,10 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
-class ExplosionBuilder(val source: Entity, val pos: Vec3d){
+class ExplosionBuilder(user: LivingEntity,val source: Entity, val pos: Vec3d){
 
     private var behavior: ExplosionBehavior = EntityExplosionBehavior(source)
-    private var damageSource: DamageSourceBuilder = DamageSourceBuilder()
+    private var damageSource: DamageSourceBuilder = DamageSourceBuilder(user)
     private var power: Float = 1f
     private var bl: Boolean = false
     private var type: World.ExplosionSourceType = World.ExplosionSourceType.NONE
@@ -72,8 +72,8 @@ class ExplosionBuilder(val source: Entity, val pos: Vec3d){
     fun getPower(): Float{
         return this.power
     }
-    
     fun explode(world: World){
+        world.createExplosion(source, damageSource.build(),behavior,pos,power,bl,type)
     }
   
 }
