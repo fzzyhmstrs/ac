@@ -101,7 +101,7 @@ abstract class ScepterAugment(
         return amount
     }
     open fun modifyDamageSource(builder: DamageSourceBuilder, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder{
-        return damageSource.provideDamageSource(user,source)
+        return builder
     }
     open fun modifySummons(summons: List<Entity>, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
         return summons
