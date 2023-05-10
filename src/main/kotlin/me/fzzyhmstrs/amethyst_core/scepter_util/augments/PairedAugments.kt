@@ -254,33 +254,51 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun modifyDamage(amount: Float, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
-        if (type == Type.PAIRED){
-            return augments[1].modifyDamage(amount, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+    fun provideDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]){
+                return augments[1].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                return augments[0].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
+            }
         }
         return amount
     }
     
-    fun provideDamageSource(entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
-        return when (type){
-            Type.SINGLE ->
-                augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level, effects, AugmentType.EMPTY, this)
-            Type.PAIRED ->
-                when (augments[1].modificationInfo().damageSourceModificationType){
-                    ModificationType.REPLACE -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType, this)
-                    ModificationType.DEFER -> augments[0].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, AugmentType.EMPTY, this)
-                    ModificationType.MODIFY -> augments[1].provideDamageSource(entityHitResult, source, user, world, hand, level,effects, augments[1].augmentType, this)
-                }
-            Type.EMPTY ->
-                DamageSource.GENERIC
+    fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
+        return if (type = Type.PAIRED){
+            if (cause == augments[0]){
+                augments[1].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this).build()
+            } else {
+                augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this).build()
+            }
+        } else {
+            builder.build()
         }
     }
     
-    fun modifySummons(summons: List<Entity>, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<Entity>{
-        if (type == Type.PAIRED){
-            return augments[1].modifySummons(summons, user, world, hand, level, effects, augments[0].augmentType, this)
+    fun provideSummons(summons: List<Entity>,cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<Entity>{
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifySummons(summons,cause, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                augments[0].modifySummons(summons,cause, user, world, hand, level, effects, augments[1].augmentType, this)
+            }
+        } else {
+            summons
         }
-        return summons
+    }
+    
+    fun causeExplosion(builder: ExplosionBuilder,cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+        return if (type = Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
+            } else {
+                augments[0].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[1].augmentType, this).explode(world)
+            }
+        } else {
+            builder.explode(world)
+        }
     }
 
     private enum class Type{
