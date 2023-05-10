@@ -39,7 +39,18 @@ import net.minecraft.world.World
 
 class DamageSourceBuilder(private val attacker: LivingEntity, private val source: Entity? = null){
     
+    private var damageSource = if(attacker is PlayerEntity) DamageSource.player(attacker) else DamageSource.mob(attacker)
+    
+    fun modify(modification: Modifier): DamageSourceBuilder{
+        damageSource = modification.modify(damageSource,attacker,source)
+    }
+    
     fun build(): DamageSource{
-        return DamageSource.GENERIC
+        return damageSource
+    }
+    
+    @FunctionalInterface
+    fun interface Modifier{
+        fun modify(damageSource: DamageSource, attacker: LivingEntity, source: Entity?): DamageSource
     }
 }
