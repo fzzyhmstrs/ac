@@ -13,6 +13,7 @@ import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.block.Block
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.entity.EquipmentSlot
@@ -22,6 +23,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -38,18 +40,15 @@ import net.minecraft.world.World
  */
 
 @Suppress("SameParameterValue", "unused")
-abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Settings):
-    AugmentScepterItem(material,settings), ParticleEmitting{
-
-    init{
-        if(FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
-            try {
-                ParticleEmitting.registerParticleEmitter(smokePacketId) { client -> doSmoke(client) }
-            } catch (e: Exception) {
-                println("oops!")
-            }
-        }
-    }
+abstract class DefaultAugmentMiningItem(
+    material: ScepterToolMaterial,
+    damage: Float,
+    attackSpeed: Float,
+    effectiveBlocks: TagKey<Block>,
+    settings: Settings
+) :
+    AugmentMiningItem(material, damage, attackSpeed, effectiveBlocks, settings),
+    ParticleEmitting{
 
     override fun appendTooltip(
         stack: ItemStack,
@@ -97,18 +96,5 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
 
     companion object{
         private const val smokePacketId = "scepter_smoke_emitter"
-
-        private fun doSmoke(client: MinecraftClient){
-            val world = client.world
-            val entity = client.player
-            if (world != null && entity != null){
-                doSmoke(world,client,entity)
-            }
-        }
-
-        private fun doSmoke(world: World, client: MinecraftClient, user: LivingEntity){
-            val particlePos = scepterParticlePos(client, user)
-            world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,particlePos.x,particlePos.y,particlePos.z,user.velocity.x,user.velocity.y + 0.5,user.velocity.z)
-        }
     }
 }

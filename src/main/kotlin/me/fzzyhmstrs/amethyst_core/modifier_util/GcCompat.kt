@@ -16,13 +16,13 @@ import kotlin.collections.ArrayList
 object GcCompat {
 
     private val augmentMap: MutableMap<UUID, AbstractModifier.CompiledModifiers<AugmentModifier>> = mutableMapOf()
-    
+
     fun markDirty(user: LivingEntity){
         augmentMap.remove(user.uuid)
     }
-    
+
     fun registerAugmentModifierProcessor(){
-        ModifyModifiersEvent.EVENT.register{ world, user, stack, modifiers ->
+        ModifyModifiersEvent.EVENT.register{ _, user, _, modifiers ->
             val newMods = augmentMap[user.uuid]?:processEquipmentAugmentModifiers(user)
             return@register modifiers.combineWith(newMods, AugmentModifier())
         }

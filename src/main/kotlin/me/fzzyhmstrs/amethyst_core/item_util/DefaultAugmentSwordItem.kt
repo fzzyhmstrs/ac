@@ -30,7 +30,7 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 /**
- * The default Amethyst Imbuement style scepter.
+ * The default Amethyst Imbuement style scepter, but sword style.
  *
  * For the most basic implementation, extend this and set the fallback ID; that's it. Define characteristics in the [ScepterToolMaterial] as with any tool, and register! You have your very own AI style scepter fully compatible with Scepter Augments and with all the functionality AIs scepters come with.
  *
@@ -38,18 +38,19 @@ import net.minecraft.world.World
  */
 
 @Suppress("SameParameterValue", "unused")
-abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Settings):
-    AugmentScepterItem(material,settings), ParticleEmitting{
-
-    init{
-        if(FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
-            try {
-                ParticleEmitting.registerParticleEmitter(smokePacketId) { client -> doSmoke(client) }
-            } catch (e: Exception) {
-                println("oops!")
-            }
-        }
-    }
+abstract class DefaultAugmentSwordItem(
+    material: ScepterToolMaterial, 
+    damage: Int,
+    attackSpeed: Float,
+    settings: Settings)
+:
+    AugmentSwordItem(
+        material,
+        damage,
+        attackSpeed,
+        settings), 
+    ParticleEmitting
+{
 
     override fun appendTooltip(
         stack: ItemStack,
@@ -95,20 +96,7 @@ abstract class DefaultScepterItem(material: ScepterToolMaterial, settings: Setti
         return super.resetCooldown(stack, world, user, activeEnchant)
     }
 
-    companion object{
+    companion object {
         private const val smokePacketId = "scepter_smoke_emitter"
-
-        private fun doSmoke(client: MinecraftClient){
-            val world = client.world
-            val entity = client.player
-            if (world != null && entity != null){
-                doSmoke(world,client,entity)
-            }
-        }
-
-        private fun doSmoke(world: World, client: MinecraftClient, user: LivingEntity){
-            val particlePos = scepterParticlePos(client, user)
-            world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,particlePos.x,particlePos.y,particlePos.z,user.velocity.x,user.velocity.y + 0.5,user.velocity.z)
-        }
     }
 }

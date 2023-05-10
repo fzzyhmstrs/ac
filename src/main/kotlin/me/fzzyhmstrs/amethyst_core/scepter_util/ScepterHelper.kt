@@ -5,8 +5,8 @@ package me.fzzyhmstrs.amethyst_core.scepter_util
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
-import me.fzzyhmstrs.amethyst_core.item_util.AbstractScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
+import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
@@ -179,7 +179,7 @@ object ScepterHelper {
 
     private fun updateScepterActiveEnchant(stack: ItemStack, user: PlayerEntity, up: Boolean){
         val item = stack.item
-        if (item !is AbstractScepterItem) return
+        if (item !is ScepterLike) return
         val nbt = stack.orCreateNbt
 
         if (!nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
@@ -259,7 +259,7 @@ object ScepterHelper {
     private fun fixActiveEnchantWhenMissing(stack: ItemStack) {
         val nbt = stack.orCreateNbt
         val item = stack.item
-        if (item is AugmentScepterItem) {
+        if (item is ScepterLike) {
             val newEnchant = EnchantmentHelper.get(stack).keys.firstOrNull()
             val identifier = if (newEnchant != null) {
                 Registries.ENCHANTMENT.getId(newEnchant)
@@ -273,6 +273,8 @@ object ScepterHelper {
             item.initializeScepter(stack, nbt)
         }
     }
+
+
 
     fun getTestLevel(nbt: NbtCompound, activeEnchantId: String, testEnchant: ScepterAugment): Int{
         val level = getScepterStat(nbt,activeEnchantId).first
