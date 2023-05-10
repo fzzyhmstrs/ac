@@ -37,7 +37,9 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
-class DamageSourceBuilder(attacker: LivingEntity){
+class DamageSourceBuilder(private val attacker: LivingEntity, private val source: Entity? = null){
     
-
+    fun build(): DamageSource{
+        return DamageSource.GENERIC
+    }
 }
