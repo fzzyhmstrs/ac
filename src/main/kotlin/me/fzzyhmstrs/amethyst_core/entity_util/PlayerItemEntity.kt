@@ -1,8 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.entity_util
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PairedAugments
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity
@@ -34,9 +33,9 @@ abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processEntityHit(entityHitResult,world,entity, Hand.MAIN_HAND,level,entityEffects)
+            augment.processSingleEntityHit(entityHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
-                augment.processOnKill(entityHitResult,world,entity,Hand.MAIN_HAND,level,entityEffects)
+                augment.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             }
         }
     }
@@ -50,7 +49,7 @@ abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processBlockHit(blockHitResult,world,entity, Hand.MAIN_HAND,level,entityEffects)
+            augment.processSingleBlockHit(blockHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
         }
     }
 

@@ -3,13 +3,12 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.entity_util.MissileEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
-import net.minecraft.enchantment.EnchantmentTarget
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.ProjectileEntity
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvent
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.ActionResult
@@ -17,7 +16,6 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.world.World
 import net.minecraft.util.hit.EntityHitResult
-import net.minecraft.util.math.Vec3d
 
 /**
  * template for summoning a projectile entity. Used for basic "bolt"/"blast"/"missile" spells like Amethyst Imbuements base spell Magic Missile
@@ -57,9 +55,9 @@ abstract class ProjectileAugment(
     }
     
     override fun onEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
-        if (othersType == AugmentType.EMPTY){
-            val amount = spells.modifyDamage(effects.damage(level), entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(entityHitResult, source, user, world, hand, level, effects)
+        if (othersType.empty){
+            val amount = spells.provideDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(DamageSourceBuilder(user,source),this,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
             
             return if(bl) {
@@ -77,11 +75,10 @@ abstract class ProjectileAugment(
     
     override fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         val pos = source?.pos?: blockHitResult.pos
-        blockHitResult.pos
         splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
         if (othersType == AugmentType.EMPTY){
             hitSoundEvent(world, blockHitResult.blockPos)
-            return actionResult(ActionResult.PASS,AugmentHelper.BLOCK_HIT)
+            return actionResult(ActionResult.SUCCESS,AugmentHelper.BLOCK_HIT)
         }
         return actionResult(ActionResult.PASS)
     }

@@ -1,17 +1,12 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.sound.SoundCategory
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
@@ -61,7 +56,7 @@ ScepterAugment(
         spells: PairedAugments
     ): TypedActionResult<List<Identifier>> {
         if (othersType.empty){
-            val list = spells.modifySummons(entitiesToSpawn(world,user,blockHitResult,level,effects),user, world, hand, level, effects)
+            val list = spells.provideSummons(entitiesToSpawn(world,user,blockHitResult,level,effects),this,user, world, hand, level, effects)
             var successes = 0
             for (entity in list){
                 if (world.spawnEntity(entity)) successes++

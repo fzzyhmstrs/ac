@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
@@ -16,15 +17,12 @@ import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
-import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
@@ -37,7 +35,6 @@ import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.*
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 
@@ -129,6 +126,15 @@ abstract class AugmentSwordItem(
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
+        val pairedEnchantId: String? = ScepterHelper.getPairedEnchantId(stack,activeEnchantId)
+        val pairedEnchant = if (pairedEnchantId != null) {
+            val pairedEnchantTest: Enchantment = Registries.ENCHANTMENT.get(Identifier(pairedEnchantId)) ?: return resetCooldown(stack, world, user, activeEnchantId)
+            if (pairedEnchantTest !is ScepterAugment) return resetCooldown(stack, world, user, activeEnchantId)
+            pairedEnchantTest
+        } else {
+            null
+        }
+        val pairedAugments = ScepterHelper.getPairedAugments(activeEnchantId,pairedEnchantId,testEnchant, pairedEnchant)
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 
@@ -148,7 +154,7 @@ abstract class AugmentSwordItem(
                     }
                 }
             }
-            return clientUse(world, user, hand, stack, activeEnchantId, testEnchant, testLevel)
+            return clientUse(world, user, hand, stack, activeEnchantId,pairedEnchantId, testEnchant, testLevel)
         } else {
             if (!stack2.isEmpty) {
                 if (stack2.item is BlockItem) {
@@ -163,22 +169,26 @@ abstract class AugmentSwordItem(
                     }
                 }
             }
-            return serverUse(world, user, hand, stack, activeEnchantId, testEnchant, testLevel)
+            return serverUse(world, user, hand, stack, activeEnchantId, testEnchant, pairedAugments, testLevel)
         }
     }
 
-    override fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack,
-        activeEnchantId: String,spell: ScepterAugment,testLevel: Int)
-    : 
-    TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
-        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
+    override fun <T> serverUse(
+        world: World,
+        user: T,
+        hand: Hand,
+        stack: ItemStack,
+        activeEnchantId: String,
+        spell: ScepterAugment,
+        pairedAugments: PairedAugments,
+        testLevel: Int
+    ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
+        return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
-    
+
     @Suppress("UNUSED_PARAMETER")
-    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
-        activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int)
-    : 
-    TypedActionResult<ItemStack>{
+    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
+                           pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }

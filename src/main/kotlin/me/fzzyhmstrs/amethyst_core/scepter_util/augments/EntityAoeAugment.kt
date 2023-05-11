@@ -22,11 +22,11 @@ import net.minecraft.world.World
  * Implementation need not be limited to support effects. This template could also be used for an "instant damage" effect or a Life Drain spell, for a couple examples.
  */
 
-abstract class SingleTargetAugment(
+abstract class EntityAoeAugment(
     tier: ScepterTier,
     maxLvl: Int,
     augmentData: AugmentDatapoint,
-    augmentType: AugmentType = AugmentType.SINGLE_TARGET)
+    augmentType: AugmentType = AugmentType.AOE_POSITIVE)
     :
     ScepterAugment(
         tier,
@@ -35,14 +35,16 @@ abstract class SingleTargetAugment(
         augmentType)
 {
 
-    override val baseEffect: AugmentEffect
-        get() = super.baseEffect.withRange(6.0,0.0, 0.0)
+    constructor(tier: ScepterTier,
+                maxLvl: Int,
+                augmentData: AugmentDatapoint,
+                positive: Boolean = true): this(tier, maxLvl, augmentData, if(positive) AugmentType.AOE_POSITIVE else AugmentType.AOE_NEGATIVE)
 
     override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
-        val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
-        val hit = if (target is EntityHitResult) target else return FAIL
-        val list = spells.processSingleEntityHit(hit,world,null,user, hand, level, effects)
-        return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,*list.toTypedArray())
+        val entityList = RaycasterUtil.raycastEntityArea(effects.range(level), user)
+        if (entityList.isEmpty()) return FAIL
+        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
+        return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
     }
 
     override fun onEntityHit(

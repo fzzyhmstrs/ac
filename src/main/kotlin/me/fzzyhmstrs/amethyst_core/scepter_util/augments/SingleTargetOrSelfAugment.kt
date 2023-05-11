@@ -2,10 +2,10 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
-import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
@@ -57,7 +57,8 @@ abstract class SingleTargetOrSelfAugment(
         spells: PairedAugments
     ): TypedActionResult<List<Identifier>> {
         val result = entityEffects(entityHitResult, world, source, user, hand, level, effects, othersType, spells)
-        castSoundEvent(world,user.blockPos)
+        if (result.result.isAccepted)
+            castSoundEvent(world,user.blockPos)
         return result
     }
 

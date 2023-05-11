@@ -51,9 +51,9 @@ enum class NbtKeys {
             return "disenchant_count"
         }
     },
-    ACTIVE_PAIRED_ENCHANT{
+    PAIRED_ENCHANTS{
         override fun str(): String {
-            return "active_paired_enchant_id"
+            return "paired_enchants"
         }
     },
     PAIRED_ENCHANT{

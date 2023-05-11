@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
@@ -10,12 +11,12 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 
 interface SpellCasting {
-    fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack, activeEnchantId: String, pairedEnchantId: String?, spell: ScepterAugment, testLevel: Int)
+    fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack, activeEnchantId: String, spell: ScepterAugment, pairedAugments: PairedAugments, testLevel: Int)
     : TypedActionResult<ItemStack>
     where T: LivingEntity,
     T: SpellCastingEntity
     {
-        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,pairedEnchantId,testLevel,this)
+        return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
     fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
                   pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{

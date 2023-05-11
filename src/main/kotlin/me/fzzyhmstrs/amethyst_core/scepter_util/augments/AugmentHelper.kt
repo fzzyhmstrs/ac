@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ModificationInfo
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.Item
@@ -28,6 +29,7 @@ object AugmentHelper {
     val APPLIED_NEGATIVE_EFFECTS = Identifier(AC.MOD_ID,"applied_negative_effects")
     val SUMMONED_MOB = Identifier(AC.MOD_ID,"summoned_mob")
     val SLASHED = Identifier(AC.MOD_ID,"slashed")
+    val DAMAGED_MOB = Identifier(AC.MOD_ID,"damaged_mob")
     val BLOCK_HIT = Identifier(AC.MOD_ID,"block_hit")
     val BLOCK_BROKE = Identifier(AC.MOD_ID,"block_broke")
     val BLOCK_PLACED = Identifier(AC.MOD_ID,"block_placed")
@@ -125,7 +127,7 @@ object AugmentHelper {
         return (augmentStats[id]?.cooldown) ?: DEFAULT_COOLDOWN
     }
     private val DEFAULT_MODIFICATION_INFO = ModificationInfo.empty()
-    fun getAugmentModificationInfo(id: String): ModificationInfo{
+    fun getAugmentModificationInfo(id: String): ModificationInfo {
         if(!augmentStats.containsKey(id)) return DEFAULT_MODIFICATION_INFO
         return (augmentStats[id]?.modificationInfo) ?: DEFAULT_MODIFICATION_INFO
     }

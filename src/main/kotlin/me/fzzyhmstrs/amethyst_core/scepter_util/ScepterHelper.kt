@@ -5,7 +5,6 @@ package me.fzzyhmstrs.amethyst_core.scepter_util
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
-import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
@@ -13,6 +12,8 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.*
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ModificationType
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
@@ -50,15 +51,41 @@ import kotlin.math.max
  */
 object ScepterHelper {
 
+    private val PAIRED_SPELL_CACHE: MutableMap<String, PairedAugments> = mutableMapOf()
     private val SCEPTER_SYNC_PACKET = Identifier(AC.MOD_ID,"scepter_sync_packet")
     val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
     val USED_KNOWLEDGE_BOOK = TickCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
+
+    fun getPairedAugments(activeEnchantId: String, pairedEnchantId: String?, spell: ScepterAugment, pairedSpell: ScepterAugment?): PairedAugments {
+        val key = if (pairedEnchantId == null){
+            activeEnchantId
+        } else {
+            activeEnchantId + pairedEnchantId
+        }
+        return PAIRED_SPELL_CACHE.getOrPut(key) { PairedAugments(spell, pairedSpell) }
+    }
+
+    fun getPairedEnchantId(stack: ItemStack, activeEnchantId: String): String?{
+        val nbt: NbtCompound = stack.orCreateNbt
+        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())){
+            val pairedEnchants = nbt.getCompound(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())
+            if (pairedEnchants.contains(activeEnchantId)){
+                val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
+                pairedEnchantData.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANT.str())
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    }
 
     fun useScepter(activeEnchantId: String, pairedAugments: PairedAugments, stack: ItemStack, world: World, level: Int, modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>, user: LivingEntity, checkEnchant: Boolean = true): Int?{
         if (world !is ServerWorld){return null}
         val scepterNbt = stack.orCreateNbt
         if (checkEnchant) {
-            if (EnchantmentHelper.getLevel(activeEnchant, stack) == 0) {
+            val enchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return null
+            if (EnchantmentHelper.getLevel(enchant, stack) == 0) {
                 fixActiveEnchantWhenMissing(stack)
                 return null
             }
@@ -84,14 +111,13 @@ object ScepterHelper {
         user: LivingEntity,
         hand: Hand,
         stack: ItemStack,
-        spell: ScepterAugment,
-        pairedSpell: ScepterAugment?,
         activeEnchantId: String,
+        spell: ScepterAugment,
+        pairedAugments: PairedAugments,
         testLevel: Int,
         spellCaster: SpellCasting,
         incrementStats: Boolean = true,
         checkEnchant: Boolean = true): TypedActionResult<ItemStack>{
-        val pairedAugments = PairedAugments(spell, pairedSpell)
         // Modify Modifiers event fires here //
         val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(stack))
         // Modify Spell Event fires here //
@@ -125,10 +151,10 @@ object ScepterHelper {
             checkEnchant
         )
         return if (cooldown != null) {
-            val manaCost = pairedAugments.provideManaCost(((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
+            val manaCost = getEffectiveManaCost(pairedAugments,modifiers.compiledData.manaCostModifier,level,user)
             //val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
-            if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
+            if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData, pairedAugments)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
                 if (incrementStats) {
                     incrementScepterStats(
@@ -391,6 +417,16 @@ object ScepterHelper {
         val cd = AugmentHelper.getAugmentCooldown(activeEnchantId).value(level)
         val currentLastUsed = checkLastUsed(lastUsedList,activeEnchantId, world.time)
         updateLastUsed(lastUsedList,activeEnchantId,currentLastUsed - cd - 2)
+    }
+
+    private fun getEffectiveManaCost(pairedAugments: PairedAugments, manaCostModifier: Double, level: Int, user: LivingEntity): Int{
+        val manaCost = pairedAugments.provideManaCost(level)
+        return (manaCost * ((manaCostModifier + 100.0)/100.0) * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST)).toInt()
+    }
+
+    private fun getEffectiveCooldown(pairedAugments: PairedAugments, cooldownModifier: Double, level: Int, user: LivingEntity): Int{
+        val cooldown = pairedAugments.provideCooldown(level)
+        return (cooldown * ((cooldownModifier + 100.0)/100.0) * user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)).toInt()
     }
 
     fun getEffectiveCooldown(activeEnchantId: String, pairedEnchantId: String?, cooldownModifier: Double, level: Int, user: LivingEntity): Int{

@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
@@ -109,11 +110,15 @@ abstract class AugmentScepterItem(
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
-        val pairedEnchantId: String? = getPairedEnchant(stack)
-        if (pairedEnchantId != null) {
-            val pairedEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(pairedEnchantId)) ?: return resetCooldown(stack, world, user, activeEnchantId)
-            if (pairedEnchant !is ScepterAugment) return resetCooldown(stack, world, user, activeEnchantId)
+        val pairedEnchantId: String? = ScepterHelper.getPairedEnchantId(stack,activeEnchantId)
+        val pairedEnchant = if (pairedEnchantId != null) {
+            val pairedEnchantTest: Enchantment = Registries.ENCHANTMENT.get(Identifier(pairedEnchantId)) ?: return resetCooldown(stack, world, user, activeEnchantId)
+            if (pairedEnchantTest !is ScepterAugment) return resetCooldown(stack, world, user, activeEnchantId)
+            pairedEnchantTest
+        } else {
+            null
         }
+        val pairedAugments = ScepterHelper.getPairedAugments(activeEnchantId,pairedEnchantId,testEnchant, pairedEnchant)
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 
@@ -148,7 +153,7 @@ abstract class AugmentScepterItem(
                     }
                 }
             }
-            return serverUse(world, user, hand, stack, activeEnchantId,pairedEnchantId, testEnchant, testLevel)
+            return serverUse(world, user, hand, stack, activeEnchantId, testEnchant, pairedAugments, testLevel)
         }
     }
 
@@ -158,11 +163,11 @@ abstract class AugmentScepterItem(
         hand: Hand,
         stack: ItemStack,
         activeEnchantId: String,
-        pairedEnchantId: String?,
         spell: ScepterAugment,
+        pairedAugments: PairedAugments,
         testLevel: Int
     ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
-        return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,pairedEnchantId,testLevel,this)
+        return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -264,15 +269,6 @@ abstract class AugmentScepterItem(
         //slowly heal damage over time
         if (ManaHelper.tickHeal(stack)){
             healDamage(1,stack)
-        }
-    }
-
-    fun getPairedEnchant(stack: ItemStack): String?{
-        val nbt: NbtCompound = stack.orCreateNbt
-        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ACTIVE_PAIRED_ENCHANT.str())){
-            nbt.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ACTIVE_PAIRED_ENCHANT.str())
-        } else {
-            null
         }
     }
 }

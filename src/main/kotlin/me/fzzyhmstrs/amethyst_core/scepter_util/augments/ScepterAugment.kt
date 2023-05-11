@@ -3,15 +3,14 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.*
-import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.*
 import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
 import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
@@ -45,7 +44,8 @@ abstract class ScepterAugment(
     private val tier: ScepterTier,
     private val maxLvl: Int,
     var augmentData: AugmentDatapoint,
-    val augmentType: AugmentType)
+    val augmentType: AugmentType
+)
     :
     BaseScepterAugment()
 {
@@ -54,7 +54,7 @@ abstract class ScepterAugment(
     open val modificationEffect = AugmentEffect()
     open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
 
-    fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedSpell: ScepterAugment? = null): Boolean{
+    fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
         val aug = Registries.ENCHANTMENT.getId(this) ?: return false
         if (!AugmentHelper.getAugmentEnabled(aug.toString())) {
             if (user is PlayerEntity){
@@ -62,13 +62,15 @@ abstract class ScepterAugment(
             }
             return false
         }
-        val pairedAugments = PairedAugments(this,pairedSpell)
         val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
         val bl = applyTasks(world,user,hand,level,effectModifiers,pairedAugments)
         if (bl.result.isAccepted) {
             modifiers.forEach {
-                if (it.hasSecondaryEffect()) {
-                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier())
+                val secondary = it.getSecondaryEffect()
+                if (secondary != null) {
+                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier(),
+                        PairedAugments(secondary)
+                    )
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
@@ -97,20 +99,20 @@ abstract class ScepterAugment(
     open fun onEntityKill(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
-    open fun modifyDamage(amount: Float,cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
+    open fun modifyDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
         return amount
     }
-    open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder{
+    open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder {
         return builder
     }
-    open fun modifySummons(summons: List<Entity>,cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
+    open fun modifySummons(summons: List<Entity>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
         return summons
     }
-    open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder{
+    open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder {
         return builder
     }
 
-    fun modificationInfo(): ModificationInfo{
+    fun modificationInfo(): ModificationInfo {
         return augmentData.modificationInfo
     }
 
@@ -197,12 +199,15 @@ abstract class ScepterAugment(
 
         val FAIL = actionResult(ActionResult.FAIL)
         fun actionResult(result: ActionResult,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
+            return actionResult(result,ids.asList())
+        }
+        fun actionResult(result: ActionResult,ids: List<Identifier>): TypedActionResult<List<Identifier>>{
             return when(result){
-                ActionResult.SUCCESS -> TypedActionResult.success(ids.asList())
-                ActionResult.CONSUME -> TypedActionResult.consume(ids.asList())
-                ActionResult.CONSUME_PARTIAL -> TypedActionResult.consume(ids.asList())
-                ActionResult.PASS -> TypedActionResult.pass(ids.asList())
-                ActionResult.FAIL -> TypedActionResult.fail(ids.asList())
+                ActionResult.SUCCESS -> TypedActionResult.success(ids)
+                ActionResult.CONSUME -> TypedActionResult.consume(ids)
+                ActionResult.CONSUME_PARTIAL -> TypedActionResult.consume(ids)
+                ActionResult.PASS -> TypedActionResult.pass(ids)
+                ActionResult.FAIL -> TypedActionResult.fail(ids)
             }
         }
         

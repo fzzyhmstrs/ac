@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter_util.augments
+package me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
 import me.fzzyhmstrs.amethyst_core.event.EntityHitActionEvent
@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
@@ -30,6 +31,8 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     constructor(main: ScepterAugment, pairedSpell: ScepterAugment?): this(if(pairedSpell != null) arrayOf(main, pairedSpell) else arrayOf(main))
 
     private val type: Type
+    private val cooldown: PerLvlI
+    private val manaCost: PerLvlI
 
     init{
         type = if (augments.isEmpty()){
@@ -38,6 +41,40 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             Type.SINGLE
         } else{
             Type.PAIRED
+        }
+
+        cooldown = if (augments.isEmpty()){
+            PerLvlI()
+        } else if (augments.size == 1){
+            augments[0].augmentData.cooldown.copy()
+        } else{
+            when (augments[1].modificationInfo().cooldownType){
+                ModificationType.DEFER -> augments[0].augmentData.cooldown.copy()
+                ModificationType.MODIFY -> augments[0].augmentData.cooldown.copy().plus(augments[1].modificationInfo().cooldownModifier)
+                ModificationType.REPLACE -> when(augments[0].modificationInfo().cooldownType){
+                        ModificationType.DEFER -> augments[1].augmentData.cooldown.copy()
+                        ModificationType.MODIFY -> augments[1].augmentData.cooldown.copy().plus(augments[0].modificationInfo().cooldownModifier)
+                        ModificationType.REPLACE -> augments[0].augmentData.cooldown.copy()
+                    }
+            }
+
+        }
+
+        manaCost = if (augments.isEmpty()){
+            PerLvlI()
+        } else if (augments.size == 1){
+            PerLvlI(augments[0].augmentData.manaCost)
+        } else{
+            when (augments[1].modificationInfo().manaCostType){
+                ModificationType.DEFER -> PerLvlI(augments[0].augmentData.manaCost)
+                ModificationType.MODIFY -> PerLvlI(augments[0].augmentData.manaCost).plus(augments[1].modificationInfo().manaCostModifier)
+                ModificationType.REPLACE -> when(augments[0].modificationInfo().manaCostType){
+                    ModificationType.DEFER -> PerLvlI(augments[1].augmentData.manaCost)
+                    ModificationType.MODIFY -> PerLvlI(augments[1].augmentData.manaCost).plus(augments[0].modificationInfo().manaCostModifier)
+                    ModificationType.REPLACE -> PerLvlI(augments[1].augmentData.manaCost)
+                }
+            }
+
         }
     }
 
@@ -61,7 +98,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun processAugmentEffects(user: LivingEntity,modifierData: AugmentModifier): AugmentEffect{
+    fun processAugmentEffects(user: LivingEntity, modifierData: AugmentModifier): AugmentEffect{
         val effectModifiers = AugmentEffect(
             PerLvlF(0f,0f,(user.getAttributeValue(RegisterAttribute.SPELL_DAMAGE).toFloat() - 1f) * 100f),
             PerLvlI(user.getAttributeValue(RegisterAttribute.SPELL_AMPLIFIER).toInt()),
@@ -174,19 +211,19 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     
     private fun processEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
         val returnList: MutableList<Identifier> = mutableListOf()
-        if (type == Type.PAIRED){
+        if (type == Type.SINGLE) {
+            val result = augments[0].onEntityHit(entityHitResult, world,source, user, hand, level, effects,
+                AugmentType.EMPTY, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+            }
+        } else if (type == Type.PAIRED){
             val result = augments[1].onEntityHit(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
-                val result2 = augments[0].onEntityHit(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                val result2 = augments[0].onEntityHit(entityHitResult, world,source, user,hand,level, effects,
+                    AugmentType.EMPTY, this)
                 if (result2.result.isAccepted){
-                    returnList.addAll(result.value)
-                }
-            }
-        } else {
-            for (augment in augments) {
-                val result = augment.onEntityHit(entityHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
-                if (result.result.isAccepted){
                     returnList.addAll(result.value)
                 }
             }
@@ -220,19 +257,21 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     
     private fun processBlockHit(blockHitResult: BlockHitResult, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
         val returnList: MutableList<Identifier> = mutableListOf()
-        if (type == Type.PAIRED){
-            val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
-                val result2 = augments[0].onBlockHit(blockHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
-                if (result2.result.isAccepted){
+        if (type == Type.SINGLE) {
+            for (augment in augments) {
+                val result = augment.onBlockHit(blockHitResult, world,source, user, hand, level, effects,
+                    AugmentType.EMPTY, this)
+                if (result.result.isAccepted){
                     returnList.addAll(result.value)
                 }
             }
-        } else {
-            for (augment in augments) {
-                val result = augment.onBlockHit(blockHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
-                if (result.result.isAccepted){
+        } else if (type == Type.PAIRED){
+            val result = augments[1].onBlockHit(blockHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+                val result2 = augments[0].onBlockHit(blockHitResult, world,source, user,hand,level, effects,
+                    AugmentType.EMPTY, this)
+                if (result2.result.isAccepted){
                     returnList.addAll(result.value)
                 }
             }
@@ -244,29 +283,40 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         if (type == Type.PAIRED){
             val result = augments[1].onEntityKill(entityHitResult, world,source, user,hand,level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
-                augments[0].onEntityKill(entityHitResult, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
+                augments[0].onEntityKill(entityHitResult, world,source, user,hand,level, effects,
+                    AugmentType.EMPTY, this)
             }
         } else {
             for (augment in augments) {
-                val result = augment.onEntityKill(entityHitResult, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+                val result = augment.onEntityKill(entityHitResult, world,source, user, hand, level, effects,
+                    AugmentType.EMPTY, this)
                 if (!result.result.isAccepted) break
             }
         }
+    }
+
+    fun provideCooldown(level: Int): Int{
+        return cooldown.value(level)
+    }
+
+    fun provideManaCost(level: Int): Int{
+        return manaCost.value(level)
     }
     
     fun provideDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
         return if (type == Type.PAIRED){
             if (cause == augments[0]){
-                return augments[1].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+                augments[1].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
             } else {
-                return augments[0].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
+                augments[0].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
             }
+        } else {
+            amount
         }
-        return amount
     }
     
     fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
-        return if (type = Type.PAIRED){
+        return if (type == Type.PAIRED){
             if (cause == augments[0]){
                 augments[1].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this).build()
             } else {
@@ -277,7 +327,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun provideSummons(summons: List<Entity>,cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<Entity>{
+    fun provideSummons(summons: List<Entity>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<Entity>{
         return if (type == Type.PAIRED){
             if (cause == augments[0]) {
                 augments[1].modifySummons(summons,cause, user, world, hand, level, effects, augments[0].augmentType, this)
@@ -289,8 +339,8 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun causeExplosion(builder: ExplosionBuilder,cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
-        return if (type = Type.PAIRED){
+    fun causeExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+        return if (type == Type.PAIRED){
             if (cause == augments[0]) {
                 augments[1].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
             } else {
