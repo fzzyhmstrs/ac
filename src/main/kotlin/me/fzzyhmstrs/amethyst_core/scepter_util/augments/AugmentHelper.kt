@@ -83,24 +83,25 @@ object AugmentHelper {
         val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
         return AugmentDatapoint(type,augmentAfterConfig.getCooldown(),augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,augmentAfterConfig.castXp, tier, item, augmentAfterConfig.enabled, augmentAfterConfig.pvpMode)
     }
-
-    fun checkAugmentStat(id: String): Boolean{
-        return augmentStats.containsKey(id)
+    
+    fun getScepterAugment(id: String): ScepterAugment?{
+        return getScepterAugment(Identifier(id))
+    }
+    
+    fun getScepterAugment(id: Identifier): ScepterAugment?{
+        val enchant = Registries.ENCHANTMENT.get(id)
+        return if(enchant is ScepterAugment){
+            enchant
+        } else {
+            null
+        }
     }
 
     fun getAugmentType(id: String): SpellType {
-        if(!augmentStats.containsKey(id)) return SpellType.NULL
-        return augmentStats[id]?.type?: SpellType.NULL
+        return getScepterAugment(id)?.augmentData?.type?: SpellType.NULL
     }
-
-    fun getAugmentItem(id: String): Item {
-        if(!augmentStats.containsKey(id)) return Items.GOLD_INGOT
-        return augmentStats[id]?.keyItem?: Items.GOLD_INGOT
-    }
-
-    fun getAugmentMinLvl(id: String): Int {
-        if(!augmentStats.containsKey(id)) return 1
-        return augmentStats[id]?.minLvl?:1
+    fun getAugmentType(id: Identifier): SpellType {
+        return getScepterAugment(id)?.augmentData?.type?: SpellType.NULL
     }
     
     fun getAugmentCurrentLevel(scepterLevel: Int, augmentId: Identifier, augment: ScepterAugment): Int{
@@ -123,39 +124,23 @@ object AugmentHelper {
 
     private val DEFAULT_COOLDOWN = PerLvlI(20)
     fun getAugmentCooldown(id: String): PerLvlI{
-        if(!augmentStats.containsKey(id)) return DEFAULT_COOLDOWN
-        return (augmentStats[id]?.cooldown) ?: DEFAULT_COOLDOWN
+        return getScepterAugment(id)?.augmentData?.cooldown?: DEFAULT_COOLDOWN
     }
     private val DEFAULT_MODIFICATION_INFO = ModificationInfo.empty()
     fun getAugmentModificationInfo(id: String): ModificationInfo {
-        if(!augmentStats.containsKey(id)) return DEFAULT_MODIFICATION_INFO
-        return (augmentStats[id]?.modificationInfo) ?: DEFAULT_MODIFICATION_INFO
+        return getScepterAugment(id)?.augmentData?.modificationInfo?: DEFAULT_MODIFICATION_INFO
     }
-    fun getAugmentImbueLevel(id: String): Int{
-        if(!augmentStats.containsKey(id)) return (1)
-        val cd = (augmentStats[id]?.imbueLevel) ?: 1
-        return max(1,cd)
+    
+    fun getAugmentImbueLevel(id: Identifier, multiplier: Float = 1f): Int{
+        return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
     }
-    fun getAugmentTier(id: String): LoreTier {
-        if (!augmentStats.containsKey(id)) return (LoreTier.NO_TIER)
-        return (augmentStats[id]?.bookOfLoreTier) ?: LoreTier.NO_TIER
-    }
+    
     fun getAugmentEnabled(id: String): Boolean {
-        if (!augmentStats.containsKey(id)) return false
-        return (augmentStats[id]?.enabled) ?: false
-    }
-    fun getAugmentPvpMode(id: String): Boolean {
-        if (!augmentStats.containsKey(id)) return false
-        return (augmentStats[id]?.pvpMode) ?: false
-    }
-    fun getAugmentCastXp(id: String): Int{
-        if (!augmentStats.containsKey(id)) return 1
-        return (augmentStats[id]?.castXp) ?: 1
+        return getScepterAugment(id)?.augmentData?.enabled ?: false
     }
 
     fun getAugmentDatapoint(id: String): AugmentDatapoint{
-        if (!augmentStats.containsKey(id)) return AugmentDatapoint()
-        return augmentStats[id]?:AugmentDatapoint()
+        return getScepterAugment(id)?.augmentData?:AugmentDatapoint()
     }
 
     /**
