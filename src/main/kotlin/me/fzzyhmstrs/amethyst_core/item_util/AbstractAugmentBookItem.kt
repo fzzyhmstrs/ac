@@ -41,6 +41,10 @@ import kotlin.random.Random
 abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(settings) {
 
     abstract val loreTier: LoreTier
+    
+    open fun multiplier(): Float{
+        return 1f
+    }
 
     override fun appendTooltip(
         stack: ItemStack,
@@ -51,25 +55,27 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         val nbt = stack.orCreateNbt
         if (nbt.contains(NbtKeys.LORE_KEY.str())){
             val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+            val aug = AugmentHelper.getScepterAugment(bola)?:return
+            //name and desc
             tooltip.add(AcText.translatable("lore_book.augment",AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}")).formatted(Formatting.GOLD))
-            //tooltip.add(AcText.translatable("lore_book.augment").formatted(Formatting.GOLD).append(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}").formatted(Formatting.GOLD)))
             tooltip.add(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}.desc").formatted(Formatting.WHITE))
-            val type = AugmentHelper.getAugmentType(bola)
+            //spell type
+            val type = aug.augmentData.type
             if (type == SpellType.NULL){
                 tooltip.add(AcText.translatable("lore_book.${type.str()}").formatted(type.fmt()))
             } else {
-                val lvl = AugmentHelper.getAugmentMinLvl(bola)
+                val lvl = aug.augmentData.minLvl
                 tooltip.add(AcText.translatable("lore_book.${type.str()}",lvl.toString()).formatted(type.fmt()))
-                //tooltip.add(AcText.translatable("lore_book.${type.str()}").formatted(type.fmt()).append(AcText.literal(lvl.toString())))
             }
-            val item = AugmentHelper.getAugmentItem(bola)
+            //key crafting item
+            val item = aug.augmentData.keyItem
             val itemText = item.name.copyContentOnly().formatted(Formatting.WHITE)
             tooltip.add(AcText.translatable("lore_book.key_item",itemText).formatted(Formatting.WHITE))
-            //tooltip.add(AcText.translatable("lore_book.key_item").formatted(Formatting.WHITE).append(itemText))
-            val xpLevels = AugmentHelper.getAugmentImbueLevel(bola)
+            //xp levels needed to imbue
+            val xpLevels = AugmentHelper.getAugmentImbueLevel(bola, multiplier())
             tooltip.add(AcText.translatable("lore_book.xp_level", xpLevels.toString()).formatted(Formatting.WHITE))
-            //tooltip.add(AcText.translatable("lore_book.xp_level").formatted(Formatting.WHITE).append(xpLevels.toString()))
-            val cooldown = AugmentHelper.getAugmentCooldown(bola)
+            //cooldown
+            val cooldown = aug.augmentData.cooldown
             val cooldownBase = cooldown.base / 20f
             val cooldownPerLvl = cooldown.perLevel / 20f
             val cooldownKey = if(cooldownPerLvl < 0){
@@ -80,18 +86,16 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 "lore_book.cooldown.plus"
             }
             tooltip.add(AcText.translatable(cooldownKey,cooldownBase.toString(), abs(cooldownPerLvl).toString()).formatted(Formatting.WHITE))
-            //tooltip.add(AcText.translatable("lore_book.cooldown").formatted(Formatting.WHITE).append(AcText.literal(cooldown.toString())).append(AcText.translatable("lore_book.cooldown1").formatted(Formatting.WHITE)))
-            val manaCost = AugmentHelper.getAugmentManaCost(bola)
+            //mana cost
+            val manaCost = aug.augmentData.manaCost
             tooltip.add(AcText.translatable("lore_book.mana_cost",manaCost.toString()).formatted(Formatting.WHITE))
-            //tooltip.add(AcText.translatable("lore_book.mana_cost").formatted(Formatting.WHITE).append(AcText.literal(manaCost.toString())))
-            val bole = Registries.ENCHANTMENT.get(Identifier(bola))
-            if (bole is ScepterAugment) {
-                val spellTier = bole.getTier()
-                tooltip.add(
-                    AcText.translatable("lore_book.tier",spellTier.toString()).formatted(Formatting.WHITE)
-                )//AcText.translatable("lore_book.tier").formatted(Formatting.WHITE).append(AcText.literal(spellTier.toString()))
-            }
-            val castXp = AugmentHelper.getAugmentCastXp(bola)
+            //tier
+            val spellTier = augetTier()
+            tooltip.add(
+                AcText.translatable("lore_book.tier",spellTier.toString()).formatted(Formatting.WHITE)
+            )
+            //scpeter XP gained
+            val castXp = aug.augmentData.castXp
             tooltip.add(AcText.translatable("lore_book.cast_xp",castXp.toString()).formatted(Formatting.WHITE))
         } else {
             addFlavorText(tooltip, context)
