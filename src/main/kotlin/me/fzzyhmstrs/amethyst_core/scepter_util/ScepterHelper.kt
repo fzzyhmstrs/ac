@@ -64,9 +64,23 @@ object ScepterHelper {
         }
         return PAIRED_SPELL_CACHE.getOrPut(key) { PairedAugments(spell, pairedSpell) }
     }
+    
+    fun getPairedAugments(activeEnchantId: String, stack: ItemStack): PairedAugments?{
+        val pairedEnchantId = getPairedEnchantId(stack, activeEnchantId)
+        val key = if (pairedEnchantId == null){
+            activeEnchantId
+        } else {
+            activeEnchantId + pairedEnchantId
+        }
+        return PAIRED_SPELL_CACHE[key]
+    }
 
     fun getPairedEnchantId(stack: ItemStack, activeEnchantId: String): String?{
         val nbt: NbtCompound = stack.orCreateNbt
+        return getPairedEnchantId(nbt, activeEnchantId)
+    }
+    
+    private fun getPairedEnchantId(nbt: NbtCompound, activeEnchantId: String): String?{
         return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())){
             val pairedEnchants = nbt.getCompound(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())
             if (pairedEnchants.contains(activeEnchantId)){
@@ -78,6 +92,12 @@ object ScepterHelper {
         } else {
             null
         }
+    
+    fun getPairedSpell(nbt: NbtCompound, activeEnchantId: String): ScepterAugment?{
+        val str = getPairedEnchantId(nbt, activeEnchantId) ?: return null
+        val spell = Registries.ENCHANTMENT.get(Identifier(str))
+        if (spell !is ScepterAugment) return null
+        return spell
     }
 
     fun useScepter(activeEnchantId: String, pairedAugments: PairedAugments, stack: ItemStack, world: World, level: Int, modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>, user: LivingEntity, checkEnchant: Boolean = true): Int?{
@@ -268,7 +288,7 @@ object ScepterHelper {
         val timeSinceLast = user.world.time - checkLastUsed(lastUsedList,newActiveEnchantId,user.world.time-1000000L)
         val modifiers = ModifierHelper.getActiveModifiers(stack)
         val level = getEffectiveLevel(getTestLevel(nbt,newActiveEnchantId, newActiveEnchant), modifiers.compiledData.levelModifier,user)
-        val pairedSpellId = getPairedSpell(nbtTemp)?.id?.toString()
+        val pairedSpellId = getPairedEnchantId(nbt, activeEnchantId)
         val cooldown = getEffectiveCooldown(newActiveEnchantId,pairedSpellId, modifiers.compiledData.cooldownModifier,level,user)
         if(timeSinceLast >= cooldown){
             user.itemCooldownManager.remove(stack.item)
@@ -317,14 +337,6 @@ object ScepterHelper {
 
     fun getEffectiveLevel(testLevel: Int, levelModifier: Int, user: LivingEntity): Int{
         return max(1,((testLevel + levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
-    }
-
-    fun getPairedSpell(nbt: NbtCompound): ScepterAugment?{
-        val str = nbt.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANT.str())
-        if (str.isEmpty()) return null
-        val spell = Registries.ENCHANTMENT.get(Identifier(str))
-        if (spell !is ScepterAugment) return null
-        return spell
     }
 
     fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, spell: ScepterAugment, user: LivingEntity, xpMods: XpModifiers? = null){
