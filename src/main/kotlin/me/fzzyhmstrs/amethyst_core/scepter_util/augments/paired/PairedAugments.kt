@@ -33,6 +33,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     private val type: Type
     private val cooldown: PerLvlI
     private val manaCost: PerLvlI
+    private val name: MutableText
+    private val enabled: Boolean
+    private val maxLevel: Int
 
     init{
         type = if (augments.isEmpty()){
@@ -75,6 +78,20 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 }
             }
 
+        }
+        
+        name = if(augments.isEmpty){
+            enabled = false
+            maxLevel = 0
+            AcText.empty()
+        }  else if (augments.size == 1){
+            enabled = augments[0].augmentData.enabled
+            maxLevel = augments[0].maxLevel
+            AcText.translatable(augments[0].getOrCreateTranslationKey())
+        } else {
+            enabled = augments[0].augmentData.enabled
+            maxLevel = augments[0].maxLevel
+            augments[0].augmentName(augments[1])
         }
     }
 
@@ -292,6 +309,28 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                     AugmentType.EMPTY, this)
                 if (!result.result.isAccepted) break
             }
+        }
+    }
+    
+    fun provideName(level: Int): Text{
+        val text = name
+        if (level != 1 || maxLevel != 1 ) {
+            text.append(" ").append(AcText.translatable("enchantment.level." + level))
+        }
+        if(!enabled){
+            text.append(AcText.INSTANCE.translatable("scepter.augment.disabled"))
+            text.formatted(Formatting.DARK_RED).formatted(Formatting.STRIKETHROUGH)
+        }
+        return text
+    }
+    
+    fun provideNameDescription(textList: MutableList<Text>){
+        if (type != Type.EMPTY){
+            textList.add(AcText.translatable(augments[0].getOrCreateTranslationKey() + ".desc"))
+        }
+        if (type == Type.PAIRED) {
+            textList.add(AcText.empty())
+            augments[1].appendDescription(textList,augments[0],augments[0].augmentType)
         }
     }
 
