@@ -115,17 +115,11 @@ abstract class ScepterAugment(
         return augmentData.modificationInfo
     }
 
-    /**
-     * This method defines the sound that plays when the spell is cast. override this with your preferred sound event
-     */
-    open fun soundEvent(): SoundEvent {
-        return SoundEvents.BLOCK_BEACON_ACTIVATE
-    }
-
     open fun castSoundEvent(world: World, blockPos: BlockPos){
     }
     open fun hitSoundEvent(world: World, blockPos: BlockPos){
     }
+    
     open fun castParticleType(): ParticleEffect {
         return ParticleTypes.CRIT
     }
@@ -139,12 +133,13 @@ abstract class ScepterAugment(
         }
     }
 
-    fun augmentName(nbt: NbtCompound, level: Int): Text{
-        val spell = ScepterHelper.getPairedSpell(nbt)
-        return augmentName(spell,level)
+    fun augmentName(stack: ItemStack, level: Int): Text{
+        val activeEnchantId = this.id?.toString()?:return getName(level)
+        val pairedSpells = ScepterHelper.getPairedAugments(activeEnchantId, stack)?:return getName(level)
+        return pairedSpells.provideName(level)
     }
-    open fun augmentName(pairedSpell: ScepterAugment?, level: Int): Text{
-        return getName(level)
+    open fun augmentName(pairedSpell: ScepterAugment): Text{
+        return AcText.translatable(getOrCreateTranslationKey())
     }
     open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")
@@ -152,18 +147,7 @@ abstract class ScepterAugment(
     open fun provideVerb(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".verb")
     }
-    open fun provideAdjective(pairedSpell: ScepterAugment?): Text{
-        return AcText.translatable(getTranslationKey() + ".adjective")
-    }
-    open fun provideNounDesc(pairedSpell: ScepterAugment?): Text{
-        return AcText.translatable(getTranslationKey() + ".noun.desc")
-    }
-    open fun provideVerbDesc(pairedSpell: ScepterAugment?): Text{
-        return AcText.translatable(getTranslationKey() + ".verb.desc")
-    }
-    open fun provideAdjectiveDesc(pairedSpell: ScepterAugment?): Text{
-        return AcText.translatable(getTranslationKey() + ".adjective.desc")
-    }
+    open fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType){}
 
     open fun getAugmentMaxLevel(): Int{
         return maxLvl
