@@ -25,18 +25,15 @@ public abstract class EnchantmentMixin{
     @Inject(method = "getName", at = @At(value = "HEAD"), cancellable = true)
     private void amethyst_core_disabledAugmentName(int level, CallbackInfoReturnable<Text> cir){
         Enchantment enchant = (Enchantment)(Object)this;
-        if (enchant instanceof ScepterAugment) {
-            Identifier id = Registries.ENCHANTMENT.getId(enchant);
-            if (id != null){
-                if(!AugmentHelper.INSTANCE.getAugmentEnabled(id.toString())){
-                    MutableText mutableText = AcText.INSTANCE.translatable(getOrCreateTranslationKey());
-                    if (level != 1 || this.getMaxLevel() != 1) {
-                        mutableText.append(" ").append(AcText.INSTANCE.translatable("enchantment.level." + level));
-                    }
-                    mutableText.append(AcText.INSTANCE.translatable("scepter.augment.disabled"));
-                    mutableText.formatted(Formatting.DARK_RED).formatted(Formatting.STRIKETHROUGH);
-                    cir.setReturnValue(mutableText);
+        if (enchant instanceof ScepterAugment aug) {
+            if(!aug.augmentData.enabled){
+                MutableText mutableText = AcText.INSTANCE.translatable(getOrCreateTranslationKey());
+                if (level != 1 || this.getMaxLevel() != 1) {
+                    mutableText.append(" ").append(AcText.INSTANCE.translatable("enchantment.level." + level));
                 }
+                mutableText.append(AcText.INSTANCE.translatable("scepter.augment.disabled"));
+                mutableText.formatted(Formatting.DARK_RED).formatted(Formatting.STRIKETHROUGH);
+                cir.setReturnValue(mutableText);
             }
         }
     }
