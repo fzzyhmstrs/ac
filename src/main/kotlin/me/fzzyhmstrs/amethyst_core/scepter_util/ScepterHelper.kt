@@ -160,7 +160,7 @@ object ScepterHelper {
                     incrementScepterStats(
                         stack.orCreateNbt,
                         stack,
-                        activeEnchantId,
+                        spell,
                         user,
                         modifiers.compiledData.getXpModifiers()
                     )
@@ -327,12 +327,12 @@ object ScepterHelper {
         return spell
     }
 
-    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, activeEnchantId: String, user: LivingEntity, xpMods: XpModifiers? = null){
-        val spellKey = AugmentHelper.getAugmentType(activeEnchantId).name
+    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, spell: ScepterAugment, user: LivingEntity, xpMods: XpModifiers? = null){
+        val spellKey = spell.augmenetData.type.name
         if(spellKey == SpellType.NULL.name) return
         val statLvl = scepterNbt.getInt(spellKey + "_lvl")
         val statMod = xpMods?.getMod(spellKey) ?: 0
-        val statMod2 = AugmentHelper.getAugmentCastXp(activeEnchantId)
+        val statMod2 = spell.augmentData.castXp
         val statXp = (scepterNbt.getInt(spellKey + "_xp") + ((statMod + statMod2) * user.getAttributeValue(RegisterAttribute.SPELL_EXPERIENCE))).toInt()
         scepterNbt.putInt(spellKey + "_xp",statXp)
         val lvlUp = checkXpForLevelUp(statXp,statLvl)
