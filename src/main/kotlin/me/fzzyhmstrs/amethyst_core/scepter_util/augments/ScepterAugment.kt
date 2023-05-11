@@ -55,8 +55,7 @@ abstract class ScepterAugment(
     open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
-        val aug = Registries.ENCHANTMENT.getId(this) ?: return false
-        if (!AugmentHelper.getAugmentEnabled(aug.toString())) {
+        if (!augmentData.enabled) {
             if (user is PlayerEntity){
                 user.sendMessage(AcText.translatable("scepter.augment.disabled_message", this.getName(1)), false)
             }
