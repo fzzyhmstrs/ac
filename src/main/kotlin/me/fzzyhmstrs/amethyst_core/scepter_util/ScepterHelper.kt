@@ -398,9 +398,8 @@ object ScepterHelper {
     fun isAcceptableScepterItem(augment: ScepterAugment, stack: ItemStack, player: PlayerEntity): Boolean {
         val nbt = stack.orCreateNbt
         if (player.abilities.creativeMode) return true
-        val activeEnchantId = Registries.ENCHANTMENT.getId(augment)?.toString() ?: ""
-        if (!AugmentHelper.checkAugmentStat(activeEnchantId)) return false
-        val minLvl = AugmentHelper.getAugmentMinLvl(activeEnchantId)
+        val activeEnchantId = Registries.ENCHANTMENT.getId(augment)?.toString() ?: return false
+        val minLvl = augment.augmentData.minLvl
         val curLvl = getScepterStat(nbt,activeEnchantId).first
         return (curLvl >= minLvl)
 
