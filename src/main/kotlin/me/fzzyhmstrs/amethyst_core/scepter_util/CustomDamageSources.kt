@@ -1,21 +1,18 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.damage.EntityDamageSource
 
 object CustomDamageSources {
 
-    class SoulDamageSource(source: Entity?): EntityDamageSource("soul", source){
-    }
-    class SmitingDamageSource(source: Entity?): EntityDamageSource("smite", source){
-    }
-
-    class LightningDamageSource(source: Entity?): EntityDamageSource("lightningBolt", source){
-    }
-
-    class FreezingDamageSource(source: Entity?): EntityDamageSource("freeze", source){
-        init{
-            this.setBypassesArmor()
-        }
-    }
+    class GenericDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customGeneric", source,attacker)
+    class SoulDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customSoul", source,attacker)
+    class MagicDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customMagic", source,attacker)
+    class HolyDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customHoly", source,attacker)
+    class FireDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customFire", source,attacker)
+    class LightningDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customLightning", source,attacker)
+    class FreezingDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customFreezing", source,attacker)
 }

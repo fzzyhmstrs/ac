@@ -12,6 +12,7 @@ import net.minecraft.item.Items
 import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
+import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import kotlin.math.max
 
@@ -30,29 +31,11 @@ object AugmentHelper {
     val SUMMONED_MOB = Identifier(AC.MOD_ID,"summoned_mob")
     val SLASHED = Identifier(AC.MOD_ID,"slashed")
     val DAMAGED_MOB = Identifier(AC.MOD_ID,"damaged_mob")
+    val KILLED_MOB = Identifier(AC.MOD_ID,"killed_mob")
     val BLOCK_HIT = Identifier(AC.MOD_ID,"block_hit")
     val BLOCK_BROKE = Identifier(AC.MOD_ID,"block_broke")
     val BLOCK_PLACED = Identifier(AC.MOD_ID,"block_placed")
-
-    fun registerAugmentStat(id: String, dataPoint: AugmentDatapoint, overwrite: Boolean = false){
-        if(!augmentStats.containsKey(id) || overwrite){
-            augmentStats[id] = dataPoint
-            dataPoint.bookOfLoreTier.addToList(id)
-        }
-    }
-
-    /**
-     * typically an augment will be registered with this. Call this registration AFTER registering the augment with the Enchantment Registry.
-     */
-    fun registerAugmentStat(augment: ScepterAugment){
-        val id = EnchantmentHelper.getEnchantmentId(augment)?.toString()?:throw NoSuchElementException("Enchantment ID for ${this.javaClass.canonicalName} not found!")
-        val imbueLevel = if (checkAugmentStat(id)){
-            getAugmentImbueLevel(id)
-        } else {
-            1
-        }
-        registerAugmentStat(id,configAugmentStat(augment,id,imbueLevel),true)
-    }
+    val DRY_FIRED = Identifier(AC.MOD_ID,"dry_fired")
 
     /**
      * used to check if a registry or other initialization method should consider the provided augment.
@@ -105,7 +88,7 @@ object AugmentHelper {
     }
     
     fun getAugmentCurrentLevel(scepterLevel: Int, augmentId: Identifier, augment: ScepterAugment): Int{
-        val minLvl = getAugmentMinLvl(augmentId.toString())
+        val minLvl = augment.augmentData.minLvl
         val maxLevel = (augment.getAugmentMaxLevel()) + minLvl - 1
         var testLevel = 1
         if (scepterLevel >= minLvl){
@@ -132,6 +115,10 @@ object AugmentHelper {
     }
     
     fun getAugmentImbueLevel(id: Identifier, multiplier: Float = 1f): Int{
+        return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
+    }
+
+    fun getAugmentImbueLevel(id: String, multiplier: Float = 1f): Int{
         return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
     }
     

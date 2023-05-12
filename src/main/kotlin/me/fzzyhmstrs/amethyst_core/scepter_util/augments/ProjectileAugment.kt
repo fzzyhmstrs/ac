@@ -4,8 +4,8 @@ import me.fzzyhmstrs.amethyst_core.entity_util.MissileEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.ProjectileEntity
@@ -54,10 +54,21 @@ abstract class ProjectileAugment(
         return if(bl) TypedActionResult.success(listOf(AugmentHelper.PROJECTILE_FIRED)) else TypedActionResult.fail(listOf())
     }
     
-    override fun onEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    override fun onEntityHit(
+        entityHitResult: EntityHitResult,
+        context: ProcessContext,
+        world: World,
+        source: Entity?,
+        user: LivingEntity,
+        hand: Hand,
+        level: Int,
+        effects: AugmentEffect,
+        othersType: AugmentType,
+        spells: PairedAugments
+    ): TypedActionResult<List<Identifier>> {
         if (othersType.empty){
             val amount = spells.provideDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(DamageSourceBuilder(user,source),this,entityHitResult, source, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(source, user),this,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
             
             return if(bl) {
@@ -65,15 +76,31 @@ abstract class ProjectileAugment(
                 splashParticles(entityHitResult,world,pos.x,pos.y,pos.z,spells)
                 user.applyDamageEffects(user,entityHitResult.entity)
                 hitSoundEvent(world, entityHitResult.entity.blockPos)
-                actionResult(ActionResult.SUCCESS, AugmentHelper.PROJECTILE_HIT)
+                if (entityHitResult.entity.isAlive) {
+                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB, AugmentHelper.PROJECTILE_HIT)
+                } else {
+                    spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
+                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB, AugmentHelper.PROJECTILE_HIT, AugmentHelper.KILLED_MOB)
+                }
             } else {
                 FAIL
             }
         }
-        return actionResult(ActionResult.PASS)
+        return super.onEntityHit(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
     
-    override fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    override fun onBlockHit(
+        blockHitResult: BlockHitResult,
+        context: ProcessContext,
+        world: World,
+        source: Entity?,
+        user: LivingEntity,
+        hand: Hand,
+        level: Int,
+        effects: AugmentEffect,
+        othersType: AugmentType,
+        spells: PairedAugments
+    ): TypedActionResult<List<Identifier>> {
         val pos = source?.pos?: blockHitResult.pos
         splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
         if (othersType == AugmentType.EMPTY){

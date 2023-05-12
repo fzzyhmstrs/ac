@@ -37,7 +37,7 @@ object ACC: ClientModInitializer {
 
     override fun onInitializeClient() {
         RegisterBaseRenderer.registerAll()
-        PlaceItemAugment.registerClient()
+        ScepterHelper.registerClient()
         AbstractAugmentBookItem.registerClient()
     }
 }

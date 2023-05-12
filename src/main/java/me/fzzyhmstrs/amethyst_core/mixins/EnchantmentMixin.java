@@ -26,7 +26,7 @@ public abstract class EnchantmentMixin{
     private void amethyst_core_disabledAugmentName(int level, CallbackInfoReturnable<Text> cir){
         Enchantment enchant = (Enchantment)(Object)this;
         if (enchant instanceof ScepterAugment aug) {
-            if(!aug.augmentData.enabled){
+            if(!aug.getAugmentData().getEnabled()){
                 MutableText mutableText = AcText.INSTANCE.translatable(getOrCreateTranslationKey());
                 if (level != 1 || this.getMaxLevel() != 1) {
                     mutableText.append(" ").append(AcText.INSTANCE.translatable("enchantment.level." + level));

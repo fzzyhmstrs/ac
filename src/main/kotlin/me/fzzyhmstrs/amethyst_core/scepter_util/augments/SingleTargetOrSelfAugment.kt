@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -47,6 +48,7 @@ abstract class SingleTargetOrSelfAugment(
 
     override fun onEntityHit(
         entityHitResult: EntityHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: LivingEntity,
@@ -56,7 +58,7 @@ abstract class SingleTargetOrSelfAugment(
         othersType: AugmentType,
         spells: PairedAugments
     ): TypedActionResult<List<Identifier>> {
-        val result = entityEffects(entityHitResult, world, source, user, hand, level, effects, othersType, spells)
+        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (result.result.isAccepted)
             castSoundEvent(world,user.blockPos)
         return result
@@ -64,6 +66,7 @@ abstract class SingleTargetOrSelfAugment(
 
     open fun entityEffects(
         entityHitResult: EntityHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: LivingEntity,

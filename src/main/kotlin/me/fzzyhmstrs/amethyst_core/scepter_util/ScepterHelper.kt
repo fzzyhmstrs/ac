@@ -25,6 +25,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.advancement.criterion.TickCriterion
+import net.minecraft.client.MinecraftClient
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.LivingEntity
@@ -41,6 +42,8 @@ import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.max
 
@@ -53,6 +56,8 @@ object ScepterHelper {
 
     private val PAIRED_SPELL_CACHE: MutableMap<String, PairedAugments> = mutableMapOf()
     private val SCEPTER_SYNC_PACKET = Identifier(AC.MOD_ID,"scepter_sync_packet")
+    private val SPELL_PARTICLE_PACKET = Identifier(AC.MOD_ID,"spell_particle_packet")
+    private val particleAdders: MutableMap<Identifier,ParticleAdder> = mutableMapOf()
     val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
     val USED_KNOWLEDGE_BOOK = TickCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
 
@@ -80,10 +85,10 @@ object ScepterHelper {
         return getPairedEnchantId(nbt, activeEnchantId)
     }
     
-    private fun getPairedEnchantId(nbt: NbtCompound, activeEnchantId: String): String?{
-        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())){
+    private fun getPairedEnchantId(nbt: NbtCompound, activeEnchantId: String): String? {
+        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())) {
             val pairedEnchants = nbt.getCompound(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())
-            if (pairedEnchants.contains(activeEnchantId)){
+            if (pairedEnchants.contains(activeEnchantId)) {
                 val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
                 pairedEnchantData.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANT.str())
             } else {
@@ -92,6 +97,7 @@ object ScepterHelper {
         } else {
             null
         }
+    }
     
     fun getPairedSpell(nbt: NbtCompound, activeEnchantId: String): ScepterAugment?{
         val str = getPairedEnchantId(nbt, activeEnchantId) ?: return null
@@ -204,6 +210,33 @@ object ScepterHelper {
         val buf = PacketByteBufs.create()
         buf.writeBoolean(up)
         ClientPlayNetworking.send(SCEPTER_SYNC_PACKET,buf)
+    }
+
+    fun sendSpellParticlesFromServer(world: World, pos: Vec3d, buf: PacketByteBuf){
+        if (world is ServerWorld){
+            for (player in world.players){
+                if (player.blockPos.isWithinDistance(pos,32.0)){
+                    ServerPlayNetworking.send(player, SPELL_PARTICLE_PACKET,buf)
+                }
+            }
+        }
+    }
+
+    fun prepareParticlePacket(id: Identifier): PacketByteBuf{
+        val buf = PacketByteBufs.create()
+        buf.writeIdentifier(id)
+        return buf
+    }
+
+    fun registerParticleAdder(id: Identifier,adder: ParticleAdder){
+        particleAdders[id] = adder
+    }
+
+    fun registerClient() {
+        ClientPlayNetworking.registerGlobalReceiver(SPELL_PARTICLE_PACKET){client,_,buf,_ ->
+            val id = buf.readIdentifier()
+            particleAdders[id]?.addParticles(client, buf)
+        }
     }
 
     fun registerServer() {
@@ -324,7 +357,7 @@ object ScepterHelper {
 
     fun getTestLevel(nbt: NbtCompound, activeEnchantId: String, testEnchant: ScepterAugment): Int{
         val level = getScepterStat(nbt,activeEnchantId).first
-        val minLvl = AugmentHelper.getAugmentMinLvl(activeEnchantId)
+        val minLvl = testEnchant.augmentData.minLvl
         val maxLevel = (testEnchant.getAugmentMaxLevel()) + minLvl - 1
         var testLevel = 1
         if (level >= minLvl){
@@ -340,7 +373,7 @@ object ScepterHelper {
     }
 
     fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, spell: ScepterAugment, user: LivingEntity, xpMods: XpModifiers? = null){
-        val spellKey = spell.augmenetData.type.name
+        val spellKey = spell.augmentData.type.name
         if(spellKey == SpellType.NULL.name) return
         val statLvl = scepterNbt.getInt(spellKey + "_lvl")
         val statMod = xpMods?.getMod(spellKey) ?: 0
@@ -508,6 +541,13 @@ object ScepterHelper {
         }
         stats[5] = nbt.getInt("WIT_xp")
         return stats
+    }
+
+    @FunctionalInterface
+    fun interface ParticleAdder{
+
+        fun addParticles(client: MinecraftClient,buf: PacketByteBuf)
+
     }
 
 }

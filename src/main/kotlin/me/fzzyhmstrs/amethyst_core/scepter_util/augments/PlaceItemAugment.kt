@@ -5,12 +5,14 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
@@ -49,7 +51,18 @@ ScepterAugment(
         return FAIL
     }
     
-    override fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    override fun onBlockHit(
+        blockHitResult: BlockHitResult,
+        context: ProcessContext,
+        world: World,
+        source: Entity?,
+        user: LivingEntity,
+        hand: Hand,
+        level: Int,
+        effects: AugmentEffect,
+        othersType: AugmentType,
+        spells: PairedAugments
+    ): TypedActionResult<List<Identifier>> {
         if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
         if (user !is ServerPlayerEntity) return FAIL
         when (item) {
@@ -81,7 +94,7 @@ ScepterAugment(
             val sound = group.placeSound
             world.playSound(null,blockPos,sound,SoundCategory.BLOCKS,(group.volume + 1.0f)/2.0f,group.pitch * 0.8f)
         } else {
-            world.playSound(null,blockPos,soundEvent(),SoundCategory.BLOCKS,1.0f,1.0f)
+            world.playSound(null,blockPos,SoundEvents.BLOCK_WOOD_PLACE,SoundCategory.BLOCKS,1.0f,1.0f)
         }
     }
 

@@ -25,6 +25,7 @@ import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
@@ -89,13 +90,13 @@ abstract class ScepterAugment(
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
 
-    open fun onBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onEntityKill(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
     open fun modifyDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
@@ -103,6 +104,9 @@ abstract class ScepterAugment(
     }
     open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder {
         return builder
+    }
+    open fun damageSourceBuilder(source: Entity?, attacker: LivingEntity): DamageSourceBuilder{
+        return DamageSourceBuilder(attacker, source)
     }
     open fun modifySummons(summons: List<Entity>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
         return summons
@@ -132,14 +136,13 @@ abstract class ScepterAugment(
             world.spawnParticles(particle,x,y,z,20,.25,.25,.25,0.2)
         }
     }
-
     fun augmentName(stack: ItemStack, level: Int): Text{
         val activeEnchantId = this.id?.toString()?:return getName(level)
         val pairedSpells = ScepterHelper.getPairedAugments(activeEnchantId, stack)?:return getName(level)
         return pairedSpells.provideName(level)
     }
-    open fun augmentName(pairedSpell: ScepterAugment): Text{
-        return AcText.translatable(getOrCreateTranslationKey())
+    open fun augmentName(pairedSpell: ScepterAugment): MutableText {
+        return AcText.translatable(orCreateTranslationKey)
     }
     open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")

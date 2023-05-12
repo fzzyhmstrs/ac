@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.block.ShapeContext
 import net.minecraft.entity.Entity
@@ -73,7 +74,7 @@ abstract class BeamAugment(
             blockList.add(BlockHitResult(pos, Direction.UP,blockPos,true))
             range -= 1.0
         }while (range > 0.0)
-        val list2 = spells.processMultipleBlockHits(blockList,world, null, user, hand, level, effects)
+        val list2 = spells.processMultipleBlockHits(blockList, world, null, user, hand, level, effects)
         list.addAll(list2)
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
     }
@@ -84,6 +85,7 @@ abstract class BeamAugment(
 
     override fun onEntityHit(
         entityHitResult: EntityHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: LivingEntity,
@@ -112,15 +114,21 @@ abstract class BeamAugment(
     ): TypedActionResult<List<Identifier>> {
         if (othersType.empty){
             val amount = spells.provideDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(DamageSourceBuilder(user,source),this,entityHitResult, source, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(source, user),this,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
 
             return if(bl) {
+
                 val pos = source?.pos?:entityHitResult.entity.pos
                 splashParticles(entityHitResult,world,pos.x,pos.y,pos.z,spells)
                 user.applyDamageEffects(user,entityHitResult.entity)
                 hitSoundEvent(world, entityHitResult.entity.blockPos)
-                actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB)
+                if (entityHitResult.entity.isAlive) {
+                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB)
+                } else {
+                    spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
+                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB, AugmentHelper.KILLED_MOB)
+                }
             } else {
                 FAIL
             }
@@ -130,6 +138,7 @@ abstract class BeamAugment(
 
     override fun onBlockHit(
         blockHitResult: BlockHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: LivingEntity,

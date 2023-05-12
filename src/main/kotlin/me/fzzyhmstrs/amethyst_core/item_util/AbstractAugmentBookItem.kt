@@ -90,7 +90,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             val manaCost = aug.augmentData.manaCost
             tooltip.add(AcText.translatable("lore_book.mana_cost",manaCost.toString()).formatted(Formatting.WHITE))
             //tier
-            val spellTier = augetTier()
+            val spellTier = aug.getTier()
             tooltip.add(
                 AcText.translatable("lore_book.tier",spellTier.toString()).formatted(Formatting.WHITE)
             )
