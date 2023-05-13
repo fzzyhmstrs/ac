@@ -1,7 +1,10 @@
-package me.fzzyhmstrs.amethyst_core.scepter_util.augments
+package me.fzzyhmstrs.amethyst_core.scepter_util.augments.base
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
@@ -21,7 +24,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 
 abstract class SummonAugment(
-    tier: ScepterTier, 
+    tier: ScepterTier,
     maxLvl: Int,
     augmentData: AugmentDatapoint,
     augmentType: AugmentType = AugmentType.SUMMON)

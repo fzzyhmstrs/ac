@@ -1,8 +1,11 @@
-package me.fzzyhmstrs.amethyst_core.scepter_util.augments
+package me.fzzyhmstrs.amethyst_core.scepter_util.augments.base
 
 import me.fzzyhmstrs.amethyst_core.entity_util.MissileEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
@@ -43,7 +46,9 @@ abstract class ProjectileAugment(
     }
 
     open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect, spells: PairedAugments): ProjectileEntity {
-        return MissileEntity(world, user, spells)
+        val me = MissileEntity(world, user)
+        me.passEffects(spells,effects,level)
+        return me
     }
 
     open fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity): TypedActionResult<List<Identifier>>{
@@ -105,7 +110,7 @@ abstract class ProjectileAugment(
         splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
         if (othersType == AugmentType.EMPTY){
             hitSoundEvent(world, blockHitResult.blockPos)
-            return actionResult(ActionResult.SUCCESS,AugmentHelper.BLOCK_HIT)
+            return actionResult(ActionResult.SUCCESS, AugmentHelper.BLOCK_HIT)
         }
         return actionResult(ActionResult.PASS)
     }

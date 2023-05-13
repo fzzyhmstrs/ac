@@ -9,6 +9,7 @@ import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
 import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 import kotlin.math.max
 
@@ -41,6 +42,11 @@ object AugmentHelper {
         augmentConfig.id = id.toString()
         val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
         return augmentAfterConfig.enabled
+    }
+
+    fun registerAugment(augment: ScepterAugment, id: Identifier, imbueLevel: Int = 1){
+        Registry.register(Registries.ENCHANTMENT,id,augment)
+        augment.augmentData = configAugmentStat(augment,id.toString(),imbueLevel)
     }
 
     /**
