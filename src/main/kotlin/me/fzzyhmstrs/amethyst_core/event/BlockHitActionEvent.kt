@@ -5,8 +5,6 @@ import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.hit.EntityHitResult
-import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
 
 /**

@@ -2,8 +2,8 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Hand

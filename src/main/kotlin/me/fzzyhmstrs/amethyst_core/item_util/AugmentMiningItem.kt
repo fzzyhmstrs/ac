@@ -6,8 +6,8 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful

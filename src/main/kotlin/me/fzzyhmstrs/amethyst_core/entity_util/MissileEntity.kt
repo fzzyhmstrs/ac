@@ -32,8 +32,9 @@ import net.minecraft.world.World
 
 open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity {
 
-    constructor(world: World,owner: LivingEntity,augments: PairedAugments) : this(RegisterBaseEntity.MISSILE_ENTITY,world){
-        this.augment = augments
+    constructor(world: World, owner: LivingEntity): this(RegisterBaseEntity.MISSILE_ENTITY,world, owner)
+
+    constructor(entityType: EntityType<out MissileEntity?>,world: World, owner: LivingEntity) : this(entityType,world){
         this.owner = owner
         this.setPosition(
             owner.x,
@@ -43,14 +44,13 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         this.setRotation(owner.yaw, owner.pitch)
     }
 
-    var augment: PairedAugments = PairedAugments()
-
+    override var spells: PairedAugments = PairedAugments()
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
     open val maxAge = 200
     open val colorData = ColorData()
     private val particle by lazy{
-        augment.getCastParticleType()
+        spells.getCastParticleType()
     }
 
     override fun initDataTracker() {}
@@ -100,9 +100,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processSingleEntityHit(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleEntityHit(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
-                augment.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+                spells.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             }
         }
     }
@@ -116,7 +116,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processSingleBlockHit(blockHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleBlockHit(blockHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
         }
     }
 

@@ -15,12 +15,10 @@ abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     constructor (entityType: EntityType<out PlayerItemEntity?>?, world: World?):
             super(entityType, world)
 
-    constructor(entityType: EntityType<out PlayerItemEntity?>?,world: World?, owner: LivingEntity?,augments: PairedAugments):
-            super(entityType, owner, world){
-                augment = augments
-            }
+    constructor(entityType: EntityType<out PlayerItemEntity?>?,world: World?, owner: LivingEntity?):
+            super(entityType, owner, world)
 
-    var augment: PairedAugments = PairedAugments()
+    override var spells: PairedAugments = PairedAugments()
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
 
@@ -33,9 +31,9 @@ abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processSingleEntityHit(entityHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleEntityHit(entityHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
-                augment.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+                spells.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             }
         }
     }
@@ -49,7 +47,7 @@ abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity) {
-            augment.processSingleBlockHit(blockHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleBlockHit(blockHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
         }
     }
 

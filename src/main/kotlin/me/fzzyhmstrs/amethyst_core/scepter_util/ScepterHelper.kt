@@ -11,7 +11,9 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.*
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ModificationType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
@@ -42,7 +44,6 @@ import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.TypedActionResult
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.max

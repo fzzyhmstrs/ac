@@ -1,14 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
-import eu.pb4.common.protection.api.CommonProtection
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
-import net.minecraft.block.ShapeContext
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity

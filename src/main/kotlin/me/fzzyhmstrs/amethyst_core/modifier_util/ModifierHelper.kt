@@ -5,10 +5,10 @@ import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.config.FcConfig
-import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
+import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment

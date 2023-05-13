@@ -9,13 +9,13 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.ProjectileEntity
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
-import net.minecraft.util.ActionResult
 import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.world.World
 import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.world.World
 
 /**
  * template for summoning a projectile entity. Used for basic "bolt"/"blast"/"missile" spells like Amethyst Imbuements base spell Magic Missile

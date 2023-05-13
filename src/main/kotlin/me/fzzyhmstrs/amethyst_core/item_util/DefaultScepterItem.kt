@@ -1,8 +1,5 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
-import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.LinkedHashMultimap
-import com.google.common.collect.Multimap
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
@@ -15,11 +12,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.attribute.EntityAttribute
-import net.minecraft.entity.attribute.EntityAttributeModifier
-import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.server.network.ServerPlayerEntity

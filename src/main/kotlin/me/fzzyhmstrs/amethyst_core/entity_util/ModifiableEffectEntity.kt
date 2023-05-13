@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.entity_util
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 
 /**
  * interface for meshing an entity (or any object really) with the Modifier system. The interface provides a base [AugmentEffect] instance for storing and passing effect attributes. See that doc for details on what is stored.
@@ -14,10 +15,12 @@ interface ModifiableEffectEntity {
 
     var entityEffects: AugmentEffect
     var level: Int
+    var spells: PairedAugments
 
-    fun passEffects(ae: AugmentEffect, level: Int){
+    fun passEffects(spells: PairedAugments, ae: AugmentEffect, level: Int){
         entityEffects = AugmentEffect().plus(ae)
         this.level = level
+        this.spells = spells
     }
 
 }
