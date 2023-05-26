@@ -197,6 +197,28 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 effectModifiers
         }
     }
+    fun processOnCast(world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+        return processOnCast(ProcessContext.EMPTY, world, source, user, hand, level, effects)
+    }
+    fun processOnCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+        val returnList: MutableList<Identifier> = mutableListOf()
+        if (type == Type.SINGLE) {
+            val result = augments[0].onCast(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+            }
+        } else if (type == Type.PAIRED){
+            val result = augments[1].onCast(context, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            if (result.result.isAccepted){
+                returnList.addAll(result.value)
+                val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,AugmentType.EMPTY, this)
+                if (result2.result.isAccepted){
+                    returnList.addAll(result.value)
+                }
+            }
+        }
+        return returnList
+    }
 
     fun processMultipleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
         return processMultipleEntityHits(entityHitResults,ProcessContext.EMPTY, world, source, user, hand, level, effects)
