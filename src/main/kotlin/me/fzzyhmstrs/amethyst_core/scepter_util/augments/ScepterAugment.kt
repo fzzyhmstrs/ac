@@ -91,7 +91,9 @@ abstract class ScepterAugment(
      */
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
-
+    open fun onCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+        return TypedActionResult.pass(listOf())
+    }
     open fun onBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
