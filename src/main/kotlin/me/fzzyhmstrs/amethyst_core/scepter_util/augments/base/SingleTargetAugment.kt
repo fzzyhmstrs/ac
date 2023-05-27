@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments.base
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
@@ -45,6 +46,7 @@ abstract class SingleTargetAugment(
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
         val hit = if (target is EntityHitResult) target else return FAIL
         val list = spells.processSingleEntityHit(hit,world,null,user, hand, level, effects)
+        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,*list.toTypedArray())
     }
 

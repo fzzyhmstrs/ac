@@ -45,6 +45,7 @@ ScepterAugment(
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
         if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
             val list = spells.processSingleBlockHit(hit,world,null,user, hand, level, effects)
+            list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
             return if (list.isNotEmpty()){
                 actionResult(ActionResult.SUCCESS,*list.toTypedArray())
             } else {

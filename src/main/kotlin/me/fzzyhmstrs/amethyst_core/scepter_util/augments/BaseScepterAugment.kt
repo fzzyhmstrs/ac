@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 
 abstract class BaseScepterAugment()
     :
-    Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND))
+    Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND))
 {
 
     val id: Identifier? by lazy {

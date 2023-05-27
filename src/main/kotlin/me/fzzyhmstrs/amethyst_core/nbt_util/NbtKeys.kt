@@ -60,6 +60,11 @@ enum class NbtKeys {
         override fun str(): String {
             return "paired_enchant_id"
         }
+    },
+    PAIRED_BOOST{
+        override fun str(): String {
+            return "paired_helper_id"
+        }
     };
 
     abstract fun str(): String

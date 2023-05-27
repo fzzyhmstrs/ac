@@ -15,12 +15,6 @@ object GcChecker {
         }
     }
 
-    fun markDirty(entity: LivingEntity){
-        if (gearCoreLoaded){
-            GcCompat.markDirty(entity)
-        }
-    }
-
     fun registerProcessor(){
         if (gearCoreLoaded){
             GcCompat.registerAugmentModifierProcessor()

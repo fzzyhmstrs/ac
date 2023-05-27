@@ -2,10 +2,7 @@ package me.fzzyhmstrs.amethyst_core
 
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem
 import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
-import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
-import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
-import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
-import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseRenderer
+import me.fzzyhmstrs.amethyst_core.registry.*
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
@@ -20,14 +17,15 @@ object AC: ModInitializer {
     val acRandom = Random(System.currentTimeMillis())
     val fallbackId = Identifier("vanishing_curse")
 
-    val TIER_1_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_one_spell_scepters"))
-    val TIER_2_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_two_spell_scepters"))
-    val TIER_3_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_three_spell_scepters"))
+    val TIER_1_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_one_spell_scepters"))
+    val TIER_2_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_two_spell_scepters"))
+    val TIER_3_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_three_spell_scepters"))
 
     override fun onInitialize() {
         RegisterAttribute.registerAll()
         RegisterBaseEntity.registerAll()
         ModifierRegistry.registerAll()
+        BoostRegistry.registerAll()
         GcChecker.registerProcessor()
         ScepterHelper.registerServer()
         AbstractAugmentBookItem.registerServer()

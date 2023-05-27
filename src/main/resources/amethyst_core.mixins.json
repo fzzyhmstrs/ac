@@ -5,7 +5,8 @@
   "mixins": [
     "EnchantmentMixin",
     "LivingEntityMixin",
-    "PlayerEntityMixin"
+    "PlayerEntityMixin",
+    "EnchantmentHelperMixin"
   ],
   "client": [
     "ItemRendererMixin",

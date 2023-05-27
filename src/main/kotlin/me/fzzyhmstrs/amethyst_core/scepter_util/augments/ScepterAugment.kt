@@ -141,12 +141,15 @@ abstract class ScepterAugment(
         }
     }
     fun augmentName(stack: ItemStack, level: Int): Text{
-        val activeEnchantId = this.id?.toString()?:return getName(level)
-        val pairedSpells = ScepterHelper.getPairedAugments(activeEnchantId, stack)?:return getName(level)
+        val enchantId = this.id?.toString()?:return getName(level)
+        val pairedSpells = ScepterHelper.getPairedAugments(enchantId, stack)?:return getName(level)
         return pairedSpells.provideName(level)
     }
     open fun augmentName(pairedSpell: ScepterAugment): MutableText {
         return AcText.translatable(orCreateTranslationKey)
+    }
+    open fun specialName(otherSpell: ScepterAugment): MutableText {
+        return AcText.empty()
     }
     open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")
@@ -154,7 +157,7 @@ abstract class ScepterAugment(
     open fun provideVerb(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".verb")
     }
-    open fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType){}
+    abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType)
 
     open fun getAugmentMaxLevel(): Int{
         return maxLvl

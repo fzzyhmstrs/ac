@@ -47,6 +47,7 @@ abstract class EntityAoeAugment(
         val entityList = RaycasterUtil.raycastEntityArea(effects.range(level), user)
         if (entityList.isEmpty()) return FAIL
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
+        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
     }
 

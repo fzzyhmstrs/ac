@@ -41,10 +41,11 @@ abstract class SingleTargetOrSelfAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(6.0,0.0, 0.0)
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
+    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect, spells: PairedAugments): TypedActionResult<List<Identifier>> {
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
         val hit = if (target is EntityHitResult) target else EntityHitResult(user)
         val list = spells.processSingleEntityHit(hit,world,null,user, hand, level, effects)
+        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,*list.toTypedArray())
     }
 

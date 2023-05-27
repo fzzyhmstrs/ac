@@ -134,7 +134,8 @@ abstract class AugmentSwordItem(
         } else {
             null
         }
-        val pairedAugments = ScepterHelper.getPairedAugments(activeEnchantId,pairedEnchantId,testEnchant, pairedEnchant)
+        val pairedBoostId: String? = ScepterHelper.getPairedBoostId(stack, activeEnchantId)
+        val pairedAugments = ScepterHelper.getPairedAugments(activeEnchantId, pairedEnchantId, pairedBoostId, testEnchant, pairedEnchant)
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 

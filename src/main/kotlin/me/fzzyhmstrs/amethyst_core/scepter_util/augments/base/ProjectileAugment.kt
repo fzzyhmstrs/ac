@@ -42,7 +42,8 @@ abstract class ProjectileAugment(
 {
 
     override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
-        return spawnProjectileEntity(world, user, entityClass(world, user, level, effects, spells))
+        val list = spells.processOnCast(world,null,user, hand, level, effects)
+        return spawnProjectileEntity(world, user, entityClass(world, user, level, effects, spells), list)
     }
 
     open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect, spells: PairedAugments): ProjectileEntity {
@@ -51,12 +52,13 @@ abstract class ProjectileAugment(
         return me
     }
 
-    open fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity): TypedActionResult<List<Identifier>>{
+    open fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity, list: MutableList<Identifier>): TypedActionResult<List<Identifier>>{
         val bl = world.spawnEntity(projectile)
         if(bl) {
             castSoundEvent(world, entity.blockPos)
+            list.add(AugmentHelper.PROJECTILE_FIRED)
         }
-        return if(bl) TypedActionResult.success(listOf(AugmentHelper.PROJECTILE_FIRED)) else TypedActionResult.fail(listOf())
+        return if(list.isNotEmpty()) actionResult(ActionResult.SUCCESS,list) else FAIL
     }
     
     override fun onEntityHit(

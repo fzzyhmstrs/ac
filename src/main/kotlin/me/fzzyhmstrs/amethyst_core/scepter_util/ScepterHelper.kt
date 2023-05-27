@@ -10,6 +10,7 @@ import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
+import me.fzzyhmstrs.amethyst_core.registry.BoostRegistry
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
@@ -62,23 +63,51 @@ object ScepterHelper {
     val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
     val USED_KNOWLEDGE_BOOK = TickCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
 
-    fun getPairedAugments(activeEnchantId: String, pairedEnchantId: String?, spell: ScepterAugment, pairedSpell: ScepterAugment?): PairedAugments {
+    fun getPairedAugments(activeEnchantId: String, pairedEnchantId: String?, pairedBoostId: String?, spell: ScepterAugment, pairedSpell: ScepterAugment?): PairedAugments {
         val key = if (pairedEnchantId == null){
-            activeEnchantId
+            if (pairedBoostId == null) {
+                activeEnchantId
+            } else {
+                activeEnchantId + pairedBoostId
+            }
         } else {
-            activeEnchantId + pairedEnchantId
+            if (pairedBoostId == null) {
+                activeEnchantId + pairedEnchantId
+            } else {
+                activeEnchantId + pairedEnchantId + pairedBoostId
+            }
         }
-        return PAIRED_SPELL_CACHE.getOrPut(key) { PairedAugments(spell, pairedSpell) }
+        val boost = BoostRegistry.BOOSTS.get(Identifier(pairedBoostId))
+        return PAIRED_SPELL_CACHE.getOrPut(key) { PairedAugments(spell, pairedSpell, boost) }
     }
     
     fun getPairedAugments(activeEnchantId: String, stack: ItemStack): PairedAugments?{
         val pairedEnchantId = getPairedEnchantId(stack, activeEnchantId)
+        val pairedBoostId = getPairedBoostId(stack, activeEnchantId)
         val key = if (pairedEnchantId == null){
-            activeEnchantId
+            if (pairedBoostId == null) {
+                activeEnchantId
+            } else {
+                activeEnchantId + pairedBoostId
+            }
         } else {
-            activeEnchantId + pairedEnchantId
+            if (pairedBoostId == null) {
+                activeEnchantId + pairedEnchantId
+            } else {
+                activeEnchantId + pairedEnchantId + pairedBoostId
+            }
         }
         return PAIRED_SPELL_CACHE[key]
+    }
+
+    fun getPairedAugments(stack: ItemStack): PairedAugments?{
+        val nbt: NbtCompound = stack.nbt?:return null
+        val activeEnchantId = if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
+            nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
+        } else {
+            return null
+        }
+        return getPairedAugments(activeEnchantId, stack)
     }
 
     fun getPairedEnchantId(stack: ItemStack, activeEnchantId: String): String?{
@@ -92,6 +121,25 @@ object ScepterHelper {
             if (pairedEnchants.contains(activeEnchantId)) {
                 val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
                 pairedEnchantData.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANT.str())
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    fun getPairedBoostId(stack: ItemStack, activeEnchantId: String): String?{
+        val nbt: NbtCompound = stack.orCreateNbt
+        return getPairedBoostId(nbt, activeEnchantId)
+    }
+
+    private fun getPairedBoostId(nbt: NbtCompound, activeEnchantId: String): String? {
+        return if (nbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())) {
+            val pairedEnchants = nbt.getCompound(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_ENCHANTS.str())
+            if (pairedEnchants.contains(activeEnchantId)) {
+                val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
+                pairedEnchantData.getString(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.PAIRED_BOOST.str())
             } else {
                 null
             }

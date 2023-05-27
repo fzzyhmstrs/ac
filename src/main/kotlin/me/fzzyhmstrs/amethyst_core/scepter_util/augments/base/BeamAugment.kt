@@ -65,7 +65,7 @@ abstract class BeamAugment(
                 0.8,
                 0.8)
         if (entityList.isEmpty()) return FAIL
-        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects).toMutableList()
+        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
         var range = effects.range(level)
         val blockList: MutableList<BlockHitResult> = mutableListOf()
         do {
@@ -76,6 +76,7 @@ abstract class BeamAugment(
         }while (range > 0.0)
         val list2 = spells.processMultipleBlockHits(blockList, world, null, user, hand, level, effects)
         list.addAll(list2)
+        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
     }
 

@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired
 
+import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
 import me.fzzyhmstrs.amethyst_core.event.EntityHitActionEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
@@ -14,6 +15,7 @@ import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.text.MutableText
@@ -26,13 +28,13 @@ import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
 
-class PairedAugments private constructor (internal val augments: Array<ScepterAugment>){
+class PairedAugments private constructor (internal val augments: Array<ScepterAugment>, internal val boost: AugmentBoost? = null){
 
     constructor(): this(arrayOf())
 
     constructor(main: ScepterAugment): this(arrayOf(main))
 
-    constructor(main: ScepterAugment, pairedSpell: ScepterAugment?): this(if(pairedSpell != null) arrayOf(main, pairedSpell) else arrayOf(main))
+    constructor(main: ScepterAugment, pairedSpell: ScepterAugment?, boost: AugmentBoost?): this(if(pairedSpell != null) arrayOf(main, pairedSpell) else arrayOf(main),boost)
 
     private val type: Type
     private val cooldown: PerLvlI
@@ -54,7 +56,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             PerLvlI()
         } else if (augments.size == 1){
             augments[0].augmentData.cooldown.copy()
-        } else{
+        } else {
             when (augments[1].modificationInfo().cooldownType){
                 ModificationType.DEFER -> augments[0].augmentData.cooldown.copy()
                 ModificationType.MODIFY -> augments[0].augmentData.cooldown.copy().plus(augments[1].modificationInfo().cooldownModifier)
@@ -65,7 +67,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                     }
             }
 
-        }
+        }.plus(boost?.cooldownModifier ?: PerLvlI())
 
         manaCost = if (augments.isEmpty()){
             PerLvlI()
@@ -81,8 +83,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                     ModificationType.REPLACE -> PerLvlI(augments[1].augmentData.manaCost)
                 }
             }
-
-        }
+        }.plus(boost?.manaCostModifier ?: PerLvlI())
         
         name = if(augments.isEmpty()){
             enabled = false
@@ -95,8 +96,21 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         } else {
             enabled = augments[0].augmentData.enabled
             maxLevel = augments[0].maxLevel
-            augments[0].augmentName(augments[1])
+            val specialName = augments[1].specialName(augments[0])
+            if (specialName != AcText.empty()){
+                specialName
+            } else {
+                augments[0].augmentName(augments[1])
+            }
         }
+    }
+
+    fun boost(): AugmentBoost? {
+        return boost
+    }
+
+    fun spellsAreEqual(): Boolean{
+        return if (augments.size < 2) false else augments[0] == augments[1]
     }
 
     private val castParticleEffect by lazy{
@@ -127,6 +141,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             PerLvlD(0.0,0.0,(user.getAttributeValue(RegisterAttribute.SPELL_RANGE) - 1.0) * 100.0)
         )
         effectModifiers.plus(modifierData.getEffectModifier())
+        if (boost != null){
+            effectModifiers.plus(boost.boostEffect)
+        }
         return when (type){
             Type.SINGLE ->
                 effectModifiers.plus(augments[0].baseEffect)
@@ -197,13 +214,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 effectModifiers
         }
     }
-    fun processOnCast(world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processOnCast(world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processOnCast(ProcessContext.EMPTY, world, source, user, hand, level, effects)
     }
-    fun processOnCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processOnCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         val returnList: MutableList<Identifier> = mutableListOf()
         if (type == Type.SINGLE) {
-            val result = augments[0].onCast(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+            val result = augments[0].onCast(context, world, source, user, hand, level, effects, AugmentType.EMPTY, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
             }
@@ -220,10 +237,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return returnList
     }
 
-    fun processMultipleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processMultipleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processMultipleEntityHits(entityHitResults,ProcessContext.EMPTY, world, source, user, hand, level, effects)
     }
-    fun processMultipleEntityHits(entityHitResults: List<EntityHitResult>,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processMultipleEntityHits(entityHitResults: List<EntityHitResult>,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         var successes = 0
         val actionList: MutableList<Identifier> = mutableListOf()
         for (entityHitResult in entityHitResults){
@@ -241,10 +258,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
         return actionList
     }
-    fun processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processSingleEntityHit(entityHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
     }
-    fun processSingleEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processSingleEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         val actionList = processEntityHit(entityHitResult,context,world,source, user, hand, level, effects)
         if (actionList.isNotEmpty()){
             val entity = entityHitResult.entity
@@ -257,20 +274,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return actionList
     }
     
-    private fun processEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    private fun processEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         val returnList: MutableList<Identifier> = mutableListOf()
         if (type == Type.SINGLE) {
-            val result = augments[0].onEntityHit(entityHitResult,context, world,source, user, hand, level, effects,
-                AugmentType.EMPTY, this)
+            val result = augments[0].onEntityHit(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
             }
         } else if (type == Type.PAIRED){
-            val result = augments[1].onEntityHit(entityHitResult,context, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            val result = augments[1].onEntityHit(entityHitResult,context, world,source, user, hand, level, effects,augments[0].augmentType, this)
             if (result.result.isAccepted){
                 returnList.addAll(result.value)
-                val result2 = augments[0].onEntityHit(entityHitResult,context, world,source, user,hand,level, effects,
-                    AugmentType.EMPTY, this)
+                val result2 = augments[0].onEntityHit(entityHitResult,context, world,source, user,hand,level, effects, AugmentType.EMPTY, this)
                 if (result2.result.isAccepted){
                     returnList.addAll(result.value)
                 }
@@ -279,10 +294,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return returnList
     }
 
-    fun processMultipleBlockHits(blockHitResults: List<BlockHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processMultipleBlockHits(blockHitResults: List<BlockHitResult>, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processMultipleBlockHits(blockHitResults, ProcessContext.EMPTY, world, source, user, hand, level, effects)
     }
-    fun processMultipleBlockHits(blockHitResults: List<BlockHitResult>,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processMultipleBlockHits(blockHitResults: List<BlockHitResult>,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         var successes = 0
         val actionList: MutableList<Identifier> = mutableListOf()
         for (blockHitResult in blockHitResults){
@@ -297,10 +312,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return actionList
     }
 
-    fun processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processSingleBlockHit(blockHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
     }
-    fun processSingleBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    fun processSingleBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         val actionList = processBlockHit(blockHitResult,context,world,source, user, hand, level, effects)
         if (actionList.isNotEmpty()){
             BlockHitActionEvent.EVENT.invoker().onAction(world,user,actionList,blockHitResult)
@@ -309,7 +324,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return actionList
     }
     
-    private fun processBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): List<Identifier>{
+    private fun processBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World,source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         val returnList: MutableList<Identifier> = mutableListOf()
         if (type == Type.SINGLE) {
             for (augment in augments) {
@@ -372,6 +387,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             textList.add(AcText.empty())
             augments[1].appendDescription(textList,augments[0],augments[0].augmentType)
         }
+        boost?.appendDescription(textList)
     }
 
     fun provideCooldown(level: Int): Int{
@@ -381,9 +397,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     fun provideManaCost(level: Int): Int{
         return manaCost.value(level)
     }
-    
+
+    fun provideStack(stack: ItemStack): ItemStack{
+        return boost?.modifyStack(stack) ?: stack
+    }
+
     fun provideDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
-        return if (type == Type.PAIRED){
+        val amount1 = if (type == Type.PAIRED){
             if (cause == augments[0]){
                 augments[1].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
             } else {
@@ -392,6 +412,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         } else {
             amount
         }
+        return boost?.modifyDamage(amount1, cause, entityHitResult, user, world, hand, level, effects, this) ?: amount1
     }
     
     fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
