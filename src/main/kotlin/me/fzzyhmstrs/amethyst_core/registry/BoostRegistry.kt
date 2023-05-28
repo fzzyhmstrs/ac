@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.boost.base.*
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registry
@@ -20,22 +21,36 @@ object BoostRegistry {
         list
     }
 
-    val SHARPNESS = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"sharpness_boost"), SharpnessBoost())
-    val SMITE = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"smite_boost"), SmiteBoost())
-    val BANE = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"bane_boost"), BaneBoost())
-    val LOOTING = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"looting_boost"), LootingBoost())
-    val FORTUNE = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"fortune_boost"), FortuneBoost())
-    val SILK_TOUCH = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"silk_touch_boost"), SilkTouchBoost())
-    val EFFICIENCY = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"efficiency_boost"), EfficiencyBoost())
-    val MENDING = Registry.register(BOOSTS, Identifier(AC.MOD_ID,"mending_boost"), MendingBoost())
+    ////////////////////////////////////////////
+
+    val AQUA = register(AquaBoost())
+    val BANE = register(BaneBoost())
+    val EFFICIENCY = register(EfficiencyBoost())
+    val FIRE_ASPECT = register(FireAspectBoost())
+    val FLAME = register(FlameBoost())
+    val FORTUNE = register(FortuneBoost())
+    val IMPALING = register(ImpalingBoost())
+    val LOOTING = register(LootingBoost())
+    val MENDING = register(MendingBoost())
+    val POWER = register(PowerBoost())
+    val SHARPNESS = register(SharpnessBoost())
+    val SILK_TOUCH = register(SilkTouchBoost())
+    val SMITE = register(SmiteBoost())
+    val QUICK_CHARGE = register(QuickChargeBoost())
+
+    /////////////////////////////////////////////
+
+    fun register(boost: AugmentBoost): AugmentBoost{
+        return Registry.register(BOOSTS, boost.id, boost)
+    }
 
     fun boostStacks(): List<ItemStack>{
         return boostStacks
     }
 
-    fun findMatch(stack: ItemStack): AugmentBoost?{
+    fun findMatch(stack: ItemStack, augment: ScepterAugment): AugmentBoost?{
         for (boost in BOOSTS){
-            if (boost.matches(stack)){
+            if (boost.matches(stack, augment)){
                 return boost
             }
         }

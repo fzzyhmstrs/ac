@@ -48,7 +48,6 @@ interface ScepterLike{
         return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
             nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         } else {
-            val item = stack.item
             initializeScepter(stack,nbt)
             nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         }

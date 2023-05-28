@@ -28,7 +28,7 @@ import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
 
-class PairedAugments private constructor (internal val augments: Array<ScepterAugment>, internal val boost: AugmentBoost? = null){
+class PairedAugments private constructor (internal val augments: Array<ScepterAugment>, private val boost: AugmentBoost? = null){
 
     constructor(): this(arrayOf())
 
@@ -103,6 +103,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 augments[0].augmentName(augments[1])
             }
         }
+    }
+
+    fun primary(): ScepterAugment?{
+        return if(augments.isNotEmpty()) augments[0] else null
+    }
+
+    fun paired(): ScepterAugment?{
+        return if(augments.size > 1) augments[1] else null
     }
 
     fun boost(): AugmentBoost? {
@@ -387,6 +395,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             textList.add(AcText.empty())
             augments[1].appendDescription(textList,augments[0],augments[0].augmentType)
         }
+        textList.add(AcText.empty())
         boost?.appendDescription(textList)
     }
 
@@ -418,12 +427,12 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
         return if (type == Type.PAIRED){
             if (cause == augments[0]){
-                augments[1].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this).build()
+                boost?.modifyDamageSource(augments[1].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this),user,source)?.build()?:builder.build()
             } else {
-                augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this).build()
+                boost?.modifyDamageSource(augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this),user,source)?.build()?:builder.build()
             }
         } else {
-            builder.build()
+            boost?.modifyDamageSource(builder,user,source)?.build()?:builder.build()
         }
     }
     

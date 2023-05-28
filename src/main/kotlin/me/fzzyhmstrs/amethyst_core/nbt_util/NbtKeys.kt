@@ -63,7 +63,7 @@ enum class NbtKeys {
     },
     PAIRED_BOOST{
         override fun str(): String {
-            return "paired_helper_id"
+            return "paired_boost_id"
         }
     };
 

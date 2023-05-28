@@ -19,7 +19,7 @@ interface SpellCasting {
         return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
     fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
-                  pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
+                  testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }

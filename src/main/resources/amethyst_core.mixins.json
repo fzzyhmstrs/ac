@@ -10,7 +10,8 @@
   ],
   "client": [
     "ItemRendererMixin",
-    "PlayerInventoryMixin"
+    "PlayerInventoryMixin",
+    "ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

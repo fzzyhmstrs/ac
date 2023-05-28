@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class BaneBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"bane_boost"), Enchantments.BANE_OF_ARTHROPODS, 5) {
+class ImpalingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"impaling_boost"), Enchantments.IMPALING, 5) {
 
     override fun modifyDamage(
         amount: Float,
@@ -29,7 +29,7 @@ class BaneBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"bane_boost"), Enc
         spells: PairedAugments
     ): Float {
         val entity = entityHitResult.entity
-        return if(entity is LivingEntity && entity.group == EntityGroup.ARTHROPOD){
+        return if(entity is LivingEntity && entity.group == EntityGroup.AQUATIC){
             amount * 1.25f
         } else {
             amount

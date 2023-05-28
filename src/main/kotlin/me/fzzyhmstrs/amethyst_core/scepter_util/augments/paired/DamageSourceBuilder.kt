@@ -8,6 +8,12 @@ import net.minecraft.entity.damage.DamageSource
 class DamageSourceBuilder(private val attacker: LivingEntity, private val source: Entity? = null){
     
     private var damageSource: DamageSource = CustomDamageSources.GenericDamageSource(source, attacker)
+    private var bypassesArmor = false
+    private var bypassesProtection = false
+    private var magic = false
+    private var fire = false
+    private var projectile = false
+    private var explosive = false
 
     fun set(source: DamageSource): DamageSourceBuilder{
         damageSource = source
@@ -19,28 +25,42 @@ class DamageSourceBuilder(private val attacker: LivingEntity, private val source
         return this
     }
 
+    fun bypassArmor(): DamageSourceBuilder{
+        bypassesArmor = true
+        return this
+    }
     fun soul(): DamageSourceBuilder{
-        damageSource.setBypassesArmor().setBypassesProtection().setUsesMagic()
+        bypassesArmor = true
+        bypassesProtection = true
+        magic = true
         return this
     }
     fun magic(): DamageSourceBuilder{
-        damageSource.setBypassesArmor().setUsesMagic()
+        bypassesArmor = true
+        magic = true
         return this
     }
-    fun fire(): DamageSourceBuilder{
-        damageSource.setBypassesArmor().setFire()
+    fun fire(bypass: Boolean = true): DamageSourceBuilder{
+        bypassesArmor = bypass
+        fire = true
         return this
     }
     fun projectile(): DamageSourceBuilder{
-        damageSource.setProjectile()
+        projectile = true
         return this
     }
     fun explosive(): DamageSourceBuilder{
-        damageSource.setExplosive()
+        explosive = true
         return this
     }
     
     fun build(): DamageSource{
+        if(bypassesArmor) damageSource.setBypassesArmor()
+        if(bypassesProtection) damageSource.setBypassesProtection()
+        if(magic) damageSource.setUsesMagic()
+        if(fire) damageSource.setFire()
+        if (projectile) damageSource.setProjectile()
+        if (explosive) damageSource.setExplosive()
         return damageSource
     }
     

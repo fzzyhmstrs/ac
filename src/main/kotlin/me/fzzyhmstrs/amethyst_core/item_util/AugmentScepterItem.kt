@@ -110,16 +110,7 @@ abstract class AugmentScepterItem(
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
-        val pairedEnchantId: String? = ScepterHelper.getPairedEnchantId(stack,activeEnchantId)
-        val pairedEnchant = if (pairedEnchantId != null) {
-            val pairedEnchantTest: Enchantment = Registries.ENCHANTMENT.get(Identifier(pairedEnchantId)) ?: return resetCooldown(stack, world, user, activeEnchantId)
-            if (pairedEnchantTest !is ScepterAugment) return resetCooldown(stack, world, user, activeEnchantId)
-            pairedEnchantTest
-        } else {
-            null
-        }
-        val pairedBoostId: String? = ScepterHelper.getPairedBoostId(stack, activeEnchantId)
-        val pairedAugments = ScepterHelper.getPairedAugments(activeEnchantId, pairedEnchantId, pairedBoostId, testEnchant, pairedEnchant)
+        val pairedAugments = ScepterHelper.getOrCreatePairedAugments(activeEnchantId, testEnchant,stack)
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 
@@ -139,7 +130,7 @@ abstract class AugmentScepterItem(
                     }
                 }
             }
-            return clientUse(world, user, hand, stack, activeEnchantId,pairedEnchantId, testEnchant, testLevel)
+            return clientUse(world, user, hand, stack, activeEnchantId, testEnchant, testLevel)
         } else {
             if (!stack2.isEmpty) {
                 if (stack2.item is BlockItem) {
@@ -172,8 +163,10 @@ abstract class AugmentScepterItem(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
-                           pairedEnchantId: String?, testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
+    override fun clientUse(
+        world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
+        testEnchant: ScepterAugment, testLevel: Int
+    ): TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }

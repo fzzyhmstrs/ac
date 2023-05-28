@@ -12,4 +12,5 @@ object CustomDamageSources {
     class FireDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customFire", source,attacker)
     class LightningDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customLightning", source,attacker)
     class FreezingDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customFreezing", source,attacker)
+    class WaterDamageSource(source: Entity?, attacker: LivingEntity): CustomDamageSource("customWater", source,attacker)
 }
