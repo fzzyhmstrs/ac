@@ -19,7 +19,7 @@ object ModifierRegistry {
 
     fun registerWithRolling(modifier: AugmentModifier, weight: Int = 5){
         if (modifier.availableForRoll){
-            for (i in 1..5) {
+            for (i in 1..weight) {
                 modifierRollList.add(modifier)
             }
         }
@@ -71,7 +71,7 @@ object ModifierRegistry {
     val MODIFIER_DEBUG_2 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
     val MODIFIER_DEBUG_3 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
 
-    val MODIFIER_TYPE = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
+    val MODIFIER_TYPE: ModifierHelperType = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
 
     object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper")){
         override fun getModifierIdKey(): String {

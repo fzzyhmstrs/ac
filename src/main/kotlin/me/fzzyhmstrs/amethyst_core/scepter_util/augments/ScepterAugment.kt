@@ -9,9 +9,7 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment.DamageProviderFunction
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.*
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper
+import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
 import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
@@ -54,7 +52,6 @@ abstract class ScepterAugment(
 {
     
     open val baseEffect = AugmentEffect()
-    open val modificationEffect = AugmentEffect()
     open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
@@ -103,6 +100,24 @@ abstract class ScepterAugment(
     open fun onEntityKill(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return TypedActionResult.pass(listOf())
     }
+    open fun modifyCooldown(cooldown: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+        return cooldown
+    }
+    open fun modifyManaCost(manaCost: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+        return manaCost
+    }
+    open fun modifyDamage(damage: PerLvlF, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlF{
+        return damage
+    }
+    open fun modifyAmplifier(amplifier: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+        return amplifier
+    }
+    open fun modifyDuration(duration: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+        return duration
+    }
+    open fun modifyRange(range: PerLvlD,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlD{
+        return range
+    }
     open fun modifyDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
         return amount
     }
@@ -117,10 +132,6 @@ abstract class ScepterAugment(
     }
     open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder {
         return builder
-    }
-
-    fun modificationInfo(): ModificationInfo {
-        return augmentData.modificationInfo
     }
 
     open fun castSoundEvent(world: World, blockPos: BlockPos){
@@ -142,7 +153,7 @@ abstract class ScepterAugment(
     }
     fun augmentName(stack: ItemStack, level: Int): Text{
         val enchantId = this.id?.toString()?:return getName(level)
-        val pairedSpells = ScepterHelper.getPairedAugments(enchantId, stack)?:return getName(level)
+        val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack)?:return getName(level)
         return pairedSpells.provideName(level)
     }
     open fun augmentName(pairedSpell: ScepterAugment): MutableText {
@@ -150,6 +161,9 @@ abstract class ScepterAugment(
     }
     open fun specialName(otherSpell: ScepterAugment): MutableText {
         return AcText.empty()
+    }
+    open fun doubleName(): MutableText {
+        return AcText.translatable("$orCreateTranslationKey.double")
     }
     open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")

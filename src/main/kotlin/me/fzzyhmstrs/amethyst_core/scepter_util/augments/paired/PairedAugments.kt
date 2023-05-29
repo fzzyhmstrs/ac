@@ -36,54 +36,55 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     constructor(main: ScepterAugment, pairedSpell: ScepterAugment?, boost: AugmentBoost?): this(if(pairedSpell != null) arrayOf(main, pairedSpell) else arrayOf(main),boost)
 
-    private val type: Type
-    private val cooldown: PerLvlI
-    private val manaCost: PerLvlI
+    private val type: Type = if (augments.isEmpty()){
+        Type.EMPTY
+    } else if (augments.size == 1){
+        Type.SINGLE
+    } else{
+        Type.PAIRED
+    }
+    private val cooldown: PerLvlI by lazy{
+        if (augments.isEmpty()){
+            PerLvlI()
+        } else if (augments.size == 1){
+            augments[0].augmentData.cooldown.copy()
+        } else {
+            augments[1].modifyCooldown(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
+
+        }.plus(boost?.cooldownModifier ?: PerLvlI())
+    }
+    private val manaCost: PerLvlI by lazy {
+        if (augments.isEmpty()){
+            PerLvlI()
+        } else if (augments.size == 1){
+            PerLvlI(augments[0].augmentData.manaCost)
+        } else{
+            augments[1].modifyManaCost(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
+        }.plus(boost?.manaCostModifier ?: PerLvlI())
+    }
+    private val augmentEffects: AugmentEffect by lazy {
+        when (type){
+            Type.SINGLE ->{
+                augments[0].baseEffect
+            }
+            Type.PAIRED ->{
+                AugmentEffect(
+                    augments[1].modifyDamage(augments[0].baseEffect.damageData.copy(),augments[0],augments[0].augmentType,this),
+                    augments[1].modifyAmplifier(augments[0].baseEffect.amplifierData.copy(),augments[0],augments[0].augmentType,this),
+                    augments[1].modifyDuration(augments[0].baseEffect.durationData.copy(),augments[0],augments[0].augmentType,this),
+                    augments[1].modifyRange(augments[0].baseEffect.rangeData.copy(),augments[0],augments[0].augmentType,this)
+                )
+            }
+            Type.EMPTY ->{
+                AugmentEffect()
+            }
+        }
+    }
     private val name: MutableText
     private val enabled: Boolean
     private val maxLevel: Int
 
     init{
-        type = if (augments.isEmpty()){
-            Type.EMPTY
-        } else if (augments.size == 1){
-            Type.SINGLE
-        } else{
-            Type.PAIRED
-        }
-
-        cooldown = if (augments.isEmpty()){
-            PerLvlI()
-        } else if (augments.size == 1){
-            augments[0].augmentData.cooldown.copy()
-        } else {
-            when (augments[1].modificationInfo().cooldownType){
-                ModificationType.DEFER -> augments[0].augmentData.cooldown.copy()
-                ModificationType.MODIFY -> augments[0].augmentData.cooldown.copy().plus(augments[1].modificationInfo().cooldownModifier)
-                ModificationType.REPLACE -> when(augments[0].modificationInfo().cooldownType){
-                        ModificationType.DEFER -> augments[1].augmentData.cooldown.copy()
-                        ModificationType.MODIFY -> augments[1].augmentData.cooldown.copy().plus(augments[0].modificationInfo().cooldownModifier)
-                        ModificationType.REPLACE -> augments[0].augmentData.cooldown.copy()
-                    }
-            }
-
-        }.plus(boost?.cooldownModifier ?: PerLvlI())
-
-        manaCost = if (augments.isEmpty()){
-            PerLvlI()
-        } else if (augments.size == 1){
-            PerLvlI(augments[0].augmentData.manaCost)
-        } else{
-            when (augments[1].modificationInfo().manaCostType){
-                ModificationType.DEFER -> PerLvlI(augments[0].augmentData.manaCost)
-                ModificationType.MODIFY -> PerLvlI(augments[0].augmentData.manaCost).plus(augments[1].modificationInfo().manaCostModifier)
-                ModificationType.REPLACE -> when(augments[0].modificationInfo().manaCostType){
-                    ModificationType.DEFER -> PerLvlI(augments[1].augmentData.manaCost)
-                    ModificationType.MODIFY -> PerLvlI(augments[1].augmentData.manaCost).plus(augments[0].modificationInfo().manaCostModifier)
-                    ModificationType.REPLACE -> PerLvlI(augments[1].augmentData.manaCost)
-                }
-            }
-        }.plus(boost?.manaCostModifier ?: PerLvlI())
         
         name = if(augments.isEmpty()){
             enabled = false
@@ -96,11 +97,15 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         } else {
             enabled = augments[0].augmentData.enabled
             maxLevel = augments[0].maxLevel
-            val specialName = augments[1].specialName(augments[0])
-            if (specialName != AcText.empty()){
-                specialName
+            if (spellsAreEqual()){
+                augments[0].doubleName()
             } else {
-                augments[0].augmentName(augments[1])
+                val specialName = augments[1].specialName(augments[0])
+                if (specialName != AcText.empty()) {
+                    specialName
+                } else {
+                    augments[0].augmentName(augments[1])
+                }
             }
         }
     }
@@ -152,75 +157,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         if (boost != null){
             effectModifiers.plus(boost.boostEffect)
         }
-        return when (type){
-            Type.SINGLE ->
-                effectModifiers.plus(augments[0].baseEffect)
-            Type.PAIRED -> {
-                when (augments[1].modificationInfo().damageModificationType){
-                    ModificationType.DEFER ->
-                        effectModifiers.addDamage(augments[0].baseEffect)
-                    ModificationType.MODIFY ->
-                        effectModifiers.addDamage(augments[0].baseEffect).addDamage(augments[1].modificationEffect)
-                    ModificationType.REPLACE ->
-                        when(augments[0].modificationInfo().damageModificationType){
-                            ModificationType.DEFER ->
-                                effectModifiers.addDamage(augments[1].baseEffect)
-                            ModificationType.MODIFY ->
-                                effectModifiers.addDamage(augments[1].baseEffect).addDamage(augments[0].modificationEffect)
-                            ModificationType.REPLACE ->
-                                effectModifiers.addDamage(augments[1].baseEffect)
-                        }
-                }
-                when (augments[1].modificationInfo().amplifierModificationType){
-                    ModificationType.DEFER ->
-                        effectModifiers.addAmplifier(augments[0].baseEffect)
-                    ModificationType.MODIFY ->
-                        effectModifiers.addAmplifier(augments[0].baseEffect).addAmplifier(augments[1].modificationEffect)
-                    ModificationType.REPLACE ->
-                        when(augments[0].modificationInfo().amplifierModificationType){
-                            ModificationType.DEFER ->
-                                effectModifiers.addAmplifier(augments[1].baseEffect)
-                            ModificationType.MODIFY ->
-                                effectModifiers.addAmplifier(augments[1].baseEffect).addAmplifier(augments[0].modificationEffect)
-                            ModificationType.REPLACE ->
-                                effectModifiers.addAmplifier(augments[1].baseEffect)
-                        }
-                }
-                when (augments[1].modificationInfo().durationModificationType){
-                    ModificationType.DEFER ->
-                        effectModifiers.addDuration(augments[0].baseEffect)
-                    ModificationType.MODIFY ->
-                        effectModifiers.addDuration(augments[0].baseEffect).addDuration(augments[1].modificationEffect)
-                    ModificationType.REPLACE ->
-                        when(augments[0].modificationInfo().durationModificationType){
-                            ModificationType.DEFER ->
-                                effectModifiers.addDuration(augments[1].baseEffect)
-                            ModificationType.MODIFY ->
-                                effectModifiers.addDuration(augments[1].baseEffect).addDuration(augments[0].modificationEffect)
-                            ModificationType.REPLACE ->
-                                effectModifiers.addDuration(augments[1].baseEffect)
-                        }
-                }
-                when (augments[1].modificationInfo().rangeModificationType){
-                    ModificationType.DEFER ->
-                        effectModifiers.addRange(augments[0].baseEffect)
-                    ModificationType.MODIFY ->
-                        effectModifiers.addRange(augments[0].baseEffect).addRange(augments[1].modificationEffect)
-                    ModificationType.REPLACE ->
-                        when(augments[0].modificationInfo().rangeModificationType){
-                            ModificationType.DEFER ->
-                                effectModifiers.addRange(augments[1].baseEffect)
-                            ModificationType.MODIFY ->
-                                effectModifiers.addRange(augments[1].baseEffect).addRange(augments[0].modificationEffect)
-                            ModificationType.REPLACE ->
-                                effectModifiers.addRange(augments[1].baseEffect)
-                        }
-                }
-                effectModifiers
-            }
-            Type.EMPTY ->
-                effectModifiers
-        }
+        return effectModifiers.plus(this.augmentEffects)
     }
     fun processOnCast(world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): MutableList<Identifier>{
         return processOnCast(ProcessContext.EMPTY, world, source, user, hand, level, effects)

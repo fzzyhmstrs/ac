@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier
  * the base scepter augment. Any Augment-type scepter will be able to successfully cast an augment made with this class or one of the templates.
  */
 
-abstract class BaseScepterAugment()
+abstract class BaseScepterAugment
     :
     Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND))
 {

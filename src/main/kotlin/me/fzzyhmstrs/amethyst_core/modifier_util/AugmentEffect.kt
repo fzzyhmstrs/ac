@@ -26,10 +26,10 @@ import kotlin.math.max
  * [consumers]: advanced effects go here. Spells will pass a list of LivingEntity to the [accept] method and all compiled consumers will apply to that list. See the [ModifierRegistry][me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry] for example consumers.
  */
 data class AugmentEffect(
-    private var damageData: PerLvlF = PerLvlF(),
-    private var amplifierData: PerLvlI = PerLvlI(),
-    private var durationData: PerLvlI = PerLvlI(),
-    private var rangeData: PerLvlD = PerLvlD()
+    internal var damageData: PerLvlF = PerLvlF(),
+    internal var amplifierData: PerLvlI = PerLvlI(),
+    internal var durationData: PerLvlI = PerLvlI(),
+    internal var rangeData: PerLvlD = PerLvlD()
 ): Addable<AugmentEffect>{
     private var consumers: Multimap<AugmentConsumer.Type,AugmentConsumer> = ArrayListMultimap.create()
 

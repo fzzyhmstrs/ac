@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
@@ -126,7 +127,7 @@ abstract class AugmentSwordItem(
         val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
-        val pairedAugments = ScepterHelper.getOrCreatePairedAugments(activeEnchantId, testEnchant, stack)
+        val pairedAugments = AugmentHelper.getOrCreatePairedAugments(activeEnchantId, testEnchant, stack)
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
 

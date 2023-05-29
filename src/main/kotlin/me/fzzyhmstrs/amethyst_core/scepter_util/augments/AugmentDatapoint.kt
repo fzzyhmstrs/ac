@@ -2,7 +2,6 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ModificationInfo
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.item.Item
 import net.minecraft.item.Items
@@ -38,8 +37,7 @@ data class AugmentDatapoint(val type: SpellType,
                             val bookOfLoreTier: LoreTier = LoreTier.NO_TIER,
                             val keyItem: Item = Items.AIR,
                             val enabled: Boolean = true,
-                            val pvpMode: Boolean = false,
-                            val modificationInfo: ModificationInfo = ModificationInfo.empty()
+                            val pvpMode: Boolean = false
 ){
 
     constructor(type: SpellType = SpellType.NULL,
@@ -51,9 +49,8 @@ data class AugmentDatapoint(val type: SpellType,
                 bookOfLoreTier: LoreTier = LoreTier.NO_TIER,
                 keyItem: Item = Items.AIR,
                 enabled: Boolean = true,
-                pvpMode: Boolean = false,
-                modificationInfo: ModificationInfo = ModificationInfo.empty())
+                pvpMode: Boolean = false)
             :
-            this(type,PerLvlI(cooldown),manaCost, minLvl, imbueLevel, castXp, bookOfLoreTier, keyItem, enabled, pvpMode, modificationInfo)
+            this(type,PerLvlI(cooldown),manaCost, minLvl, imbueLevel, castXp, bookOfLoreTier, keyItem, enabled, pvpMode)
 
 }

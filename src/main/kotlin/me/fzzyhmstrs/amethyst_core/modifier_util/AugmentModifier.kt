@@ -142,8 +142,4 @@ open class AugmentModifier(
     override fun getModifierHelper(): AbstractModifierHelper<*> {
         return ModifierHelper
     }
-
-    override fun getTranslationKey(): String {
-        return super.getTranslationKey()
-    }
 }
