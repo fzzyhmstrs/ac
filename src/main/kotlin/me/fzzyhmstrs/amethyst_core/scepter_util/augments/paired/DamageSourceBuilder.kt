@@ -1,12 +1,19 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired
 
+import me.fzzyhmstrs.amethyst_core.scepter_util.CustomDamageSource
 import me.fzzyhmstrs.amethyst_core.scepter_util.CustomDamageSources
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 
 class DamageSourceBuilder(private val attacker: LivingEntity, private val source: Entity? = null){
-    
+
+    constructor(damageSource: DamageSource, attacker: LivingEntity, source: Entity? = null): this(attacker, source){
+        this.damageSource = damageSource
+    }
+
+    constructor(damageSource: CustomDamageSource): this(damageSource, damageSource.attacker, damageSource.source)
+
     private var damageSource: DamageSource = CustomDamageSources.GenericDamageSource(source, attacker)
     private var bypassesArmor = false
     private var bypassesProtection = false

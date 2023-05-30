@@ -24,6 +24,7 @@ abstract class AugmentBoost(val id: Identifier) {
     open val boostEffect = AugmentEffect()
     open val cooldownModifier: PerLvlI = PerLvlI()
     open val manaCostModifier: PerLvlI = PerLvlI()
+
     open fun modifyStack(stack: ItemStack): ItemStack{
         return stack
     }

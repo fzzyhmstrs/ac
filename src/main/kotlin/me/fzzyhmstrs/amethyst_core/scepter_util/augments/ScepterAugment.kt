@@ -5,9 +5,7 @@ import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment.DamageProviderFunction
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.*
 import me.fzzyhmstrs.fzzy_core.coding_util.*
 import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
@@ -48,11 +46,10 @@ abstract class ScepterAugment(
     val augmentType: AugmentType
 )
     :
-    BaseScepterAugment()
+    BaseScepterAugment(), LevelProviding
 {
     
     open val baseEffect = AugmentEffect()
-    open val damageSource: DamageProviderFunction = DamageProviderFunction {p,_ -> if(p is PlayerEntity) DamageSource.player(p) else DamageSource.mob(p)}
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
         if (!augmentData.enabled) {
@@ -205,6 +202,16 @@ abstract class ScepterAugment(
         private const val oldAugmentVersion = "_v1"
 
         val FAIL = actionResult(ActionResult.FAIL)
+        fun actionResult(result: ActionResult,oldResult: TypedActionResult<List<Identifier>>,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
+            val list: MutableList<Identifier> = mutableListOf(*ids)
+            list.addAll(oldResult.value)
+            return actionResult(result,list)
+        }
+        fun actionResult(result: ActionResult,ids: List<Identifier>, oldResult: TypedActionResult<List<Identifier>>): TypedActionResult<List<Identifier>>{
+            val list: MutableList<Identifier> = ids.toMutableList()
+            list.addAll(oldResult.value)
+            return actionResult(result,list)
+        }
         fun actionResult(result: ActionResult,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
             return actionResult(result,ids.asList())
         }

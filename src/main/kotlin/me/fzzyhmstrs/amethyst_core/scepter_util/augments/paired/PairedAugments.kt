@@ -7,11 +7,13 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
+import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
@@ -328,12 +330,23 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         if (type != Type.EMPTY){
             textList.add(AcText.translatable(augments[0].translationKey + ".desc"))
         }
-        if (type == Type.PAIRED) {
-            textList.add(AcText.empty())
-            augments[1].appendDescription(textList,augments[0],augments[0].augmentType)
+        if (type == Type.PAIRED || boost != null){
+            textList.add(AcText.translatable("scepter.augment.changes"))
         }
-        textList.add(AcText.empty())
-        boost?.appendDescription(textList)
+        if (type == Type.PAIRED) {
+            val list: MutableList<Text> = mutableListOf()
+            augments[1].appendDescription(list,augments[0],augments[0].augmentType)
+            for (text in list) {
+                textList.add(AcText.literal("  ").append(text))
+            }
+        }
+        if (boost != null) {
+            val list: MutableList<Text> = mutableListOf()
+            boost.appendDescription(list)
+            for (text in list) {
+                textList.add(AcText.literal("  ").append(text))
+            }
+        }
     }
 
     fun provideCooldown(level: Int): Int{
@@ -346,6 +359,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     fun provideStack(stack: ItemStack): ItemStack{
         return boost?.modifyStack(stack) ?: stack
+    }
+
+    fun provideLevel(enchantment: Enchantment): Int{
+        var lvl = if (boost is LevelProviding){
+            boost.provideLevel(enchantment)
+        } else {
+            0
+        }
+        if (type == Type.PAIRED){
+           lvl += augments[1].provideLevel(enchantment)
+        }
+        return lvl
     }
 
     fun provideDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
@@ -362,11 +387,16 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
     
     fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
-        return if (type == Type.PAIRED){
+        return if (type == Type.SINGLE) {
+            val mod = augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this)
+            boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
+        } else if (type == Type.PAIRED){
             if (cause == augments[0]){
-                boost?.modifyDamageSource(augments[1].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this),user,source)?.build()?:builder.build()
+                val mod = augments[1].modifyDamageSource(builder, cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
+                boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
             } else {
-                boost?.modifyDamageSource(augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this),user,source)?.build()?:builder.build()
+                val mod = augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this)
+                boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
             }
         } else {
             boost?.modifyDamageSource(builder,user,source)?.build()?:builder.build()

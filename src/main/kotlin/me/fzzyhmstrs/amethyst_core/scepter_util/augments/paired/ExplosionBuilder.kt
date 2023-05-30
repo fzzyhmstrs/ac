@@ -9,10 +9,10 @@ import net.minecraft.world.explosion.ExplosionBehavior
 import java.util.function.Consumer
 import java.util.function.Function
 
-class ExplosionBuilder(user: LivingEntity,val source: Entity, val pos: Vec3d){
+class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Entity?, val pos: Vec3d){
 
-    private var behavior: ExplosionBehavior = EntityExplosionBehavior(source)
-    private var damageSource: DamageSourceBuilder = DamageSourceBuilder(user)
+    private var behavior: ExplosionBehavior = if(source != null) EntityExplosionBehavior(source) else ExplosionBehavior()
+    private var damageSource: DamageSourceBuilder = damageSourceBuilder
     private var power: Float = 1f
     private var bl: Boolean = false
     private var type: World.ExplosionSourceType = World.ExplosionSourceType.NONE

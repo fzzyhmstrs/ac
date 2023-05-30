@@ -6,24 +6,24 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.text.Text
 
-open class CustomDamageSource(name: String, private val cause: Entity?, private val shooter: Entity): DamageSource(name) {
+open class CustomDamageSource(name: String, internal val source: Entity?, internal val attacker: LivingEntity): DamageSource(name) {
 
     override fun getSource(): Entity? {
-        return cause
+        return source
     }
 
     override fun getAttacker(): Entity {
-        return shooter
+        return attacker
     }
 
     override fun getDeathMessage(entity: LivingEntity?): Text {
-        val name = shooter.displayName
+        val name = attacker.displayName
         val string = "death.attack." + this.name
-        return if (cause == null){
+        return if (source == null){
             AcText.translatable(string,name)
         } else {
-            val name2 = cause.displayName
-            if (cause is LivingEntity){
+            val name2 = source.displayName
+            if (source is LivingEntity){
                 AcText.translatable("$string.mob",name2)
             } else {
                 AcText.translatable("$string.causal", name, name2)

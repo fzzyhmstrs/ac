@@ -1,4 +1,5 @@
 {
+	"scepter.augment.changes": "Changes:",
 	"scepter.augment.disabled": " (Disabled)",
 	"scepter.augment.disabled_message": "%1$s is disabled in the augment configs! :(",
 	"scepter.fury.lvl": "Fury: ",
