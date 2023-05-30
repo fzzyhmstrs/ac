@@ -168,6 +168,9 @@ abstract class ScepterAugment(
     open fun provideVerb(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".verb")
     }
+    open fun provideAdjective(pairedSpell: ScepterAugment?): Text{
+        return AcText.translatable(getTranslationKey() + ".adjective")
+    }
     abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType)
 
     open fun getAugmentMaxLevel(): Int{
