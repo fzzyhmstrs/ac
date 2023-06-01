@@ -115,7 +115,7 @@ abstract class ScepterAugment(
     open fun modifyRange(range: PerLvlD,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlD{
         return range
     }
-    open fun modifyDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
+    open fun modifyDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
         return amount
     }
     open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder {
@@ -129,6 +129,9 @@ abstract class ScepterAugment(
     }
     open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder {
         return builder
+    }
+    open fun modifyDrops(stacks: List<ItemStack>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<ItemStack>{
+        return stacks
     }
 
     open fun castSoundEvent(world: World, blockPos: BlockPos){

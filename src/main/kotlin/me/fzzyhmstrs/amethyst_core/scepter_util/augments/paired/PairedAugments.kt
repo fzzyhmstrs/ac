@@ -373,12 +373,12 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return lvl
     }
 
-    fun provideDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
+    fun provideDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): Float{
         val amount1 = if (type == Type.PAIRED){
             if (cause == augments[0]){
-                augments[1].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+                augments[1].modifyDealtDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
             } else {
-                augments[0].modifyDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
+                augments[0].modifyDealtDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
             }
         } else {
             amount
@@ -412,6 +412,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             }
         } else {
             summons
+        }
+    }
+
+    fun provideDrops(drops: List<ItemStack>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<ItemStack>{
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifyDrops(drops,cause, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                augments[0].modifyDrops(drops,cause, user, world, hand, level, effects, augments[1].augmentType, this)
+            }
+        } else {
+            drops
         }
     }
     
