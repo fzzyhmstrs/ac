@@ -1,7 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired
 
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraft.world.explosion.EntityExplosionBehavior

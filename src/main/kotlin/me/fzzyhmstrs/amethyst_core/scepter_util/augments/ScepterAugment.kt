@@ -86,16 +86,16 @@ abstract class ScepterAugment(
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
     open fun onCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
-        return TypedActionResult.pass(listOf())
+        return SUCCESSFUL_PASS
     }
     open fun onBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
-        return TypedActionResult.pass(listOf())
+        return SUCCESSFUL_PASS
     }
     open fun onEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
-        return TypedActionResult.pass(listOf())
+        return SUCCESSFUL_PASS
     }
     open fun onEntityKill(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
-        return TypedActionResult.pass(listOf())
+        return SUCCESSFUL_PASS
     }
     open fun modifyCooldown(cooldown: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return cooldown
@@ -205,6 +205,8 @@ abstract class ScepterAugment(
         private const val oldAugmentVersion = "_v1"
 
         val FAIL = actionResult(ActionResult.FAIL)
+        val SUCCESSFUL_PASS = actionResult(ActionResult.SUCCESS)
+
         fun actionResult(result: ActionResult,oldResult: TypedActionResult<List<Identifier>>,vararg ids: Identifier): TypedActionResult<List<Identifier>>{
             val list: MutableList<Identifier> = mutableListOf(*ids)
             list.addAll(oldResult.value)

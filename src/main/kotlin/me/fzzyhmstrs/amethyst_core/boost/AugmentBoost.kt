@@ -44,7 +44,8 @@ abstract class AugmentBoost(val id: Identifier) {
         description.add(AcText.translatable("boost.${id.path}.${id.namespace}.desc"))
     }
 
-    abstract fun matches(stack: ItemStack, augment: ScepterAugment): Boolean
+    abstract fun matches(stack: ItemStack): Boolean
+    open fun canAccept(augment:ScepterAugment): Boolean{return true}
     abstract fun asStack(): ItemStack
 
     protected fun isInTag(augment: Enchantment,tag: TagKey<Enchantment>): Boolean{
