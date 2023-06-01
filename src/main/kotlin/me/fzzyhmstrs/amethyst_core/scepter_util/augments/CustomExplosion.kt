@@ -44,7 +44,7 @@ open class CustomExplosion(
     private val power: Float,
     private val createFire: Boolean,
     private val destructionType: DestructionType,
-    customExplosionBehavior: CustomExplosionBehavior = CustomExplosionBehavior())
+    private val customExplosionBehavior: CustomExplosionBehavior = CustomExplosionBehavior())
     :
     Explosion(world, entity, damageSource, behavior, x, y, z, power, createFire, destructionType)
 {
@@ -104,13 +104,13 @@ open class CustomExplosion(
             }
         }
         affectedBlocks.addAll((set as Collection<BlockPos>))
-        val q = power * 2.0f
-        k = MathHelper.floor(x - q.toDouble() - 1.0)
-        l = MathHelper.floor(x + q.toDouble() + 1.0)
-        val r = MathHelper.floor(y - q.toDouble() - 1.0)
-        val s = MathHelper.floor(y + q.toDouble() + 1.0)
-        val t = MathHelper.floor(z - q.toDouble() - 1.0)
-        val u = MathHelper.floor(z + q.toDouble() + 1.0)
+        val q = power * 2.0
+        k = MathHelper.floor(x - q - 1.0)
+        l = MathHelper.floor(x + q + 1.0)
+        val r = MathHelper.floor(y - q - 1.0)
+        val s = MathHelper.floor(y + q + 1.0)
+        val t = MathHelper.floor(z - q - 1.0)
+        val u = MathHelper.floor(z + q + 1.0)
         val list = world.getOtherEntities(
             entity, Box(
                 k.toDouble(), r.toDouble(), t.toDouble(), l.toDouble(), s.toDouble(), u.toDouble()
@@ -118,28 +118,20 @@ open class CustomExplosion(
         )
         val vec3d = Vec3d(x, y, z)
         for (v in list.indices) {
-
-            var z: Double
-            var y: Double
-            var x: Double
-            var aa: Double
-            var w: Double
             val entity = list[v]
-            if (entity.isImmuneToExplosion || Math.sqrt(entity.squaredDistanceTo(vec3d)) / q.toDouble().also {
-                    w = it
-                } > 1.0 || Math.sqrt(
-                    (entity.x - this.x.also { x = it }) * x + (((entity as? TntEntity)?.y
-                        ?: entity.eyeY) - this.y.also {
-                        y = it
-                    }) * y + (entity.z - this.z.also { z = it }) * z
-                ).also { aa = it } == 0.0
-            ) continue
+            var z: Double = (entity.z - this.z)
+            var y: Double = (((entity as? TntEntity)?.y ?: entity.eyeY) - this.y)
+            var x: Double = (entity.x - this.x)
+            val aa: Double = sqrt(x * x + y * y + z * z)
+            val w: Double = sqrt(entity.squaredDistanceTo(vec3d)) / q
+            if (entity.isImmuneToExplosion || w > 1.0 || aa == 0.0) continue
             x /= aa
             y /= aa
             z /= aa
             val ab = getExposure(vec3d, entity).toDouble()
             val ac = (1.0 - w) * ab
-            entity.damage(damageSource, ((ac * ac + ac) / 2.0 * 7.0 * q.toDouble() + 1.0).toInt().toFloat())
+            entity.damage(damageSource, ((ac * ac + ac) / 2.0 * 7.0 * q + 1.0).toInt().toFloat())
+            customExplosionBehavior.affectEntity(entity)
             var ad = ac
             if (entity is LivingEntity) {
                 ad = ProtectionEnchantment.transformExplosionKnockback(entity, ac)
@@ -212,17 +204,16 @@ open class CustomExplosion(
                 this.world.profiler.pop()
             }
             for (pair in objectArrayList) {
-                Block.dropStack(world, pair.second as BlockPos, pair.first as ItemStack)
+                Block.dropStack(world, pair.second, customExplosionBehavior.affectBlockDropStack(pair.first))
             }
         }
         if (createFire) {
             for (blockPos3 in affectedBlocks) {
-                if (random.nextInt(3) != 0 || !world.getBlockState(blockPos3).isAir || !world.getBlockState(blockPos3.down())
-                        .isOpaqueFullCube(
-                            world, blockPos3.down()
-                        )
+                if (random.nextInt(3) != 0
+                    || !world.getBlockState(blockPos3).isAir
+                    || !world.getBlockState(blockPos3.down()).isOpaqueFullCube(world, blockPos3.down())
                 ) continue
-                world.setBlockState(blockPos3, AbstractFireBlock.getState(world, blockPos3))
+                customExplosionBehavior.setFireBlockState(world,blockPos3)
             }
         }
     }
@@ -247,7 +238,10 @@ open class CustomExplosion(
 
     open class CustomExplosionBehavior{
         open fun affectEntity(entity: Entity){}
-        open fun setFireBlockState(pos: BlockPos){}
+        open fun setFireBlockState(world: World,pos: BlockPos){
+            world.setBlockState(pos,AbstractFireBlock.getState(world, pos))
+        }
+        open fun affectBlockDropStack(stack: ItemStack): ItemStack{return stack}
     }
 
 }
