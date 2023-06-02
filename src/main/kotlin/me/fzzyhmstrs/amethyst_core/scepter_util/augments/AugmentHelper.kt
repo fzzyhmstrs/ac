@@ -77,6 +77,20 @@ object AugmentHelper {
         val boost = if(pairedBoostId != null) BoostRegistry.BOOSTS.get(Identifier(pairedBoostId)) else null
         return PAIRED_SPELL_CACHE.getOrPut(key) { PairedAugments(spell, pairedSpell, boost) }
     }
+    
+    //used to read from sub-NBT passed from an entity, not from a stack
+    fun getOrCreatePairedAugmentsFromNbt(nbt: NbtCompound): PairedAugments{
+        val enchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()).takeIf{ it.isNotEmpty() } ?: return PairedAugments()
+        val enchant = Registries.ENCHANTMENT.get(Identifier(enchantId)) ?: return PairedAugments()
+        val pairedId = nbt.getString(NbtKeys1.PAIRED_ENCHANT.str())
+        val pairedEnchant = if(pairedId.isNotEmpty()){
+            Registries.ENCHANTMENT.get(Identifier(pairedId))
+        } else {
+            null
+        }
+        val boostId = nbt.getString(NbtKeys1.PAIRED_BOOST.str()).takeIf{ it.isNotEmpty() }
+        return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant, pairedEnchant)
+    }
 
     fun getPairedAugments(activeEnchantId: String, stack: ItemStack): PairedAugments?{
         val pairedEnchantId = getPairedEnchantId(stack, activeEnchantId)
@@ -156,8 +170,30 @@ object AugmentHelper {
             stackNbt.put(NbtKeys1.PAIRED_ENCHANTS.str(),pairedEnchantsNbt)
         }
     }
+    
+    fun writePairedAugmentsToNbt(spells: PairedAugments): NbtCompound{
+        val nbt = NbtCompound()
+        val spell = spells.primary()?:return nbt
+        val spellId = Registries.ENCHANTMENT.getId(spell)?.toString()?:return nbt
+        nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),spellId)
+        val paired = spells.paired()
+        if (paired != null){
+            val pairedId = Registries.ENCHANTMENT.getId(paired)?.toString()
+            if (pairedId != null){
+                nbt.putString(NbtKeys1.PAIRED_ENCHANT.str(),pairedId)
+            }
+        }
+        val boost = spells.boost()
+        if (boost != null){
+            val boostId = BoostRegistry.BOOSTS.getId(boost)?.toString()
+            if(boostId != null){
+                nbt.putString(NbtKeys1.PAIRED_BOOST.str(),boostId)
+            }
+        }
+        return nbt
+    }
 
-    fun readPairedAugmentsFromNbt(stack: ItemStack): Map<ScepterAugment, PairedAugments>{
+    fun readPairedAugmentsFromStack(stack: ItemStack): Map<ScepterAugment, PairedAugments>{
         val map: MutableMap<ScepterAugment, PairedAugments> = mutableMapOf()
         val enchants = EnchantmentHelper.get(stack)
         for (entry in enchants){
