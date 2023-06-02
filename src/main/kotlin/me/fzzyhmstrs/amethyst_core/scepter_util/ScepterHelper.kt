@@ -141,7 +141,7 @@ object ScepterHelper {
                     incrementScepterStats(
                         stack.orCreateNbt,
                         stack,
-                        spell,
+                        pairedAugments,
                         user,
                         modifiers.compiledData.getXpModifiers()
                     )
@@ -327,18 +327,21 @@ object ScepterHelper {
         return max(1,((testLevel + levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
     }
 
-    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, spell: ScepterAugment, user: LivingEntity, xpMods: XpModifiers? = null){
-        val spellKey = spell.augmentData.type.name
-        if(spellKey == SpellType.NULL.name) return
-        val statLvl = scepterNbt.getInt(spellKey + "_lvl")
-        val statMod = xpMods?.getMod(spellKey) ?: 0
-        val statMod2 = spell.augmentData.castXp
-        val statXp = (scepterNbt.getInt(spellKey + "_xp") + ((statMod + statMod2) * user.getAttributeValue(RegisterAttribute.SPELL_EXPERIENCE))).toInt()
-        scepterNbt.putInt(spellKey + "_xp",statXp)
-        val lvlUp = checkXpForLevelUp(statXp,statLvl)
-        if(lvlUp > 0){
-            scepterNbt.putInt(spellKey + "_lvl",statLvl + lvlUp)
-            updateScepterAugments(scepter, scepterNbt)
+    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, spells: PairedAugments, user: LivingEntity, xpMods: XpModifiers){
+        for (type in SpellType.values()){
+            if (type == SpellType.NULL) continue
+            val xp = spells.provideCastXp(type)
+            if (xp == 0) continue
+            val spellKey = type.name
+            val statLvl = scepterNbt.getInt(spellKey + "_lvl")
+            val statMod = xpMods.getMod(spellKey)
+            val statXp = (scepterNbt.getInt(spellKey + "_xp") + ((xp + statMod) * user.getAttributeValue(RegisterAttribute.SPELL_EXPERIENCE))).toInt()
+            scepterNbt.putInt(spellKey + "_xp",statXp)
+            val lvlUp = checkXpForLevelUp(statXp,statLvl)
+            if(lvlUp > 0){
+                scepterNbt.putInt(spellKey + "_lvl",statLvl + lvlUp)
+                updateScepterAugments(scepter, scepterNbt)
+            }
         }
     }
     
