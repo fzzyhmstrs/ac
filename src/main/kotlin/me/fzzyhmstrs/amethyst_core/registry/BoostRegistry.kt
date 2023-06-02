@@ -50,7 +50,7 @@ object BoostRegistry {
 
     fun findMatch(stack: ItemStack, augment: ScepterAugment): AugmentBoost?{
         for (boost in BOOSTS){
-            if (boost.matches(stack, augment)){
+            if (boost.matches(stack) && boost.canAccept(augment)){
                 return boost
             }
         }
