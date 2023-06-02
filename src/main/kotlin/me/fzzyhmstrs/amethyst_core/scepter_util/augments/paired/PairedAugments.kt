@@ -7,6 +7,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType.*
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
@@ -85,6 +86,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     private val name: MutableText
     private val enabled: Boolean
     private val maxLevel: Int
+    private val random = Random()
 
     init{
         
@@ -427,6 +429,28 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
+    fun provideCastXp(spellType: SpellType): Int{
+        val primaryAmount = if(type == Type.EMPTY || augments[0].augmentData.type != spellType){
+            0
+        } else {
+            if (type == Type.PAIRED){
+                getPartialXp(augments[1].augmentData.castXp,0.75f)
+            } else {
+                augments[1].augmentData.castXp
+            }
+        }
+        val secondaryAmount = if(type == Type.PAIRED){
+            if (augments[1].augmentData.type != spellType){
+                0
+            } else {
+                getPartialXp(augments[1].augmentData.castXp,0.5f)
+            }
+        } else {
+            0
+        }
+        return primaryAmount + secondaryAmount
+    }
+    
     fun causeExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
         return if (type == Type.PAIRED){
             if (cause == augments[0]) {
@@ -437,6 +461,21 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         } else {
             builder.explode(world)
         }
+    }
+    
+    private fun getPartialXp(base: Int, fraction: Float): Int{
+        val a = (base * fraction).toInt()
+        val b = base % fraction
+        val c = if(b == 0f){
+            0
+        } else {
+            if (random.nextFloat() < b){
+                1
+            } else {
+                0
+            }
+        }
+        return a + c
     }
 
     private enum class Type{
