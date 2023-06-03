@@ -81,15 +81,15 @@ object AugmentHelper {
     //used to read from sub-NBT passed from an entity, not from a stack
     fun getOrCreatePairedAugmentsFromNbt(nbt: NbtCompound): PairedAugments{
         val enchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()).takeIf{ it.isNotEmpty() } ?: return PairedAugments()
-        val enchant = Registries.ENCHANTMENT.get(Identifier(enchantId)) ?: return PairedAugments()
+        val enchant = Registries.ENCHANTMENT.get(Identifier(enchantId)).takeIf { it is ScepterAugment } ?: return PairedAugments()
         val pairedId = nbt.getString(NbtKeys1.PAIRED_ENCHANT.str())
         val pairedEnchant = if(pairedId.isNotEmpty()){
-            Registries.ENCHANTMENT.get(Identifier(pairedId))
+            Registries.ENCHANTMENT.get(Identifier(pairedId)).takeIf { it is ScepterAugment }
         } else {
             null
         }
         val boostId = nbt.getString(NbtKeys1.PAIRED_BOOST.str()).takeIf{ it.isNotEmpty() }
-        return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant, pairedEnchant)
+        return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant as ScepterAugment, pairedEnchant as ScepterAugment)
     }
 
     fun getPairedAugments(activeEnchantId: String, stack: ItemStack): PairedAugments?{

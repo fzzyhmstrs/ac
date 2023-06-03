@@ -7,6 +7,7 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType.*
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
@@ -29,6 +30,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.random.Random
 import net.minecraft.world.World
 
 class PairedAugments private constructor (internal val augments: Array<ScepterAugment>, private val boost: AugmentBoost? = null){
@@ -86,7 +88,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     private val name: MutableText
     private val enabled: Boolean
     private val maxLevel: Int
-    private val random = Random()
+    private val random = Random.createThreadSafe()
 
     init{
         
@@ -328,7 +330,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return text
     }
     
-    fun provideNameDescription(textList: MutableList<Text>){
+    fun provideDescription(textList: MutableList<Text>){
         if (type != Type.EMPTY){
             textList.add(AcText.translatable(augments[0].translationKey + ".desc"))
         }
