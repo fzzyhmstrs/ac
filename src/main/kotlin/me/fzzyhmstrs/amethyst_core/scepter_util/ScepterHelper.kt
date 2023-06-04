@@ -352,6 +352,9 @@ object ScepterHelper {
      * @see AugmentDatapoint needs to be defined in the augment class
      */
     fun isAcceptableScepterItem(augment: ScepterAugment, stack: ItemStack, player: PlayerEntity): Boolean {
+        val item = stack.item
+        if (item !is ScepterLike) return false
+        if (!item.canAcceptAugment(augment)) return false
         val nbt = stack.orCreateNbt
         if (player.abilities.creativeMode) return true
         val activeEnchantId = Registry.ENCHANTMENT.getId(augment)?.toString() ?: ""
