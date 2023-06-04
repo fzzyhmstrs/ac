@@ -4,6 +4,7 @@ import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.entity.Entity
@@ -52,6 +53,9 @@ interface ScepterLike{
      */
     fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean
 
+    fun canAcceptAugment(augment: ScepterAugment): Boolean{
+        return true
+    }
 
     fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound)
 
