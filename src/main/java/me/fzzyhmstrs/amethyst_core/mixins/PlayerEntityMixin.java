@@ -35,6 +35,11 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
     private void amethyst_core_injectSyncedRandomProvidingInterface(World world, BlockPos pos, float yaw, GameProfile gameProfile, CallbackInfo ci){
         provider = new AbstractAugmentBookItem.SyncedRandomProvider();
     }
+    
+    @Override
+    public Vec3d getRotationVec3d(){
+        return ((PlayerEntity)(Object)this).getRotationVector()
+    }
 
     @Override
     public AbstractAugmentBookItem.SyncedRandomProvider getProvider() {
