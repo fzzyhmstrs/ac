@@ -9,6 +9,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +32,7 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
     
     @Override
     public Vec3d getRotationVec3d(){
-        return ((PlayerEntity)(Object)this).getRotationVector()
+        return ((PlayerEntity)(Object)this).getRotationVector();
     }
 
     @Override
