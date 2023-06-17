@@ -57,7 +57,7 @@ abstract class AugmentSwordItem(
 
     var defaultAugments: List<ScepterAugment> = listOf()
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
-    var noFallback: Boolean = false
+    override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
         
     override var glint: Boolean = false
@@ -94,7 +94,7 @@ abstract class AugmentSwordItem(
         return this
     }
 
-    open fun defaultAugments(): List<ScepterAugment>{
+    override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
     
@@ -110,7 +110,7 @@ abstract class AugmentSwordItem(
         return this
     }
 
-    open fun hasFallback(): Boolean{
+    override fun hasFallback(): Boolean{
         return !noFallback
     }
 
@@ -201,7 +201,7 @@ abstract class AugmentSwordItem(
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
     
-    override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+    /*override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registry.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && hasFallback()){
@@ -215,7 +215,7 @@ abstract class AugmentSwordItem(
             }
         }
         scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
-    }
+    }*/
 
     
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {

@@ -56,6 +56,11 @@ enum class NbtKeys {
             return "enchant_init_"
         }
     },
+    FALLBACK_INIT{
+        override fun str(): String {
+            return "fallback_init"
+        }
+    },
     DISENCHANT_COUNT{
         override fun str(): String {
             return "disenchant_count"

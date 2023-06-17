@@ -60,7 +60,7 @@ abstract class AugmentMiningItem(
 
     var defaultAugments: List<ScepterAugment> = listOf()
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
-    var noFallback: Boolean = false
+    override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
         
     override var glint: Boolean = false
@@ -97,7 +97,7 @@ abstract class AugmentMiningItem(
         return this
     }
 
-    open fun defaultAugments(): List<ScepterAugment>{
+    override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
     
@@ -111,10 +111,6 @@ abstract class AugmentMiningItem(
     fun withNoFallback(): AugmentMiningItem{
         noFallback = true
         return this
-    }
-
-    open fun hasFallback(): Boolean{
-        return !noFallback
     }
 
     override fun use(world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
@@ -204,12 +200,13 @@ abstract class AugmentMiningItem(
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
     
-    override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+    /*override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
         val enchantToAdd = Registry.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && hasFallback()){
             if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
                 stack.addEnchantment(enchantToAdd,1)
+                scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.FALLBACK_INIT.str(),true)
             }
         }
         defaultAugments().forEach {
@@ -218,7 +215,7 @@ abstract class AugmentMiningItem(
             }
         }
         scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
-    }
+    }*/
 
     
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {

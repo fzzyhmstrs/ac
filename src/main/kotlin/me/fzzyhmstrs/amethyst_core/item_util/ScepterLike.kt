@@ -7,9 +7,13 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorToolItem
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.Entity
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 
 interface ScepterLike{
 
@@ -17,11 +21,20 @@ interface ScepterLike{
      * the fallback ID is used when a scepter needs a starting state, like a spell, modifier, or whatever other implementation. For Augment Scepters, this is the base augment added by default (Magic Missile for Amethyst Imbuement)
      */
     val fallbackId: Identifier
-    
+    var noFallback: Boolean
+
+    fun hasFallback(): Boolean{
+        return !noFallback
+    }
+
+    fun defaultAugments(): List<ScepterAugment>{
+        return listOf()
+    }
+
     /**
      * Defines the spell power level of the scepter, generally 1, 2, or 3 (low, medium, high), but can be higher if higher tier spells are implemented.
      */
-  
+
     fun getTier(): Int
   
     /**
@@ -50,7 +63,22 @@ interface ScepterLike{
         return true
     }
 
-    fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound)
+    fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+        if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
+        val enchantToAdd = Registry.ENCHANTMENT.get(this.fallbackId)
+        if (enchantToAdd != null && hasFallback() && !scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.FALLBACK_INIT.str())){
+            scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.FALLBACK_INIT.str(),true)
+            if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
+                stack.addEnchantment(enchantToAdd,1)
+            }
+        }
+        defaultAugments().forEach {
+            if (EnchantmentHelper.getLevel(it,stack) == 0){
+                stack.addEnchantment(it,1)
+            }
+        }
+        scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
+    }
 
     fun getActiveEnchant(stack: ItemStack): String{
         val nbt: NbtCompound = stack.orCreateNbt
