@@ -5,6 +5,7 @@ import net.minecraft.advancement.criterion.AbstractCriterion
 import net.minecraft.advancement.criterion.AbstractCriterionConditions
 import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer
 import net.minecraft.predicate.entity.EntityPredicate
+import net.minecraft.predicate.entity.LootContextPredicate
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 
@@ -16,7 +17,7 @@ class SpellCriterion(private val id: Identifier): AbstractCriterion<SpellCriteri
 
     override fun conditionsFromJson(
         obj: JsonObject,
-        playerPredicate: EntityPredicate.Extended,
+        playerPredicate: LootContextPredicate,
         predicateDeserializer: AdvancementEntityPredicateDeserializer
     ): SpellConditions {
         if (obj.has("spell")){
@@ -37,7 +38,7 @@ class SpellCriterion(private val id: Identifier): AbstractCriterion<SpellCriteri
         this.trigger(player) { condition -> condition.test(spell) }
     }
 
-    class SpellConditions(id: Identifier, private val spell: Identifier, predicate: EntityPredicate.Extended): AbstractCriterionConditions(id, predicate){
+    class SpellConditions(id: Identifier, private val spell: Identifier, predicate: LootContextPredicate): AbstractCriterionConditions(id, predicate){
         fun test(spell: Identifier): Boolean{
             return spell == this.spell
         }

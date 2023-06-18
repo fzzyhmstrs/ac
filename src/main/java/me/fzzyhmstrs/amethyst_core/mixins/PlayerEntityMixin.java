@@ -56,7 +56,7 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
             bonus -= 1.0;
         }
         if (bonus > 0.0){
-            newXp += ((PlayerEntity)(Object) this).world.random.nextDouble() < bonus ? 1 : 0;
+            newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
         }
         return newXp;
     }
