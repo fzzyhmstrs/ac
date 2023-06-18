@@ -95,12 +95,12 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
             val entity2 = entityHitResult.entity
             val bl: Boolean = if(pierce){
                 entity2.damage(
-                    DamageSource.magic(this, entity).setProjectile(),
+                    entity.damageSources.indirectMagic(this, entity),
                     entityEffects.damage(0)
                 )
             } else {
                 entity2.damage(
-                    DamageSource.thrownProjectile(this, entity).setProjectile(),
+                    entity.damageSources.mobProjectile(this, entity),
                     entityEffects.damage(0)
                 )
             }

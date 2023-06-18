@@ -97,10 +97,10 @@ abstract class SlashAugment(tier: ScepterTier, maxLvl: Int): MiscAugment(tier, m
             for (entry in entityDistance){
                 val entity = entry.value
                 if (!closestHit) {
-                    bl = entity.damage(DamageSource.magic(entity, user), baseDamage)
+                    bl = entity.damage(user.damageSources.indirectMagic(entity, user), baseDamage)
                     closestHit = true
                 } else {
-                    bl = entity.damage(DamageSource.magic(entity, user), splashDamage)
+                    bl = entity.damage(user.damageSources.indirectMagic(entity, user), splashDamage)
                 }
                 secondaryEffect(world, user, entity, level, effect)
                 val status = addStatusInstance(effect, level)
