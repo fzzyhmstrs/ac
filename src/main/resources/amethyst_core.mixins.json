@@ -8,7 +8,6 @@
     "LivingEntityMixin"
   ],
   "client": [
-    "ItemRendererMixin",
     "PlayerInventoryMixin"
   ],
   "injectors": {
