@@ -33,11 +33,11 @@ repositories {
         url = uri("https://maven.nucleoid.xyz/")
     }
     flatDir {
-        dirs("F:\\Documents\\Mod Libraries\\fc\\build\\libs")
+        dirs("E:\\Documents\\Mod Libraries\\fc\\build\\libs")
     }
 
     flatDir {
-        dirs("F:\\Documents\\Mod Libraries\\gc\\build\\libs")
+        dirs("E:\\Documents\\Mod Libraries\\gc\\build\\libs")
     }
 
 }
