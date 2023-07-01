@@ -3,7 +3,7 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker;
+import me.fzzyhmstrs.amethyst_core.modifier.GcChecker;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;

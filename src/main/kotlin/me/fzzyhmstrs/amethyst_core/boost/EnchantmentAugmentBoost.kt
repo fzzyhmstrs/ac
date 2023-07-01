@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.boost
 
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.LevelProviding
+import me.fzzyhmstrs.amethyst_core.scepter.augments.LevelProviding
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.EnchantmentLevelEntry

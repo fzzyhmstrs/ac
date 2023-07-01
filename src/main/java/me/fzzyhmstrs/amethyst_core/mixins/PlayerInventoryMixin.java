@@ -1,7 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
-import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike;
-import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper;
+import me.fzzyhmstrs.amethyst_core.item.ScepterLike;
+import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

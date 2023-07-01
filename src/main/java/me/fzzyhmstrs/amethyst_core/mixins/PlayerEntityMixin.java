@@ -3,7 +3,7 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 import com.mojang.authlib.GameProfile;
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity;
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding;
-import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
+import me.fzzyhmstrs.amethyst_core.item.AbstractAugmentBookItem;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;

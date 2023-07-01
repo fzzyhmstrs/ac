@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.registry
 
-import me.fzzyhmstrs.amethyst_core.entity_util.MissileEntityRenderer
+import me.fzzyhmstrs.amethyst_core.entity.MissileEntityRenderer
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry

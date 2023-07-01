@@ -3,8 +3,8 @@ package me.fzzyhmstrs.amethyst_core.boost.base
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.boost.BoostConsumers
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
+import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.util.Identifier
 

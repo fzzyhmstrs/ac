@@ -1,11 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.boost
 
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.DamageSourceBuilder
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.paired.ProcessContext
+import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.DamageSourceBuilder
+import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.Enchantment
