@@ -3,11 +3,9 @@ package me.fzzyhmstrs.amethyst_core.modifier
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
-import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
-import java.util.function.Consumer
 
-@Suppress("MemberVisibilityCanBePrivate", "CanBeParameter")
+@Suppress("MemberVisibilityCanBePrivate")
     //alternative version with the AugmentEffect directly included
 
 /**
@@ -55,14 +53,5 @@ data class XpModifiers(var furyXpMod: Int = 0, var witXpMod: Int = 0, var graceX
     }
 }
 
-/**
- * a simple container that holds a consumer and a type notation for sorting.
- */
-data class AugmentConsumer(val consumer: Consumer<List<LivingEntity>>, val type: Type) {
-    enum class Type {
-        HARMFUL,
-        BENEFICIAL,
-        AUTOMATIC
-    }
-}
+
 

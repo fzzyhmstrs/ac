@@ -5,11 +5,9 @@ import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
-import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import java.util.function.Consumer
 import java.util.function.Predicate
 
 /**
@@ -114,12 +112,12 @@ open class AugmentModifier(
         hasSecondEffect = true
         return this
     }
-    fun withConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentModifier {
-        effects.withConsumer(consumer,type)
+    fun withConsumer(augmentConsumer: AugmentConsumer): AugmentModifier {
+        effects.withConsumers(augmentConsumer)
         return this
     }
-    fun withConsumer(augmentConsumer: AugmentConsumer): AugmentModifier {
-        effects.withConsumer(augmentConsumer.consumer,augmentConsumer.type)
+    fun withConsumers(vararg augmentConsumer: AugmentConsumer): AugmentModifier {
+        effects.withConsumers(*augmentConsumer)
         return this
     }
     fun withDescendant(modifier: AugmentModifier): AugmentModifier {

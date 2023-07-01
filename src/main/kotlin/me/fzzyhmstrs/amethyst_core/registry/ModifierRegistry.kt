@@ -29,7 +29,7 @@ object ModifierRegistry {
     /**
      * example harmful [AugmentConsumer] that applies wither to targets specified to receive Harmful effects in the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment] implementation.
      */
-    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer({ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
+    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_necrotic"),{ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
     private fun necroticConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(
@@ -41,7 +41,7 @@ object ModifierRegistry {
     /**
      * example beneficial [AugmentConsumer] that applies regeneration to targets specified to receive beneficial effects. Most commonly, this will be the player than cast the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment], but may also be other targets of, for example, a mass healing spell.
      */
-    private val DEBUG_HEALING_CONSUMER = AugmentConsumer({ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
+    private val DEBUG_HEALING_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_healing"),{ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
     private fun healingConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(

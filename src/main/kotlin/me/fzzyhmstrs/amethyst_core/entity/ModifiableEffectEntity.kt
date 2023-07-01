@@ -1,7 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
+import net.minecraft.nbt.NbtCompound
 
 /**
  * interface for meshing an entity (or any object really) with the Modifier system. The interface provides a base [AugmentEffect] instance for storing and passing effect attributes. See that doc for details on what is stored.
@@ -21,6 +23,22 @@ interface ModifiableEffectEntity {
         entityEffects = AugmentEffect().plus(ae)
         this.level = level
         this.spells = spells
+    }
+
+    fun writeModifiableNbt(nbtCompound: NbtCompound){
+        val modifiableNbt = NbtCompound()
+        modifiableNbt.put("entityEffects",entityEffects.writeNbt())
+        modifiableNbt.putInt("level",level)
+        modifiableNbt.put("spells", AugmentHelper.writePairedAugmentsToNbt(spells))
+        nbtCompound.put("modifiable_effects",modifiableNbt)
+    }
+
+    fun readModifiableNbt(nbtCompound: NbtCompound){
+        if (!nbtCompound.contains("modifiable_effects")) return
+        val modifiableNbt = nbtCompound.getCompound("modifiable_effects")
+        entityEffects = AugmentEffect.readNbt(modifiableNbt.getCompound("entityEffects"))
+        level = modifiableNbt.getInt("level")
+        spells = AugmentHelper.getOrCreatePairedAugmentsFromNbt(modifiableNbt.getCompound("spells"))
     }
 
 }

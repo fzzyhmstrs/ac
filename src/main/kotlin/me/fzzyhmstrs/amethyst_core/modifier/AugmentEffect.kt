@@ -2,12 +2,10 @@ package me.fzzyhmstrs.amethyst_core.modifier
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
-import me.fzzyhmstrs.fzzy_core.coding_util.Addable
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
+import me.fzzyhmstrs.fzzy_core.coding_util.*
 import net.minecraft.entity.LivingEntity
-import java.util.function.Consumer
+import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtElement
 import kotlin.math.max
 
 /**
@@ -32,6 +30,14 @@ data class AugmentEffect(
     internal var rangeData: PerLvlD = PerLvlD()
 ): Addable<AugmentEffect>{
     private var consumers: Multimap<AugmentConsumer.Type,AugmentConsumer> = ArrayListMultimap.create()
+
+    private constructor( damageData: PerLvlF = PerLvlF(),
+                         amplifierData: PerLvlI = PerLvlI(),
+                         durationData: PerLvlI = PerLvlI(),
+                         rangeData: PerLvlD = PerLvlD(),
+                         consumers: Multimap<AugmentConsumer.Type,AugmentConsumer>): this(damageData, amplifierData, durationData, rangeData){
+                             this.consumers = consumers
+                         }
 
     override fun plus(other: AugmentEffect): AugmentEffect {
         damageData = damageData.plus(other.damageData)
@@ -133,17 +139,9 @@ data class AugmentEffect(
         rangeData = PerLvlD(range, rangePerLevel, rangePercent)
         return this
     }
-    fun withConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentEffect {
-        addConsumer(consumer, type)
-        return this
-    }
-    fun addConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentEffect{
-        consumers.put(type,AugmentConsumer(consumer, type))
-        return this
-    }
-    fun addConsumers(list: List<AugmentConsumer>): AugmentEffect{
-        list.forEach {
-            consumers.put(it.type,AugmentConsumer(it.consumer, it.type))
+    fun withConsumers(vararg consumers: AugmentConsumer): AugmentEffect {
+        for (consumer in consumers) {
+            this.consumers.put(consumer.type, consumer)
         }
         return this
     }
@@ -156,4 +154,40 @@ data class AugmentEffect(
         consumers = ae.consumers
         return this
     }
+
+    fun writeNbt(): NbtCompound{
+        val nbtCompound = NbtCompound()
+        nbtCompound.put("damage",ScalingPrimitivesHelper.writeNbt(damageData))
+        nbtCompound.put("amplifier",ScalingPrimitivesHelper.writeNbt(amplifierData))
+        nbtCompound.put("duration",ScalingPrimitivesHelper.writeNbt(durationData))
+        nbtCompound.put("range",ScalingPrimitivesHelper.writeNbt(rangeData))
+        val consumerCompound = NbtCompound()
+        for (type in consumers.keySet()){
+            val typeConsumers = consumers[type]
+            val typeList = AugmentConsumer.toNbtList(typeConsumers)
+            consumerCompound.put(type.name,typeList)
+        }
+        nbtCompound.put("consumers",consumerCompound)
+        return nbtCompound
+    }
+
+    companion object{
+        fun readNbt(nbtCompound: NbtCompound): AugmentEffect{
+            val damageData = ScalingPrimitivesHelper.readNbt(nbtCompound.getCompound("damage"))
+            val amplifierData = ScalingPrimitivesHelper.readNbt(nbtCompound.getCompound("amplifier"))
+            val durationData = ScalingPrimitivesHelper.readNbt(nbtCompound.getCompound("duration"))
+            val rangeData = ScalingPrimitivesHelper.readNbt(nbtCompound.getCompound("range"))
+            val consumerCompound = nbtCompound.getCompound("consumers")
+            val consumerMap: Multimap<AugmentConsumer.Type,AugmentConsumer> = ArrayListMultimap.create()
+            for (type in AugmentConsumer.Type.values()){
+                if (consumerCompound.contains(type.name,NbtElement.LIST_TYPE.toInt())){
+                    val nbtList = consumerCompound.getList(type.name,NbtElement.STRING_TYPE.toInt())
+                    val list = AugmentConsumer.fromNbtList(nbtList)
+                    consumerMap.putAll(type,list)
+                }
+            }
+            return AugmentEffect(damageData as PerLvlF,amplifierData as PerLvlI,durationData as PerLvlI,rangeData as PerLvlD,consumerMap)
+        }
+    }
+
 }
