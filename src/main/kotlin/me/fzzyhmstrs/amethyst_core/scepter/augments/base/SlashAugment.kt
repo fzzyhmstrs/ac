@@ -87,6 +87,7 @@ abstract class SlashAugment(
         } else {
             listOf(AugmentHelper.DRY_FIRED)
         }
+        castSoundEvent(world, user.blockPos)
         val buf = ScepterHelper.prepareParticlePacket(adderId)
         buf.writeInt(level)
         ScepterHelper.sendSpellParticlesFromServer(world,user.pos,buf)

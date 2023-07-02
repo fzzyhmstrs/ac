@@ -53,12 +53,12 @@ abstract class BeamAugment(
         if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
         val perpendicularVector = RaycasterUtil.perpendicularVector(rotation, RaycasterUtil.InPlane.XZ)
-        val raycasterPos = user.pos.add(rotation.multiply(effects.range(level)/2)).add(beamOffset(user))
+        val raycastPos = user.pos.add(rotation.multiply(effects.range(level)/2)).add(beamOffset(user))
         val entityList: MutableList<Entity> =
             RaycasterUtil.raycastEntityRotatedArea(
                 world.iterateEntities(),
                 user,
-                raycasterPos,
+                raycastPos,
                 rotation,
                 perpendicularVector,
                 effects.range(level),
@@ -77,6 +77,7 @@ abstract class BeamAugment(
         val list2 = spells.processMultipleBlockHits(blockList, world, null, user, hand, level, effects)
         list.addAll(list2)
         list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
+        castSoundEvent(world,user.blockPos)
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
     }
 

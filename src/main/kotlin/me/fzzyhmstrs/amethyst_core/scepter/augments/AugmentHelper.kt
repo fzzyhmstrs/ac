@@ -18,6 +18,8 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import kotlin.math.max
 import me.fzzyhmstrs.amethyst_core.nbt.NbtKeys as NbtKeys1
 
@@ -29,7 +31,7 @@ object AugmentHelper {
 
     private val augmentStats: MutableMap<String, AugmentDatapoint> = mutableMapOf()
     private val PAIRED_SPELL_CACHE: MutableMap<String, PairedAugments> = mutableMapOf()
-
+    private val searchArray = intArrayOf(0,1,-1,2,-2,3,-3)
 
     val PROJECTILE_FIRED = Identifier(AC.MOD_ID,"projectile_fired")
     val PROJECTILE_HIT = Identifier(AC.MOD_ID,"projectile_hit")
@@ -82,13 +84,13 @@ object AugmentHelper {
     fun getOrCreatePairedAugmentsFromNbt(nbt: NbtCompound): PairedAugments{
         val enchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()).takeIf{ it.isNotEmpty() } ?: return PairedAugments()
         val enchant = Registries.ENCHANTMENT.get(Identifier(enchantId)).takeIf { it is ScepterAugment } ?: return PairedAugments()
-        val pairedId = nbt.getString(NbtKeys1.PAIRED_ENCHANT.str())
+        val pairedId = nbt.getString(NbtKeys1.PAIRED_ENCHANT)
         val pairedEnchant = if(pairedId.isNotEmpty()){
             Registries.ENCHANTMENT.get(Identifier(pairedId)).takeIf { it is ScepterAugment }
         } else {
             null
         }
-        val boostId = nbt.getString(NbtKeys1.PAIRED_BOOST.str()).takeIf{ it.isNotEmpty() }
+        val boostId = nbt.getString(NbtKeys1.PAIRED_BOOST).takeIf{ it.isNotEmpty() }
         return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant as ScepterAugment, pairedEnchant as ScepterAugment)
     }
 
@@ -146,7 +148,7 @@ object AugmentHelper {
         if (pairedAugment != null){
             val pairedAugmentId = Registries.ENCHANTMENT.getId(pairedAugment)
             if (pairedAugmentId != null){
-                pairedEnchantData.putString(NbtKeys1.PAIRED_ENCHANT.str(),pairedAugmentId.toString())
+                pairedEnchantData.putString(NbtKeys1.PAIRED_ENCHANT,pairedAugmentId.toString())
                 success = true
             }
         }
@@ -154,20 +156,20 @@ object AugmentHelper {
         if (boost != null) {
             val boostId = BoostRegistry.BOOSTS.getId(boost)
             if (boostId != null){
-                pairedEnchantData.putString(NbtKeys1.PAIRED_BOOST.str(),boostId.toString())
+                pairedEnchantData.putString(NbtKeys1.PAIRED_BOOST,boostId.toString())
                 success = true
             }
         }
         if (success){
             val stackNbt = stack.orCreateNbt
-            val pairedEnchantsNbt = if (stackNbt.contains(NbtKeys1.PAIRED_ENCHANTS.str())){
-                stackNbt.getCompound(NbtKeys1.PAIRED_ENCHANTS.str())
+            val pairedEnchantsNbt = if (stackNbt.contains(NbtKeys1.PAIRED_ENCHANTS)){
+                stackNbt.getCompound(NbtKeys1.PAIRED_ENCHANTS)
             } else {
                 NbtCompound()
             }
             val augmentId = Registries.ENCHANTMENT.getId(augment)?:return
             pairedEnchantsNbt.put(augmentId.toString(),pairedEnchantData)
-            stackNbt.put(NbtKeys1.PAIRED_ENCHANTS.str(),pairedEnchantsNbt)
+            stackNbt.put(NbtKeys1.PAIRED_ENCHANTS,pairedEnchantsNbt)
         }
     }
     
@@ -180,14 +182,14 @@ object AugmentHelper {
         if (paired != null){
             val pairedId = Registries.ENCHANTMENT.getId(paired)?.toString()
             if (pairedId != null){
-                nbt.putString(NbtKeys1.PAIRED_ENCHANT.str(),pairedId)
+                nbt.putString(NbtKeys1.PAIRED_ENCHANT,pairedId)
             }
         }
         val boost = spells.boost()
         if (boost != null){
             val boostId = BoostRegistry.BOOSTS.getId(boost)?.toString()
             if(boostId != null){
-                nbt.putString(NbtKeys1.PAIRED_BOOST.str(),boostId)
+                nbt.putString(NbtKeys1.PAIRED_BOOST,boostId)
             }
         }
         return nbt
@@ -211,11 +213,11 @@ object AugmentHelper {
     }
 
     private fun getPairedEnchantId(nbt: NbtCompound, activeEnchantId: String): String? {
-        return if (nbt.contains(NbtKeys1.PAIRED_ENCHANTS.str())) {
-            val pairedEnchants = nbt.getCompound(NbtKeys1.PAIRED_ENCHANTS.str())
+        return if (nbt.contains(NbtKeys1.PAIRED_ENCHANTS)) {
+            val pairedEnchants = nbt.getCompound(NbtKeys1.PAIRED_ENCHANTS)
             if (pairedEnchants.contains(activeEnchantId)) {
                 val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
-                pairedEnchantData.getString(NbtKeys1.PAIRED_ENCHANT.str())
+                pairedEnchantData.getString(NbtKeys1.PAIRED_ENCHANT)
             } else {
                 null
             }
@@ -230,11 +232,11 @@ object AugmentHelper {
     }
 
     private fun getPairedBoostId(nbt: NbtCompound, activeEnchantId: String): String? {
-        return if (nbt.contains(NbtKeys1.PAIRED_ENCHANTS.str())) {
-            val pairedEnchants = nbt.getCompound(NbtKeys1.PAIRED_ENCHANTS.str())
+        return if (nbt.contains(NbtKeys1.PAIRED_ENCHANTS)) {
+            val pairedEnchants = nbt.getCompound(NbtKeys1.PAIRED_ENCHANTS)
             if (pairedEnchants.contains(activeEnchantId)) {
                 val pairedEnchantData = pairedEnchants.getCompound(activeEnchantId)
-                pairedEnchantData.getString(NbtKeys1.PAIRED_BOOST.str())
+                pairedEnchantData.getString(NbtKeys1.PAIRED_BOOST)
             } else {
                 null
             }
@@ -375,6 +377,26 @@ object AugmentHelper {
             }
         }
         return builder
+    }
+
+    fun findSpawnPos(world: World, startPos: BlockPos, entity: LivingEntity, radius: Int = 3, tries: Int = 8, pitch: Float = 0f, yaw: Float = 0f): Boolean{
+        entity.refreshPositionAndAngles(startPos,yaw, pitch)
+        val boundingBoxReset = entity.boundingBox
+        var boundingBox = entity.boundingBox
+        for (i in 1..tries){
+            val xPos = world.random.nextBetween(-radius,radius)
+            val yPos = 1
+            val zPos = world.random.nextBetween(-radius,radius)
+            for (j in searchArray){
+                boundingBox = boundingBox.offset(xPos.toDouble(),(yPos + j).toDouble(),zPos.toDouble())
+                if (world.isSpaceEmpty(boundingBox)){
+                    entity.refreshPositionAndAngles(BlockPos(startPos.x + xPos,startPos.y + yPos,startPos.z + zPos), yaw, pitch)
+                    return true
+                }
+                boundingBox = boundingBoxReset
+            }
+        }
+        return false
     }
 
 }

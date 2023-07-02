@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
+import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
 import me.fzzyhmstrs.amethyst_core.event.EntityHitActionEvent
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
@@ -406,7 +407,8 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun provideSummons(summons: List<Entity>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<Entity>{
+    fun <T> provideSummons(summons: List<T>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): List<T> where T: Entity,
+                                                                                                                                                                               T: ModifiableEffectEntity {
         return if (type == Type.PAIRED){
             if (cause == augments[0]) {
                 augments[1].modifySummons(summons,cause, user, world, hand, level, effects, augments[0].augmentType, this)
@@ -451,19 +453,6 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
         return primaryAmount + secondaryAmount
     }
-    
-    fun causeExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
-        return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
-            } else {
-                augments[0].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[1].augmentType, this).explode(world)
-            }
-        } else {
-            builder.explode(world)
-        }
-    }
-    
     private fun getPartialXp(base: Int, fraction: Float): Int{
         val a = (base * fraction).toInt()
         val b = base % fraction
@@ -477,6 +466,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             }
         }
         return a + c
+    }
+
+    fun causeExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect){
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
+            } else {
+                augments[0].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[1].augmentType, this).explode(world)
+            }
+        } else {
+            builder.explode(world)
+        }
     }
 
     private enum class Type{

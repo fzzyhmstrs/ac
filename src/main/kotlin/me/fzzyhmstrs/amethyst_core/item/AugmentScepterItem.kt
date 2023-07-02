@@ -163,7 +163,6 @@ abstract class AugmentScepterItem(
         return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     override fun clientUse(
         world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
         testEnchant: ScepterAugment, testLevel: Int
@@ -195,7 +194,7 @@ abstract class AugmentScepterItem(
     }
 
     override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
-        if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
+        if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT + stack.translationKey)) return
         val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && hasFallback()){
             if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
@@ -207,7 +206,7 @@ abstract class AugmentScepterItem(
                 stack.addEnchantment(it,1)
             }
         }
-        scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
+        scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT + stack.translationKey,true)
     }
 
 

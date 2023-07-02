@@ -1,5 +1,3 @@
-@file:Suppress("REDUNDANT_ELSE_IN_WHEN")
-
 package me.fzzyhmstrs.amethyst_core.scepter
 
 import me.fzzyhmstrs.amethyst_core.AC

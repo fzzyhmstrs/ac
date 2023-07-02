@@ -49,8 +49,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         context: TooltipContext
     ) {
         val nbt = stack.orCreateNbt
-        if (nbt.contains(NbtKeys.LORE_KEY.str())){
-            val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+        if (nbt.contains(NbtKeys.LORE_KEY)){
+            val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY)).toString()
             val aug = AugmentHelper.getScepterAugment(bola)?:return
             //name and desc
             tooltip.add(AcText.translatable("lore_book.augment",AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}")).formatted(Formatting.GOLD))
@@ -110,7 +110,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         val stack = user.getStackInHand(hand)
         val item = stack.item
         if (item !is AbstractAugmentBookItem) return TypedActionResult.fail(stack)
-        if (stack.hasNbt() && stack.nbt?.contains(NbtKeys.LORE_KEY.str()) == true){
+        if (stack.hasNbt() && stack.nbt?.contains(NbtKeys.LORE_KEY) == true){
             return useAfterWriting(stack, world, user, hand)
         }
         //if (world !is ServerWorld) return TypedActionResult.fail(stack)
@@ -124,25 +124,25 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 stack
             }
             val nbt = stack2.orCreateNbt
-            if (!nbt.contains(NbtKeys.LORE_KEY.str())) {
+            if (!nbt.contains(NbtKeys.LORE_KEY)) {
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
-                nbt.putString(NbtKeys.LORE_KEY.str(), aug)
-                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+                nbt.putString(NbtKeys.LORE_KEY, aug)
+                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY)).toString()
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
-                    nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
+                    nbt.putString(NbtKeys.LORE_TYPE, type.str())
                 }
                 world.playSound(null, user.blockPos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.NEUTRAL, 0.7f, 1.0f)
                 if (shouldOffer){
                     user.inventory.offerOrDrop(stack2)
                 }
-            } else if (Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).namespace == "minecraft") {
+            } else if (Identifier(nbt.getString(NbtKeys.LORE_KEY)).namespace == "minecraft") {
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
-                nbt.putString(NbtKeys.LORE_KEY.str(), aug)
-                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+                nbt.putString(NbtKeys.LORE_KEY, aug)
+                val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY)).toString()
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
-                    nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
+                    nbt.putString(NbtKeys.LORE_TYPE, type.str())
                 }
                 world.playSound(null, user.blockPos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.NEUTRAL, 0.7f, 1.0f)
                 if (shouldOffer){
@@ -192,8 +192,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
 
         fun addLoreKeyForREI(stack: ItemStack,augment: String){
             val nbt = stack.orCreateNbt
-            if(!nbt.contains(NbtKeys.LORE_KEY.str())) {
-                nbt.putString(NbtKeys.LORE_KEY.str(),augment)
+            if(!nbt.contains(NbtKeys.LORE_KEY)) {
+                nbt.putString(NbtKeys.LORE_KEY,augment)
             }
         }
     }

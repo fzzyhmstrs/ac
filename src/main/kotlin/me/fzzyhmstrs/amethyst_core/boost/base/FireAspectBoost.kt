@@ -10,7 +10,11 @@ import net.minecraft.util.Identifier
 
 class FireAspectBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"fire_aspect_boost"), Enchantments.FIRE_ASPECT, 2) {
 
+    companion object{
+        val CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"fire_aspect_boost_consumer"),BoostConsumers.FIRE_ASPECT_CONSUMER, AugmentConsumer.Type.HARMFUL)
+    }
+
     override val boostEffect: AugmentEffect
-        get() = super.boostEffect.withConsumer(BoostConsumers.FIRE_ASPECT_CONSUMER, AugmentConsumer.Type.HARMFUL)
+        get() = super.boostEffect.withConsumers(CONSUMER)
 
 }

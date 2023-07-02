@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
@@ -97,97 +98,257 @@ abstract class ScepterAugment(
     open fun onEntityKill(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return SUCCESSFUL_PASS
     }
-    open fun modifyCooldown(cooldown: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies the spell cooldown in some way. For example, Ice elemental augments might lower spell cooldown by 10% when paired
+     */
+    open fun modifyCooldown(cooldown: PerLvlI, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return cooldown
     }
-    open fun modifyManaCost(manaCost: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies the spell mana cost in some way. For example, lightning elemental augments might lower spell mana costs by 10% when paired
+     */
+    open fun modifyManaCost(manaCost: PerLvlI, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return manaCost
     }
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies spell damage in some way. For example, double-paired spells might have 25% increased base damage.
+     *
+     * This is NOT the same as [modifyDealtDamage], which is context-aware. This is modifying the basic [PerLvlF] for getting the damage on cast.
+     */
     open fun modifyDamage(damage: PerLvlF, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlF{
         return damage
     }
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies spell amplifier in some way. For example, double-paired spells might have +2 amplifier.
+     */
     open fun modifyAmplifier(amplifier: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return amplifier
     }
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies spell duration in some way. For example, double-paired spells might have + 40 tick duration.
+     */
     open fun modifyDuration(duration: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return duration
     }
+    /**
+     * Basic Attribute Modification
+     *
+     * Modifies spell range in some way. For example, double-paired spells might have 50% increased range.
+     */
     open fun modifyRange(range: PerLvlD,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlD{
         return range
     }
+
+    /**
+     * Modifies damage in a context aware way.
+     *
+     * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
+     */
     open fun modifyDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
         return amount
     }
+    /**
+     * Modifies the damage source a spell uses for damaging something.
+     *
+     * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
+     */
     open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder {
         return builder
     }
+    /**
+     * Creates the starting point for modifying a damage source to provide to a damage-dealing method.
+     *
+     * Spells should overwrite this to provide the proper initial damage source in the builder
+     */
     open fun damageSourceBuilder(source: Entity?, attacker: LivingEntity): DamageSourceBuilder{
         return DamageSourceBuilder(attacker, source)
     }
-    open fun modifySummons(summons: List<Entity>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<Entity>{
+
+    /**
+     * Modifies (or replaces) summoned entities.
+     *
+     * A common usage is to replace a basic version of summoned entities with a special paired version (like Unhallowed -> Incinerated for a pairing with a fire spell)
+     *
+     * Can also modify certain features like armor, provide persistent attributes like health, speed, etc., or change quantity summoned
+     */
+    open fun <T> modifySummons(summons: List<T>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<T> where T: Entity,
+                                                                                                                                                                                                                          T: ModifiableEffectEntity {
         return summons
     }
+
+    /**
+     * Uses an explosion builder to create a custom explosion
+     *
+     * Use to do things like changing the blocks that are created (snow instead of fire, for example)
+     */
     open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder {
         return builder
     }
+
+    /**
+     * Modifies the list of drops from a drop source
+     *
+     * Currently unused by anything in AC itself, it can be used by something like Excavate to drop smelted things if paired with flame spell.
+     */
     open fun modifyDrops(stacks: List<ItemStack>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<ItemStack>{
         return stacks
     }
 
+    /**
+     * sound event to be played on cast
+     */
     open fun castSoundEvent(world: World, blockPos: BlockPos){
     }
+
+    /**
+     * sound event to be played on hit
+     */
     open fun hitSoundEvent(world: World, blockPos: BlockPos){
     }
-    
+
+    /**
+     * the particle type for the cast. This is, for example, the particles that trail a missile entity
+     */
     open fun castParticleType(): ParticleEffect {
         return ParticleTypes.CRIT
     }
+    /**
+     * the particle type for hitting something. This is, for example, the particles that will appear when a missile hits a block
+     */
     open fun hitParticleType(hit: HitResult): ParticleEffect {
         return ParticleTypes.CRIT
     }
+
+    /**
+     * generates a "splash" of particles at a HitResult
+     */
     open fun splashParticles(hitResult: HitResult, world: World, x: Double, y: Double, z: Double, spells: PairedAugments){
         if (world is ServerWorld){
             val particle = spells.getHitParticleType(hitResult)
             world.spawnParticles(particle,x,y,z,20,.25,.25,.25,0.2)
         }
     }
+    /**
+     * Used by the mixin to generate the mixed name from the paired spells
+     */
     fun augmentName(stack: ItemStack, level: Int): Text{
         val enchantId = this.id?.toString()?:return getName(level)
         val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack)?:return getName(level)
         return pairedSpells.provideName(level)
     }
+
+    /**
+     * This is the primary method for building the name from pieces.
+     *
+     * Generally it shouldn't have to be overwritten unless there is a reason the normal description key won't work. Overwrite [provideArgs] to supply the language key with the parts it needs
+     *
+     * for special cases, [specialName] should be used instead
+     */
     open fun augmentName(pairedSpell: ScepterAugment): MutableText {
-        return AcText.translatable(orCreateTranslationKey)
+        return AcText.translatable("$orCreateTranslationKey.combination",provideArgs(pairedSpell))
     }
+
+    /**
+     * Use this method to provide unique names for certain spell combinations, not "{Noun} Bolt" or similar, but "Devastation" or something else suitably interesting
+     */
     open fun specialName(otherSpell: ScepterAugment): MutableText {
         return AcText.empty()
     }
+
+    /**
+     * name provided when a spell is paired to itself. Shouldn't need to be overriden in most cases
+     */
     open fun doubleName(): MutableText {
         return AcText.translatable("$orCreateTranslationKey.double")
     }
+
+    /**
+     * Override this method to build the generally acceptable [augmentName]
+     *
+     * Typically, it will be some combination of [provideNoun], [provideAdjective], and [provideVerb]
+     */
+    open fun provideArgs(pairedSpell: ScepterAugment): Array<Text>{
+        return arrayOf()
+    }
+
+    /**
+     * provides a noun for use in a paired spell name. Something like "{Noun}blast"
+     */
     open fun provideNoun(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".noun")
     }
+    /**
+     * provides a verb for use in a paired spell name.
+     */
     open fun provideVerb(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".verb")
     }
+    /**
+     * provides an adjective for use in a paired spell name. Something like "{Adjective} Bolt"
+     */
     open fun provideAdjective(pairedSpell: ScepterAugment?): Text{
         return AcText.translatable(getTranslationKey() + ".adjective")
     }
+
+    /**
+     * This method is used to build the description that is shown when spells are paired.
+     *
+     * This method should be built up to provide chunks of description based on the actual changes that the pairing will be making to the original spell. Different changes should be provided separately. A change to the damage source would be one line, a change to the damage dealt another line.
+     *
+     * It takes the form of a list, with a format like so:
+     *
+     * "Original Spell Description"
+     *
+     * Changes:
+     *
+     * "Change Description 1"
+     *
+     * "Change Description 2"
+     * etc.
+     */
     abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType)
 
+    /**
+     * provides the maximum level the spell can reach
+     */
     open fun getAugmentMaxLevel(): Int{
         return maxLvl
     }
     override fun isAcceptableItem(stack: ItemStack): Boolean {
-        return stack.isIn(tier.tag)
+        return stack.isIn(getTag())
     }
+
+    /**
+     * provides the spell tier integer that the provided [ScepterTier] has. A scepter of this tier or higher will be needed to cast this spell
+     *
+     * Note: this is only used to provide visuals, the actual scepter suitability is determined by [getTag]
+     */
     fun getTier(): Int{
         return tier.tier
     }
+
+    /**
+     * returns the item tag of scepters that this augment is suitable for.
+     */
     fun getTag(): TagKey<Item>{
         return tier.tag
     }
+
+    /**
+     * Returns whether this spell should affect other players in consideration of ally status. For example, a healing spell with PvpMode shouldn't affect non-team-mates, and a damaging spell shouldn't damage other players if PvpMode is off.
+     */
     fun getPvpMode(): Boolean{
         return augmentData.pvpMode
     }

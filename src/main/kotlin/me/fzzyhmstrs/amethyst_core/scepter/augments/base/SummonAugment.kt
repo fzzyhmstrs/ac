@@ -18,8 +18,6 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 
@@ -109,26 +107,7 @@ ScepterAugment(
         return actionResult(ActionResult.PASS)
     }
 
-    open fun entitiesToSpawn(world: World, user: LivingEntity, hit: HitResult, level: Int, effects: AugmentEffect): List<Entity>{
+    open fun <T> entitiesToSpawn(world: World, user: LivingEntity, hit: HitResult, level: Int, effects: AugmentEffect): List<T> {
         return listOf()
     }
-
-    open fun findSpawnPos(world: World, startPos: BlockPos, boundingBox: Box, radius: Int = 3, tries: Int = 8): BlockPos{
-        for (i in 1..tries){
-            val xPos = startPos.x + world.random.nextBetween(-radius,radius)
-            val yPos = startPos.up().y
-            val zPos = startPos.z + world.random.nextBetween(-radius,radius)
-            for (j in searchArray){
-                val testPos = BlockPos(xPos,yPos + j,zPos)
-                if (world.isSpaceEmpty(boundingBox))
-                    return testPos
-            }
-        }
-        return BlockPos.ORIGIN
-    }
-
-    companion object{
-        private val searchArray = intArrayOf(0,1,-1,2,-2,3,-3)
-    }
-
 }
