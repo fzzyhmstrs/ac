@@ -55,8 +55,9 @@ abstract class SingleTargetOrSelfAugment(
         spells: PairedAugments
     ): TypedActionResult<List<Identifier>> {
         val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.result.isAccepted)
-            castSoundEvent(world,user.blockPos)
+        if (result.result.isAccepted) {
+            castSoundEvent(world, user.blockPos)
+        }
         return result
     }
 

@@ -49,9 +49,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     override var level: Int = 0
     open val maxAge = 200
     open val colorData = ColorData()
-    private val particle by lazy{
-        spells.getCastParticleType()
-    }
+    private val particle
+        get() = spells.getCastParticleType()
+
 
     override fun initDataTracker() {}
 

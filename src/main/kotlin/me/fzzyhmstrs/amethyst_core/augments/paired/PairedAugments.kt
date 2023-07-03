@@ -134,10 +134,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     private val castParticleEffect by lazy{
         when(type){
-            Type.SINGLE -> augments[0].castParticleType()
-            Type.PAIRED -> augments[1].castParticleType()
+            Type.SINGLE -> augments[0].castParticleType()?:ParticleTypes.CRIT
+            Type.PAIRED -> augments[1].castParticleType()?:augments[0].castParticleType()?:ParticleTypes.CRIT
             Type.EMPTY -> ParticleTypes.CRIT
         }
+    }
+
+    override fun toString(): String {
+        return "Paired Augment:[${primary()}, ${paired()}, ${boost()}]"
     }
 
     fun getCastParticleType(): ParticleEffect {
@@ -146,8 +150,8 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     fun getHitParticleType(hit: HitResult): ParticleEffect {
         return when(type){
-            Type.SINGLE -> augments[0].hitParticleType(hit)
-            Type.PAIRED -> augments[1].hitParticleType(hit)
+            Type.SINGLE -> augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
+            Type.PAIRED -> augments[1].hitParticleType(hit)?:augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
             Type.EMPTY -> ParticleTypes.CRIT
         }
     }
@@ -397,10 +401,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
     
     fun provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect): DamageSource{
-        return if (type == Type.SINGLE) {
-            val mod = augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this)
-            boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
-        } else if (type == Type.PAIRED){
+        return if (type == Type.PAIRED){
             if (cause == augments[0]){
                 val mod = augments[1].modifyDamageSource(builder, cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
                 boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()

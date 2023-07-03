@@ -2,13 +2,12 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 
 class AugmentType(val block: Boolean, val entity: Boolean, val damage: Boolean, val explodes: Boolean, val summon: Boolean, val beneficial: Boolean, val empty: Boolean = false){
 
-    fun negativeEffect(): Boolean{
-        return entity && !damage && !beneficial
-    }
+    val negativeEffect: Boolean
+        get() = entity && !damage && !beneficial
 
-    fun positiveEffect(): Boolean{
-        return entity && !damage && beneficial
-    }
+    val positiveEffect: Boolean
+        get() = entity && !damage && beneficial
+
 
     companion object{
         val EMPTY = AugmentType(block = false, entity = false, damage = false, explodes = false, summon = false, beneficial = false, empty = true)

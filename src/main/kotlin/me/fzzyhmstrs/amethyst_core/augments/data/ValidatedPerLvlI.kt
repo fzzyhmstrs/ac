@@ -7,7 +7,7 @@ import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 class ValidatedPerLvlI(
     value: PerLvlI,
     max: PerLvlI = PerLvlI(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE),
-    min: PerLvlI = PerLvlI())
+    min: PerLvlI = PerLvlI(Int.MIN_VALUE, Int.MIN_VALUE, Int.MIN_VALUE))
     :
     ConfigSection()
 {

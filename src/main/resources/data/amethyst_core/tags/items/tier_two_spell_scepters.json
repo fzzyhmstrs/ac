@@ -1,6 +1,9 @@
 {
   "replace": false,
   "values": [
-    "#amethyst_core:tier_three_spell_scepters"
+    {
+      "required": false,
+      "id": "#amethyst_core:tier_three_spell_scepters"
+    }
   ]
 }

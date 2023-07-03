@@ -19,7 +19,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleEffect
-import net.minecraft.particle.ParticleTypes
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
@@ -223,14 +222,14 @@ abstract class ScepterAugment(
     /**
      * the particle type for the cast. This is, for example, the particles that trail a missile entity
      */
-    open fun castParticleType(): ParticleEffect {
-        return ParticleTypes.CRIT
+    open fun castParticleType(): ParticleEffect?{
+        return null
     }
     /**
      * the particle type for hitting something. This is, for example, the particles that will appear when a missile hits a block
      */
-    open fun hitParticleType(hit: HitResult): ParticleEffect {
-        return ParticleTypes.CRIT
+    open fun hitParticleType(hit: HitResult): ParticleEffect?{
+        return null
     }
 
     /**
@@ -246,7 +245,7 @@ abstract class ScepterAugment(
      * Used by the mixin to generate the mixed name from the paired spells
      */
     fun augmentName(stack: ItemStack, level: Int): Text{
-        val enchantId = this.id?.toString()?:return getName(level)
+        val enchantId = this.id.toString()
         val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack) ?:return getName(level)
         return pairedSpells.provideName(level)
     }
@@ -259,7 +258,7 @@ abstract class ScepterAugment(
      * for special cases, [specialName] should be used instead
      */
     open fun augmentName(pairedSpell: ScepterAugment): MutableText {
-        return AcText.translatable("$orCreateTranslationKey.combination",provideArgs(pairedSpell))
+        return AcText.translatable("$orCreateTranslationKey.combination",*provideArgs(pairedSpell))
     }
 
     /**

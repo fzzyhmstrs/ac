@@ -55,7 +55,7 @@ object PairedSpellCommand {
                     .then(CommandManager.argument("paired_spell",AllSpellsArgumentType())
                         .then(CommandManager.argument("boost", BoostsArgumentType())
                             .then(CommandManager.literal("description")
-                                .executes {context -> executeFull(context)}
+                                .executes {context -> executeDescribed(context) }
                             )
                             .executes {context -> executeFull(context)}
                         )
@@ -74,7 +74,7 @@ object PairedSpellCommand {
     }
 
     private fun executeDescribed(context: CommandContext<ServerCommandSource>): Int{
-        val spellId = context.getArgument("paired_spell", Identifier::class.java)
+        val spellId = context.getArgument("current_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
         if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
         val pairedId = context.getArgument("paired_spell", Identifier::class.java)
@@ -97,7 +97,7 @@ object PairedSpellCommand {
         }
     }
     private fun executeFull(context: CommandContext<ServerCommandSource>): Int {
-        val spellId = context.getArgument("paired_spell", Identifier::class.java)
+        val spellId = context.getArgument("current_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
         if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
         val pairedId = context.getArgument("paired_spell", Identifier::class.java)
@@ -108,7 +108,7 @@ object PairedSpellCommand {
     }
 
     private fun executePaired(context: CommandContext<ServerCommandSource>): Int{
-        val spellId = context.getArgument("paired_spell", Identifier::class.java)
+        val spellId = context.getArgument("current_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
         if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
         val pairedId = context.getArgument("paired_spell",Identifier::class.java)
@@ -118,7 +118,7 @@ object PairedSpellCommand {
     }
 
     private fun executeBoost(context: CommandContext<ServerCommandSource>): Int{
-        val spellId = context.getArgument("paired_spell", Identifier::class.java)
+        val spellId = context.getArgument("current_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
         if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
         val boostId = context.getArgument("boost",Identifier::class.java)

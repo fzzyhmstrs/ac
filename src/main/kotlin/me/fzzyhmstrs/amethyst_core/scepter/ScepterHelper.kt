@@ -31,6 +31,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.particle.ParticleEffect
+import net.minecraft.particle.ParticleType
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
@@ -175,9 +177,11 @@ object ScepterHelper {
         }
     }
 
-    fun prepareParticlePacket(id: Identifier): PacketByteBuf{
+    fun prepareParticlePacket(id: Identifier, particleEffect: ParticleEffect): PacketByteBuf{
         val buf = PacketByteBufs.create()
         buf.writeIdentifier(id)
+        buf.writeRegistryValue(Registries.PARTICLE_TYPE,particleEffect.type)
+        particleEffect.write(buf)
         return buf
     }
 
@@ -188,7 +192,12 @@ object ScepterHelper {
     fun registerClient() {
         ClientPlayNetworking.registerGlobalReceiver(SPELL_PARTICLE_PACKET){client,_,buf,_ ->
             val id = buf.readIdentifier()
-            particleAdders[id]?.addParticles(client, buf)
+            try {
+                val type: ParticleType<ParticleEffect> = buf.readRegistryValue(Registries.PARTICLE_TYPE) as? ParticleType<ParticleEffect> ?: return@registerGlobalReceiver
+                val particleEffect = type.parametersFactory.read(type, buf)
+                particleAdders[id]?.addParticles(client, buf, particleEffect)
+            } catch (_: Exception){
+            }
         }
     }
 
@@ -471,7 +480,7 @@ object ScepterHelper {
     @FunctionalInterface
     fun interface ParticleAdder{
 
-        fun addParticles(client: MinecraftClient,buf: PacketByteBuf)
+        fun addParticles(client: MinecraftClient,buf: PacketByteBuf, particleEffect: ParticleEffect)
 
     }
 

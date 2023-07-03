@@ -29,7 +29,7 @@ class AugmentDataConfig(
     var manaCost: ValidatedInt = ValidatedInt(manaCost, Int.MAX_VALUE,1)
     var minLvl: ValidatedInt = ValidatedInt(minLvl, Int.MAX_VALUE,1)
     var maxLvl: ValidatedInt = ValidatedInt(maxLvl, Int.MAX_VALUE,1)
-    var castXP: ValidatedInt = ValidatedInt(castXP, Int.MAX_VALUE,1)
+    var castXP: ValidatedInt = ValidatedInt(castXP, Int.MAX_VALUE,0)
     override fun generateNewClass(): AugmentDataConfig {
         val new = this
         updater.accept(new)

@@ -27,10 +27,10 @@ public class ItemStackMixin {
     }
 
     @WrapOperation(method = "method_17869", at = @At(value = "INVOKE", target = "net/minecraft/enchantment/Enchantment.getName (I)Lnet/minecraft/text/Text;"))
-    private static Text amethyst_core_addAugmentName(Enchantment enchantment, int level, Operation<Text> operation){
-        if(enchantment instanceof ScepterAugment){
-            return ((ScepterAugment)enchantment).augmentName(itemStack,level);
+    private static Text amethyst_core_addAugmentName(Enchantment e, int level, Operation<Text> operation){
+        if(e instanceof ScepterAugment){
+            return ((ScepterAugment)e).augmentName(itemStack,level);
         }
-        return operation.call(level);
+        return operation.call(e,level);
     }
 }

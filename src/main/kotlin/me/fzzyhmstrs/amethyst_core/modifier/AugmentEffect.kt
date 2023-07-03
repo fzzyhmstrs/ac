@@ -94,6 +94,9 @@ data class AugmentEffect(
         damageData = PerLvlF(damage, damagePerLevel, damagePercent)
         return this
     }
+    fun addDamageTo(otherDamage: PerLvlF): PerLvlF{
+        return otherDamage.plus(damageData)
+    }
     fun withAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect {
         return this.copy(amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent))
     }
@@ -108,6 +111,9 @@ data class AugmentEffect(
     fun setAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect{
         amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent)
         return this
+    }
+    fun addAmplifierTo(other: PerLvlI): PerLvlI{
+        return other.plus(amplifierData)
     }
     fun withDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentEffect {
         return this.copy(durationData = PerLvlI(duration, durationPerLevel, durationPercent))
@@ -127,6 +133,9 @@ data class AugmentEffect(
     fun withRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect {
         return this.copy(rangeData = PerLvlD(range, rangePerLevel, rangePercent))
     }
+    fun addDurationTo(other: PerLvlI): PerLvlI{
+        return other.plus(durationData)
+    }
     fun addRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect{
         rangeData.plus(PerLvlD(range, rangePerLevel, rangePercent))
         return this
@@ -138,6 +147,9 @@ data class AugmentEffect(
     fun setRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect{
         rangeData = PerLvlD(range, rangePerLevel, rangePercent)
         return this
+    }
+    fun addRangeTo(other: PerLvlD): PerLvlD{
+        return other.plus(rangeData)
     }
     fun withConsumers(vararg consumers: AugmentConsumer): AugmentEffect {
         for (consumer in consumers) {

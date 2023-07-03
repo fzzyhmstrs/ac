@@ -40,6 +40,9 @@ abstract class ProjectileAugment(
 
     open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect, spells: PairedAugments): ProjectileEntity {
         val me = MissileEntity(world, user)
+        me.setVelocity(user,user.pitch,user.yaw,0.0f,
+            2.0f,
+            0.1f)
         me.passEffects(spells,effects,level)
         return me
     }

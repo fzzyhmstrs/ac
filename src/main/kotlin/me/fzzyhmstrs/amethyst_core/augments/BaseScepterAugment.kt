@@ -1,6 +1,5 @@
 package me.fzzyhmstrs.amethyst_core.augments
 
-import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier.UniqueAugmentModifier
 import net.minecraft.enchantment.Enchantment
@@ -17,7 +16,7 @@ abstract class BaseScepterAugment
     Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND))
 {
 
-    val id: Identifier? by lazy {
+    val id: Identifier by lazy {
         generateId()
     }
     val augmentSpecificModifier: AugmentModifier by lazy {
@@ -25,8 +24,7 @@ abstract class BaseScepterAugment
     }
 
     open fun generateUniqueModifier(): AugmentModifier{
-        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-15.0,false)
-        return UniqueAugmentModifier(augId,2,-25.0,-15.0)
+        return UniqueAugmentModifier(id,2,-25.0,-15.0)
     }
 
     protected abstract fun generateId(): Identifier

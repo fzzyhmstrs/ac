@@ -80,7 +80,7 @@ abstract class SlashAugment(
             listOf(AugmentHelper.DRY_FIRED)
         }
         castSoundEvent(world, user.blockPos)
-        val buf = ScepterHelper.prepareParticlePacket(adderId)
+        val buf = ScepterHelper.prepareParticlePacket(adderId,spells.getCastParticleType())
         buf.writeInt(level)
         ScepterHelper.sendSpellParticlesFromServer(world,user.pos,buf)
         return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
@@ -138,7 +138,7 @@ abstract class SlashAugment(
         return super.onEntityHit(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
     }
 
-    private fun addParticles(world: World, user: LivingEntity, level: Int) {
+    private fun addParticles(world: World, user: LivingEntity, level: Int, effect: ParticleEffect) {
         val rotation = user.getRotationVec(MinecraftClient.getInstance().tickDelta).normalize()
         val perpendicularToPosX = 1.0
         val perpendicularToPosZ = (rotation.x/rotation.z) * -1
@@ -150,11 +150,11 @@ abstract class SlashAugment(
                 val particlePos =
                     userPos.add(perpendicularVector.multiply(p.first * scale)).add(rotation.multiply(p.second + p2))
                 val particleVelocity = rotation.multiply(particleSpeed + level * 0.25).add(user.velocity)
-                addParticles(world,castParticleType(),particlePos,particleVelocity)
+                addParticles(world,effect,particlePos,particleVelocity)
                 val particlePos2 =
                     userPos.add(perpendicularVector.multiply(p.first * -1 * scale)).add(rotation.multiply(p.second + p2))
                 val particleVelocity2 = rotation.multiply(particleSpeed+ level * 0.25).add(user.velocity)
-                addParticles(world,castParticleType(),particlePos2,particleVelocity2)
+                addParticles(world,effect,particlePos2,particleVelocity2)
             }
 
         }
@@ -191,12 +191,12 @@ abstract class SlashAugment(
     private val adderId = Identifier(AC.MOD_ID,"slash_adder")
 
     init{
-        ScepterHelper.registerParticleAdder(adderId){ client, buf ->
+        ScepterHelper.registerParticleAdder(adderId){ client, buf, effect ->
             val user = client.player ?: return@registerParticleAdder
             val world = client.world ?: return@registerParticleAdder
             val level = buf.readInt()
             client.execute {
-                addParticles(world, user, level)
+                addParticles(world, user, level, effect)
             }
         }
     }
