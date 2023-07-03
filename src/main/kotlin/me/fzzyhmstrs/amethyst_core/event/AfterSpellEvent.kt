@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.event
 
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.entity.LivingEntity

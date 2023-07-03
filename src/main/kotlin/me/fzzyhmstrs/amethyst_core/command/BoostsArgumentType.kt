@@ -6,8 +6,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.registry.BoostRegistry
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import net.minecraft.command.CommandSource
 import net.minecraft.registry.Registries

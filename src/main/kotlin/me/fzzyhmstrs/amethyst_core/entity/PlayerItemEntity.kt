@@ -1,7 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity

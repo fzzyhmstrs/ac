@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.fzzyhmstrs.amethyst_core.ACC
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import net.minecraft.client.network.ClientCommandSource
 import net.minecraft.command.CommandSource
@@ -42,7 +42,7 @@ class CurrentSpellsArgumentType(): ArgumentType<Identifier> {
             val player = source.player
             if (player != null){
                 val spellIds = if (!player.mainHandStack.isEmpty){
-                    EnchantmentHelper.get(player.mainHandStack).keys.stream().filter {enchant -> enchant is ScepterAugment}.map { enchant -> Registries.ENCHANTMENT.getId(enchant) }.filter { id -> id != null } .toList()
+                    EnchantmentHelper.get(player.mainHandStack).keys.stream().filter {enchant -> enchant is ScepterAugment }.map { enchant -> Registries.ENCHANTMENT.getId(enchant) }.filter { id -> id != null } .toList()
                 } else {
                     mutableListOf()
                 }
@@ -54,7 +54,7 @@ class CurrentSpellsArgumentType(): ArgumentType<Identifier> {
             val player = ACC.getPlayer()
             if (player != null){
                 val spellIds = if (!player.mainHandStack.isEmpty){
-                    EnchantmentHelper.get(player.mainHandStack).keys.stream().filter {enchant -> enchant is ScepterAugment}.map { enchant -> Registries.ENCHANTMENT.getId(enchant) }.filter { id -> id != null } .toList()
+                    EnchantmentHelper.get(player.mainHandStack).keys.stream().filter {enchant -> enchant is ScepterAugment }.map { enchant -> Registries.ENCHANTMENT.getId(enchant) }.filter { id -> id != null } .toList()
                 } else {
                     mutableListOf()
                 }

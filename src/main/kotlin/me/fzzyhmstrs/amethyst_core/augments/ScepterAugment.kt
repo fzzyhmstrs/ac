@@ -1,27 +1,25 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments
+package me.fzzyhmstrs.amethyst_core.augments
 
-import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.augments.paired.*
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.*
-import me.fzzyhmstrs.fzzy_core.coding_util.*
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
-import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
-import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
@@ -42,15 +40,19 @@ import net.minecraft.world.World
 
 abstract class ScepterAugment(
     private val tier: ScepterTier,
-    private val maxLvl: Int,
-    var augmentData: AugmentDatapoint,
     val augmentType: AugmentType
 )
     :
     BaseScepterAugment(), LevelProviding
 {
-    
+
+    abstract val augmentData: AugmentDatapoint
+
     open val baseEffect = AugmentEffect()
+
+    override fun generateId(): Identifier {
+        return augmentData.id
+    }
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
         if (!augmentData.enabled) {
@@ -89,13 +91,13 @@ abstract class ScepterAugment(
     open fun onCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return SUCCESSFUL_PASS
     }
-    open fun onBlockHit(blockHitResult: BlockHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return SUCCESSFUL_PASS
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onEntityHit(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return SUCCESSFUL_PASS
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult,context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
+    open fun onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): TypedActionResult<List<Identifier>>{
         return SUCCESSFUL_PASS
     }
 
@@ -131,7 +133,7 @@ abstract class ScepterAugment(
      *
      * Modifies spell amplifier in some way. For example, double-paired spells might have +2 amplifier.
      */
-    open fun modifyAmplifier(amplifier: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+    open fun modifyAmplifier(amplifier: PerLvlI, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return amplifier
     }
     /**
@@ -139,7 +141,7 @@ abstract class ScepterAugment(
      *
      * Modifies spell duration in some way. For example, double-paired spells might have + 40 tick duration.
      */
-    open fun modifyDuration(duration: PerLvlI,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
+    open fun modifyDuration(duration: PerLvlI, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlI{
         return duration
     }
     /**
@@ -147,7 +149,7 @@ abstract class ScepterAugment(
      *
      * Modifies spell range in some way. For example, double-paired spells might have 50% increased range.
      */
-    open fun modifyRange(range: PerLvlD,other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlD{
+    open fun modifyRange(range: PerLvlD, other: ScepterAugment, othersType: AugmentType, spells: PairedAugments): PerLvlD{
         return range
     }
 
@@ -172,7 +174,7 @@ abstract class ScepterAugment(
      *
      * Spells should overwrite this to provide the proper initial damage source in the builder
      */
-    open fun damageSourceBuilder(source: Entity?, attacker: LivingEntity): DamageSourceBuilder{
+    open fun damageSourceBuilder(source: Entity?, attacker: LivingEntity): DamageSourceBuilder {
         return DamageSourceBuilder(attacker, source)
     }
 
@@ -245,7 +247,7 @@ abstract class ScepterAugment(
      */
     fun augmentName(stack: ItemStack, level: Int): Text{
         val enchantId = this.id?.toString()?:return getName(level)
-        val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack)?:return getName(level)
+        val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack) ?:return getName(level)
         return pairedSpells.provideName(level)
     }
 
@@ -272,6 +274,13 @@ abstract class ScepterAugment(
      */
     open fun doubleName(): MutableText {
         return AcText.translatable("$orCreateTranslationKey.double")
+    }
+
+    /**
+     * name provided when a spell is paired to itself. Shouldn't need to be overriden in most cases
+     */
+    open fun doubleNameDesc(): MutableText {
+        return AcText.translatable("$orCreateTranslationKey.double.desc")
     }
 
     /**
@@ -302,6 +311,14 @@ abstract class ScepterAugment(
         return AcText.translatable(getTranslationKey() + ".adjective")
     }
 
+    open fun appendBaseDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType){
+        if (other == this){
+            description.add(doubleNameDesc())
+            return
+        }
+        appendDescription(description, other, otherType)
+    }
+
     /**
      * This method is used to build the description that is shown when spells are paired.
      *
@@ -324,7 +341,7 @@ abstract class ScepterAugment(
      * provides the maximum level the spell can reach
      */
     open fun getAugmentMaxLevel(): Int{
-        return maxLvl
+        return augmentData.maxLvl
     }
     override fun isAcceptableItem(stack: ItemStack): Boolean {
         return stack.isIn(getTag())
@@ -395,7 +412,7 @@ abstract class ScepterAugment(
         }
         
         //small config class for syncing purposes
-        class AugmentConfig(val id: String, stats: AugmentStats): SyncedConfigHelper.SyncedConfig{
+        /*class AugmentConfig(val id: String, stats: AugmentStats): SyncedConfigHelper.SyncedConfig{
 
             private var augmentStats: AugmentStats = stats
 
@@ -449,7 +466,7 @@ abstract class ScepterAugment(
                 return PerLvlI(cooldownBase,coolDownPerLvl,0)
             }
 
-            fun validate(): AugmentStats{
+            fun validate(): AugmentStats {
                 if (cooldownBase < 0) cooldownBase = 0
                 if (cooldownBase == 0 && coolDownPerLvl < 0) coolDownPerLvl = 0
                 if (manaCost < 0) manaCost = 0
@@ -484,10 +501,10 @@ abstract class ScepterAugment(
             } else {
                 ns
             }
-            val configuredStats = readOrCreateUpdated(file, oldFile,"augments", base, configClass = {configClass}, previousClass = {AugmentStatsV1()})
+            val configuredStats = readOrCreateUpdated(file, oldFile,"augments", base, configClass = {configClass}, previousClass = { AugmentStatsV1() })
             @Suppress("UNUSED_VARIABLE") val config = AugmentConfig(file,configuredStats)
             return configuredStats
-        }
+        }*/
     }
 
 

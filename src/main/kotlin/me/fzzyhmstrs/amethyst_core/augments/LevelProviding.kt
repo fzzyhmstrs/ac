@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments
+package me.fzzyhmstrs.amethyst_core.augments
 
 import net.minecraft.enchantment.Enchantment
 

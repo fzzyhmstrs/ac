@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment;
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment;
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.text.MutableText;

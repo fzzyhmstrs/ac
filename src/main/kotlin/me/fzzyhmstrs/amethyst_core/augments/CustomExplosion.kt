@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments
+package me.fzzyhmstrs.amethyst_core.augments
 
 import com.google.common.collect.Sets
 import com.mojang.datafixers.util.Pair
@@ -44,7 +44,8 @@ open class CustomExplosion(
     private val power: Float,
     private val createFire: Boolean,
     private val destructionType: DestructionType,
-    private val customExplosionBehavior: CustomExplosionBehavior = CustomExplosionBehavior())
+    private val customExplosionBehavior: CustomExplosionBehavior = CustomExplosionBehavior()
+)
     :
     Explosion(world, entity, damageSource, behavior, x, y, z, power, createFire, destructionType)
 {

@@ -2,8 +2,8 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper;
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments;
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper;
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;

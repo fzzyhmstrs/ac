@@ -1,11 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.boost
 
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.augments.paired.DamageSourceBuilder
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.DamageSourceBuilder
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.Enchantment
@@ -45,7 +45,7 @@ abstract class AugmentBoost(val id: Identifier) {
     }
 
     abstract fun matches(stack: ItemStack): Boolean
-    open fun canAccept(augment:ScepterAugment): Boolean{return true}
+    open fun canAccept(augment: ScepterAugment): Boolean{return true}
     abstract fun asStack(): ItemStack
 
     protected fun isInTag(augment: Enchantment,tag: TagKey<Enchantment>): Boolean{

@@ -1,16 +1,15 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments.base
+package me.fzzyhmstrs.amethyst_core.augments.base
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentDatapoint
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
@@ -34,16 +33,9 @@ import java.util.*
 @Suppress("SameParameterValue")
 abstract class SlashAugment(
     tier: ScepterTier,
-    maxLvl: Int,
-    augmentData: AugmentDatapoint,
     augmentType: AugmentType = AugmentType.BOLT)
     :
-    ScepterAugment(
-        tier,
-        maxLvl,
-        augmentData,
-        augmentType
-    )
+    ScepterAugment(tier, augmentType)
 {
 
 
@@ -209,7 +201,7 @@ abstract class SlashAugment(
         }
     }
 
-    protected class SlashContext(val closestEntity: Entity): ProcessContext{
+    protected class SlashContext(val closestEntity: Entity): ProcessContext {
         override fun getType(): Identifier {
             return contextId
         }

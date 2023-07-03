@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments.paired
+package me.fzzyhmstrs.amethyst_core.augments.paired
 
 class AugmentType(val block: Boolean, val entity: Boolean, val damage: Boolean, val explodes: Boolean, val summon: Boolean, val beneficial: Boolean, val empty: Boolean = false){
 

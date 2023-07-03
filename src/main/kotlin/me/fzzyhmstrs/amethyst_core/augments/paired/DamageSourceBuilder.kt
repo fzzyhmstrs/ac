@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments.paired
+package me.fzzyhmstrs.amethyst_core.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.scepter.CustomDamageSource
 import me.fzzyhmstrs.amethyst_core.scepter.CustomDamageSources
@@ -22,7 +22,7 @@ class DamageSourceBuilder(private val attacker: LivingEntity, private val source
     private var projectile = false
     private var explosive = false
 
-    fun set(source: DamageSource): DamageSourceBuilder{
+    fun set(source: DamageSource): DamageSourceBuilder {
         damageSource = source
         return this
     }
@@ -32,31 +32,31 @@ class DamageSourceBuilder(private val attacker: LivingEntity, private val source
         return this
     }
 
-    fun bypassArmor(): DamageSourceBuilder{
+    fun bypassArmor(): DamageSourceBuilder {
         bypassesArmor = true
         return this
     }
-    fun soul(): DamageSourceBuilder{
+    fun soul(): DamageSourceBuilder {
         bypassesArmor = true
         bypassesProtection = true
         magic = true
         return this
     }
-    fun magic(): DamageSourceBuilder{
+    fun magic(): DamageSourceBuilder {
         bypassesArmor = true
         magic = true
         return this
     }
-    fun fire(bypass: Boolean = true): DamageSourceBuilder{
+    fun fire(bypass: Boolean = true): DamageSourceBuilder {
         bypassesArmor = bypass
         fire = true
         return this
     }
-    fun projectile(): DamageSourceBuilder{
+    fun projectile(): DamageSourceBuilder {
         projectile = true
         return this
     }
-    fun explosive(): DamageSourceBuilder{
+    fun explosive(): DamageSourceBuilder {
         explosive = true
         return this
     }

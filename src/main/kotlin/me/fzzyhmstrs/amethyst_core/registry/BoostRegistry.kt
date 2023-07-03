@@ -1,9 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.registry
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.boost.base.*
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registry

@@ -1,10 +1,10 @@
 package me.fzzyhmstrs.amethyst_core.boost.base
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.EntityGroup
 import net.minecraft.entity.LivingEntity

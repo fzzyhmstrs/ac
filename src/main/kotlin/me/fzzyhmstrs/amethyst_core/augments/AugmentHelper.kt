@@ -1,11 +1,12 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments
+package me.fzzyhmstrs.amethyst_core.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.item.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.registry.BoostRegistry
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.enchantment.EnchantmentHelper
@@ -81,7 +82,7 @@ object AugmentHelper {
     }
     
     //used to read from sub-NBT passed from an entity, not from a stack
-    fun getOrCreatePairedAugmentsFromNbt(nbt: NbtCompound): PairedAugments{
+    fun getOrCreatePairedAugmentsFromNbt(nbt: NbtCompound): PairedAugments {
         val enchantId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str()).takeIf{ it.isNotEmpty() } ?: return PairedAugments()
         val enchant = Registries.ENCHANTMENT.get(Identifier(enchantId)).takeIf { it is ScepterAugment } ?: return PairedAugments()
         val pairedId = nbt.getString(NbtKeys1.PAIRED_ENCHANT)
@@ -256,35 +257,14 @@ object AugmentHelper {
      * used to check if a registry or other initialization method should consider the provided augment.
      */
     fun checkIfAugmentEnabled(augment: ScepterAugment, id: Identifier): Boolean{
-        val augmentConfig = ScepterAugment.Companion.AugmentStats()
-        augmentConfig.id = id.toString()
-        val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
-        return augmentAfterConfig.enabled
-    }
-
-    fun registerAugment(augment: ScepterAugment, id: Identifier, imbueLevel: Int = 1){
-        Registry.register(Registries.ENCHANTMENT,id,augment)
-        augment.augmentData = configAugmentStat(augment,id.toString(),imbueLevel)
+        return augment.augmentData.enabled
     }
 
     /**
-     * takes a provided ScepterAugment, scrapes its current stats into an AugmentStat class and then runs that default set of stats through configAugment, which reads or creates a json config file to store and/or alter the base info.
+     * This method should be used to register Scpeter Augments, not a plain registration method, to capture initialization tasks
      */
-    private fun configAugmentStat(augment: ScepterAugment, id: String, imbueLevel: Int = 1): AugmentDatapoint {
-        val stat = augment.augmentData
-        val augmentConfig = ScepterAugment.Companion.AugmentStats()
-        val type = stat.type
-        augmentConfig.id = id
-        augmentConfig.enabled = stat.enabled
-        augmentConfig.pvpMode = stat.pvpMode
-        augmentConfig.setCooldown(stat.cooldown)
-        augmentConfig.manaCost = stat.manaCost
-        augmentConfig.minLvl = stat.minLvl
-        augmentConfig.castXp = stat.castXp
-        val tier = stat.bookOfLoreTier
-        val item = stat.keyItem
-        val augmentAfterConfig = ScepterAugment.configAugment(augment.javaClass.simpleName + ScepterAugment.augmentVersion +".json", augmentConfig)
-        return AugmentDatapoint(type,augmentAfterConfig.getCooldown(),augmentAfterConfig.manaCost,augmentAfterConfig.minLvl,imbueLevel,augmentAfterConfig.castXp, tier, item, augmentAfterConfig.enabled, augmentAfterConfig.pvpMode)
+    fun registerAugment(augment: ScepterAugment, id: Identifier){
+        Registry.register(Registries.ENCHANTMENT,id,augment)
     }
     
     fun getScepterAugment(id: String): ScepterAugment?{
@@ -306,7 +286,17 @@ object AugmentHelper {
     fun getAugmentType(id: Identifier): SpellType {
         return getScepterAugment(id)?.augmentData?.type?: SpellType.NULL
     }
-    
+
+    private val DEFAULT_COOLDOWN = PerLvlI(20)
+    fun getAugmentCooldown(id: String): PerLvlI{
+        return getScepterAugment(id)?.augmentData?.cooldown?: DEFAULT_COOLDOWN
+    }
+
+    fun getAugmentManaCost(id: String, reduction: Double = 1.0): Int{
+        val cost = (getScepterAugment(id)?.augmentData?.manaCost?.times(reduction))?.toInt() ?: (10 * reduction).toInt()
+        return max(0,cost)
+    }
+
     fun getAugmentCurrentLevel(scepterLevel: Int, augment: ScepterAugment): Int{
         val minLvl = augment.augmentData.minLvl
         val maxLevel = (augment.getAugmentMaxLevel()) + minLvl - 1
@@ -319,17 +309,6 @@ object AugmentHelper {
         return testLevel
     }
 
-    fun getAugmentManaCost(id: String, reduction: Double = 1.0): Int{
-        if(!augmentStats.containsKey(id)) return (10 * reduction).toInt()
-        val cost = (augmentStats[id]?.manaCost?.times(reduction))?.toInt() ?: (10 * reduction).toInt()
-        return max(0,cost)
-    }
-
-    private val DEFAULT_COOLDOWN = PerLvlI(20)
-    fun getAugmentCooldown(id: String): PerLvlI{
-        return getScepterAugment(id)?.augmentData?.cooldown?: DEFAULT_COOLDOWN
-    }
-    
     fun getAugmentImbueLevel(id: Identifier, multiplier: Float = 1f): Int{
         return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
     }
@@ -342,8 +321,8 @@ object AugmentHelper {
         return getScepterAugment(id)?.augmentData?.enabled ?: false
     }
 
-    fun getAugmentDatapoint(id: String): AugmentDatapoint{
-        return getScepterAugment(id)?.augmentData?:AugmentDatapoint()
+    fun getAugmentDatapoint(id: String): AugmentDatapoint? {
+        return getScepterAugment(id)?.augmentData
     }
 
     fun getEffectiveManaCost(pairedAugments: PairedAugments, manaCostModifier: Double, level: Int, user: LivingEntity): Int{
@@ -356,7 +335,7 @@ object AugmentHelper {
         return (cooldown * ((cooldownModifier + 100.0)/100.0) * user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)).toInt()
     }
 
-    fun getEffectiveCooldown(activeEnchantId: String, activeEnchant: ScepterAugment,stack: ItemStack, cooldownModifier: Double, level: Int, user: LivingEntity): Int{
+    fun getEffectiveCooldown(activeEnchantId: String, activeEnchant: ScepterAugment, stack: ItemStack, cooldownModifier: Double, level: Int, user: LivingEntity): Int{
         val pairedAugments = getOrCreatePairedAugments(activeEnchantId,activeEnchant,stack)
         return getEffectiveCooldown(pairedAugments, cooldownModifier, level, user)
     }

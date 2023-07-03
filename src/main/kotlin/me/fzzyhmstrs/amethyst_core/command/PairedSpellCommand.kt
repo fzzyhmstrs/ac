@@ -3,8 +3,8 @@ package me.fzzyhmstrs.amethyst_core.command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -12,6 +12,7 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer
 import net.minecraft.registry.Registries
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import java.util.function.Supplier
 
@@ -53,6 +54,9 @@ object PairedSpellCommand {
                 .then(CommandManager.argument("current_spell",CurrentSpellsArgumentType())
                     .then(CommandManager.argument("paired_spell",AllSpellsArgumentType())
                         .then(CommandManager.argument("boost", BoostsArgumentType())
+                            .then(CommandManager.literal("description")
+                                .executes {context -> executeFull(context)}
+                            )
                             .executes {context -> executeFull(context)}
                         )
                         .executes {context -> executePaired(context) }
@@ -69,6 +73,29 @@ object PairedSpellCommand {
         return 0
     }
 
+    private fun executeDescribed(context: CommandContext<ServerCommandSource>): Int{
+        val spellId = context.getArgument("paired_spell", Identifier::class.java)
+        val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
+        if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
+        val pairedId = context.getArgument("paired_spell", Identifier::class.java)
+        val paired = Registries.ENCHANTMENT.get(pairedId)
+        val pairedSpell = if (paired is ScepterAugment) paired else null
+        val boostId = context.getArgument("boost", Identifier::class.java)
+        val player = context.source.player ?: return error(context,"commands.amethyst_core.failed.no_player")
+        val stack1 = player.mainHandStack
+        return if (stack1.isEmpty){
+            context.source.sendError(AcText.translatable("commands.gearifiers.failed.no_stacks"))
+            0
+        } else {
+            val pairedAugments = AugmentHelper.getOrCreatePairedAugments(spellId.toString(), pairedId?.toString(), boostId?.toString(), spell, pairedSpell)
+            val list: List<Text> = pairedAugments.provideDescription()
+            for(desc in list){
+                player.sendMessage(desc)
+            }
+            AugmentHelper.writePairedAugments(stack1,pairedAugments)
+            1
+        }
+    }
     private fun executeFull(context: CommandContext<ServerCommandSource>): Int {
         val spellId = context.getArgument("paired_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")

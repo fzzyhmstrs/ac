@@ -1,6 +1,10 @@
 package me.fzzyhmstrs.amethyst_core.scepter
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
 import me.fzzyhmstrs.amethyst_core.item.ScepterLike
@@ -9,10 +13,6 @@ import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier.XpModifiers
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentDatapoint
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt

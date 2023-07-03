@@ -1,9 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.item
 
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.item_util.interfaces.ParticleEmitting
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys

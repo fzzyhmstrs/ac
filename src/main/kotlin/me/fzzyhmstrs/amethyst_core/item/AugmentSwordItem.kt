@@ -1,14 +1,14 @@
 package me.fzzyhmstrs.amethyst_core.item
 
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterToolMaterial
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful

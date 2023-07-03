@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments
+package me.fzzyhmstrs.amethyst_core.augments
 
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
@@ -6,7 +6,6 @@ import me.fzzyhmstrs.amethyst_core.modifier.UniqueAugmentModifier
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.EquipmentSlot
-import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
 /**
@@ -19,7 +18,7 @@ abstract class BaseScepterAugment
 {
 
     val id: Identifier? by lazy {
-        Registries.ENCHANTMENT.getId(this)
+        generateId()
     }
     val augmentSpecificModifier: AugmentModifier by lazy {
         generateUniqueModifier()
@@ -29,6 +28,8 @@ abstract class BaseScepterAugment
         val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-15.0,false)
         return UniqueAugmentModifier(augId,2,-25.0,-15.0)
     }
+
+    protected abstract fun generateId(): Identifier
 
     override fun getMinPower(level: Int): Int {
         return 30

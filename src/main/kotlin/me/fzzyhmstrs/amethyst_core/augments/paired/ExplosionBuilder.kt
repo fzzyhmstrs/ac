@@ -1,6 +1,6 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments.paired
+package me.fzzyhmstrs.amethyst_core.augments.paired
 
-import me.fzzyhmstrs.amethyst_core.scepter.augments.CustomExplosion
+import me.fzzyhmstrs.amethyst_core.augments.CustomExplosion
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -42,7 +42,7 @@ class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Ent
         this.type = type
         return this
     }
-    fun withCustomBehavior(customBehavior: CustomExplosion.CustomExplosionBehavior): ExplosionBuilder{
+    fun withCustomBehavior(customBehavior: CustomExplosion.CustomExplosionBehavior): ExplosionBuilder {
         this.customBehavior = customBehavior
         return this
     }

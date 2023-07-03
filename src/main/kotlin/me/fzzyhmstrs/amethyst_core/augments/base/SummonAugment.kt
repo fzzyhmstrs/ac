@@ -1,13 +1,12 @@
-package me.fzzyhmstrs.amethyst_core.scepter.augments.base
+package me.fzzyhmstrs.amethyst_core.augments.base
 
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentDatapoint
-import me.fzzyhmstrs.amethyst_core.scepter.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.ProcessContext
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -23,15 +22,10 @@ import net.minecraft.world.World
 
 abstract class SummonAugment(
     tier: ScepterTier,
-    maxLvl: Int,
-    augmentData: AugmentDatapoint,
     augmentType: AugmentType = AugmentType.SUMMON)
-: 
-ScepterAugment(
-    tier,
-    maxLvl,
-    augmentData,
-    augmentType) {
+    :
+    ScepterAugment(tier, augmentType)
+{
 
     override val baseEffect: AugmentEffect
         get() = AugmentEffect().withRange(3.0)

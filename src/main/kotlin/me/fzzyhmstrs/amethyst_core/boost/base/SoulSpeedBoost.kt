@@ -1,8 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.boost.base
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.Enchantments

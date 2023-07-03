@@ -2,7 +2,7 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment;
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,8 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
+import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
-import me.fzzyhmstrs.amethyst_core.scepter.augments.paired.PairedAugments
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
