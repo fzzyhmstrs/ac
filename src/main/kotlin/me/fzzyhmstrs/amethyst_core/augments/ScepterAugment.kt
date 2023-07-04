@@ -173,8 +173,8 @@ abstract class ScepterAugment(
      *
      * Spells should overwrite this to provide the proper initial damage source in the builder
      */
-    open fun damageSourceBuilder(source: Entity?, attacker: LivingEntity): DamageSourceBuilder {
-        return DamageSourceBuilder(attacker, source)
+    open fun damageSourceBuilder(world: World, source: Entity?, attacker: LivingEntity): DamageSourceBuilder {
+        return DamageSourceBuilder(world,attacker, source)
     }
 
     /**

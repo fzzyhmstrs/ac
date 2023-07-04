@@ -14,6 +14,7 @@ import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.context.LootContext
+import net.minecraft.loot.context.LootContextParameterSet
 import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.loot.provider.number.BinomialLootNumberProvider
 import net.minecraft.loot.provider.number.LootNumberProvider
@@ -54,7 +55,10 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
         val list = ModifierRegistry.modifierRollList
-        val context = LootContext.Builder(world).random(world.random).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
+        val parameters = LootContextParameterSet.Builder(world).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
+        val seed = world.random.nextLong().takeIf { it != 0L }?:1L
+        val contextBuilder = LootContext.Builder(parameters).random(seed)
+        val context = contextBuilder.build(null)
         val result: MutableList<Identifier> = mutableListOf()
         do{
             var tollRemaining = (toll.nextFloat(context) + context.luck).toInt()

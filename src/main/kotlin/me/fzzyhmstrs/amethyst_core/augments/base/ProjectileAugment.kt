@@ -70,7 +70,7 @@ abstract class ProjectileAugment(
     ): TypedActionResult<List<Identifier>> {
         if (othersType.empty){
             val amount = spells.provideDealtDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(source, user),this,entityHitResult, source, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
             
             return if(bl) {

@@ -63,7 +63,7 @@ abstract class BeamAugment(
         val blockList: MutableList<BlockHitResult> = mutableListOf()
         do {
             val pos = user.pos.add(beamOffset(user)).add(user.rotationVector.multiply(range))
-            val blockPos = BlockPos(pos)
+            val blockPos = BlockPos.ofFloored(pos)
             blockList.add(BlockHitResult(pos, Direction.UP,blockPos,true))
             range -= 1.0
         }while (range > 0.0)
@@ -109,7 +109,7 @@ abstract class BeamAugment(
     ): TypedActionResult<List<Identifier>> {
         if (othersType.empty){
             val amount = spells.provideDealtDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(source, user),this,entityHitResult, source, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
 
             return if(bl) {

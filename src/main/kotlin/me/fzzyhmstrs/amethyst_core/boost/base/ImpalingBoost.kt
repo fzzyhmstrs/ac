@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class ImpalingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"impaling_boost"), Enchantments.IMPALING, 5) {
+class ImpalingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"impaling_boost"), Enchantments.IMPALING, Enchantments.IMPALING.maxLevel) {
 
     override fun modifyDamage(
         amount: Float,

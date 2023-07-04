@@ -23,7 +23,6 @@ object BoostRegistry {
 
     ////////////////////////////////////////////
 
-    val AQUA = register(AquaBoost())
     val BANE = register(BaneBoost())
     val EFFICIENCY = register(EfficiencyBoost())
     val FIRE_ASPECT = register(FireAspectBoost())

@@ -14,7 +14,7 @@ import net.minecraft.entity.TntEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.loot.context.LootContext
+import net.minecraft.loot.context.LootContextParameterSet
 import net.minecraft.loot.context.LootContextParameters
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.server.world.ServerWorld
@@ -80,7 +80,7 @@ open class CustomExplosion(
                     val p = 0.3f
                     var h = power * (0.7f + world.random.nextFloat() * 0.6f)
                     while (h > 0.0f) {
-                        val blockPos = BlockPos(m, n, o)
+                        val blockPos = BlockPos.ofFloored(m, n, o)
                         val blockState = world.getBlockState(blockPos)
                         val fluidState = world.getFluidState(blockPos)
                         if (!world.isInBuildLimit(blockPos)) {
@@ -181,15 +181,15 @@ open class CustomExplosion(
                 if (block.shouldDropItemsOnExplosion(this) && this.world is ServerWorld) {
                     val serverWorld = world
                     val blockEntity = if (blockState.hasBlockEntity()) this.world.getBlockEntity(blockPos) else null
-                    val builder = LootContext.Builder(serverWorld).random(this.world.random)
-                        .parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
-                        .parameter(LootContextParameters.TOOL, ItemStack.EMPTY)
-                        .optionalParameter(LootContextParameters.BLOCK_ENTITY, blockEntity).optionalParameter(
+                    val builder = LootContextParameterSet.Builder(serverWorld)
+                        .add(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
+                        .add(LootContextParameters.TOOL, ItemStack.EMPTY)
+                        .addOptional(LootContextParameters.BLOCK_ENTITY, blockEntity).addOptional(
                             LootContextParameters.THIS_ENTITY,
                             entity
                         )
                     if (destructionType == DestructionType.DESTROY_WITH_DECAY) {
-                        builder.parameter(LootContextParameters.EXPLOSION_RADIUS, java.lang.Float.valueOf(power))
+                        builder.add(LootContextParameters.EXPLOSION_RADIUS, this.power)
                     }
                     blockState.onStacksDropped(serverWorld, blockPos, ItemStack.EMPTY, bl2)
                     blockState.getDroppedStacks(builder).forEach(Consumer { stack: ItemStack ->

@@ -1,78 +1,44 @@
 package me.fzzyhmstrs.amethyst_core.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.scepter.CustomDamageSource
-import me.fzzyhmstrs.amethyst_core.scepter.CustomDamageSources
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.damage.DamageType
+import net.minecraft.entity.damage.DamageTypes
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
+import net.minecraft.registry.entry.RegistryEntry
+import net.minecraft.registry.tag.TagKey
+import net.minecraft.world.World
+import java.util.function.Predicate
 
-class DamageSourceBuilder(private val attacker: LivingEntity, private val source: Entity? = null){
+class DamageSourceBuilder(world: World, private val attacker: LivingEntity, private val source: Entity? = null){
 
-    constructor(damageSource: DamageSource, attacker: LivingEntity, source: Entity? = null): this(attacker, source){
-        this.damageSource = damageSource
-    }
+    private val registry = world.registryManager.get(RegistryKeys.DAMAGE_TYPE)
 
-    constructor(damageSource: CustomDamageSource): this(damageSource, damageSource.attacker, damageSource.source)
+    private var type: RegistryEntry<DamageType> = registry.entryOf(DamageTypes.PLAYER_ATTACK)
+    private val additions: MutableList<RegistryEntry<DamageType>> = mutableListOf()
+    private val exclusions: MutableList<RegistryEntry<DamageType>> = mutableListOf()
 
-    private var damageSource: DamageSource = CustomDamageSources.GenericDamageSource(source, attacker)
-    private var bypassesArmor = false
-    private var bypassesProtection = false
-    private var magic = false
-    private var fire = false
-    private var projectile = false
-    private var explosive = false
-
-    fun set(source: DamageSource): DamageSourceBuilder {
-        damageSource = source
+    fun set(type: RegistryKey<DamageType>): DamageSourceBuilder {
+        this.type = registry.entryOf(type)
         return this
     }
 
-    fun modify(modification: Modifier): DamageSourceBuilder {
-        damageSource = modification.modify(damageSource,attacker,source)
+    fun add(type: RegistryKey<DamageType>): DamageSourceBuilder {
+        additions.add(registry.entryOf(type))
         return this
     }
 
-    fun bypassArmor(): DamageSourceBuilder {
-        bypassesArmor = true
-        return this
-    }
-    fun soul(): DamageSourceBuilder {
-        bypassesArmor = true
-        bypassesProtection = true
-        magic = true
-        return this
-    }
-    fun magic(): DamageSourceBuilder {
-        bypassesArmor = true
-        magic = true
-        return this
-    }
-    fun fire(bypass: Boolean = true): DamageSourceBuilder {
-        bypassesArmor = bypass
-        fire = true
-        return this
-    }
-    fun projectile(): DamageSourceBuilder {
-        projectile = true
-        return this
-    }
-    fun explosive(): DamageSourceBuilder {
-        explosive = true
+    fun exclude(type: RegistryKey<DamageType>): DamageSourceBuilder {
+        exclusions.add(registry.entryOf(type))
         return this
     }
     
     fun build(): DamageSource{
-        if(bypassesArmor) damageSource.setBypassesArmor()
-        if(bypassesProtection) damageSource.setBypassesProtection()
-        if(magic) damageSource.setUsesMagic()
-        if(fire) damageSource.setFire()
-        if (projectile) damageSource.setProjectile()
-        if (explosive) damageSource.setExplosive()
-        return damageSource
-    }
-    
-    @FunctionalInterface
-    fun interface Modifier{
-        fun modify(damageSource: DamageSource, attacker: LivingEntity, source: Entity?): DamageSource
+        val excludePredicate = Predicate<TagKey<DamageType>> {tag -> exclusions.forEach { if (it.isIn(tag)) return@Predicate true }; return@Predicate false}
+        val addPredicate = Predicate<TagKey<DamageType>> {tag -> additions.forEach { if (it.isIn(tag)) return@Predicate true }; return@Predicate false}
+        return CustomDamageSource(type,source, attacker,excludePredicate,addPredicate)
     }
 }
