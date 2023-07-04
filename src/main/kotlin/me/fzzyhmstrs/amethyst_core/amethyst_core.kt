@@ -1,12 +1,15 @@
 package me.fzzyhmstrs.amethyst_core
 
-import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem
-import me.fzzyhmstrs.amethyst_core.modifier_util.GcChecker
+import me.fzzyhmstrs.amethyst_core.command.PairedSpellCommand
+import me.fzzyhmstrs.amethyst_core.item.AbstractAugmentBookItem
+import me.fzzyhmstrs.amethyst_core.modifier.GcChecker
 import me.fzzyhmstrs.amethyst_core.registry.*
-import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PlaceItemAugment
+import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
+import net.minecraft.client.MinecraftClient
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.Identifier
@@ -18,26 +21,33 @@ object AC: ModInitializer {
     val acRandom = Random(System.currentTimeMillis())
     val fallbackId = Identifier("vanishing_curse")
 
-    val TIER_1_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_one_spell_scepters"))
-    val TIER_2_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_two_spell_scepters"))
-    val TIER_3_SPELL_SCEPTERS = TagKey.of(RegistryKeys.ITEM, Identifier(AC.MOD_ID,"tier_three_spell_scepters"))
+    val TIER_1_SPELL_SCEPTERS: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_one_spell_scepters"))
+    val TIER_2_SPELL_SCEPTERS: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_two_spell_scepters"))
+    val TIER_3_SPELL_SCEPTERS: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_three_spell_scepters"))
 
     override fun onInitialize() {
         RegisterAttribute.registerAll()
         RegisterBaseEntity.registerAll()
         ModifierRegistry.registerAll()
+        BoostRegistry.registerAll()
         GcChecker.registerProcessor()
         ScepterHelper.registerServer()
         AbstractAugmentBookItem.registerServer()
+        PairedSpellCommand.registerAll()
     }
 }
 
 object ACC: ClientModInitializer {
+
+    fun getPlayer(): PlayerEntity?{
+        return MinecraftClient.getInstance().player
+    }
+
     val acRandom = Random(System.currentTimeMillis())
 
     override fun onInitializeClient() {
         RegisterBaseRenderer.registerAll()
-        PlaceItemAugment.registerClient()
+        ScepterHelper.registerClient()
         AbstractAugmentBookItem.registerClient()
     }
 }

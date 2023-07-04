@@ -1,9 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.registry
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
+import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
+import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier.ModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierInitializer
 import me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry
@@ -19,7 +19,7 @@ object ModifierRegistry {
 
     fun registerWithRolling(modifier: AugmentModifier, weight: Int = 5){
         if (modifier.availableForRoll){
-            for (i in 1..5) {
+            for (i in 1..weight) {
                 modifierRollList.add(modifier)
             }
         }
@@ -27,9 +27,9 @@ object ModifierRegistry {
     }
 
     /**
-     * example harmful [AugmentConsumer] that applies wither to targets specified to receive Harmful effects in the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment] implementation.
+     * example harmful [AugmentConsumer] that applies wither to targets specified to receive Harmful effects in the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment] implementation.
      */
-    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer({ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
+    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_necrotic"),{ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
     private fun necroticConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(
@@ -39,9 +39,9 @@ object ModifierRegistry {
     }
 
     /**
-     * example beneficial [AugmentConsumer] that applies regeneration to targets specified to receive beneficial effects. Most commonly, this will be the player than cast the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment], but may also be other targets of, for example, a mass healing spell.
+     * example beneficial [AugmentConsumer] that applies regeneration to targets specified to receive beneficial effects. Most commonly, this will be the player than cast the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment], but may also be other targets of, for example, a mass healing spell.
      */
-    private val DEBUG_HEALING_CONSUMER = AugmentConsumer({ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
+    private val DEBUG_HEALING_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_healing"),{ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
     private fun healingConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(
@@ -71,7 +71,7 @@ object ModifierRegistry {
     val MODIFIER_DEBUG_2 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
     val MODIFIER_DEBUG_3 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
 
-    val MODIFIER_TYPE = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
+    val MODIFIER_TYPE: ModifierHelperType = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
 
     object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper")){
         override fun getModifierIdKey(): String {

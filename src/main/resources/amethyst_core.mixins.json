@@ -3,11 +3,14 @@
   "package": "me.fzzyhmstrs.amethyst_core.mixins",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "EnchantmentHelperMixin",
     "EnchantmentMixin",
-    "PlayerEntityMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "PlayerEntityMixin"
   ],
   "client": [
+    "ItemRendererMixin",
+    "ItemStackMixin",
     "PlayerInventoryMixin"
   ],
   "injectors": {

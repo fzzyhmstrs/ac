@@ -1,19 +1,12 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mojang.authlib.GameProfile;
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity;
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding;
-import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
+import me.fzzyhmstrs.amethyst_core.item.AbstractAugmentBookItem;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -21,7 +14,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;

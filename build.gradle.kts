@@ -39,6 +39,9 @@ repositories {
     flatDir {
         dirs("E:\\Documents\\Mod Libraries\\gc\\build\\libs")
     }
+    flatDir {
+        dirs("E:\\Documents\\Mod Libraries\\fzzy_config\\build\\libs")
+    }
 
 }
 dependencies {
@@ -76,6 +79,12 @@ dependencies {
     include(modImplementation("eu.pb4:common-protection-api:$cpaVersion"){
         exclude("net.fabricmc.fabric-api")
     })
+
+    val fzzyConfigVersion: String by project
+    include(modImplementation(":fzzy_config-$fzzyConfigVersion"){
+        exclude("net.fabricmc.fabric-api")
+    }
+    )
 
 }
 tasks {
