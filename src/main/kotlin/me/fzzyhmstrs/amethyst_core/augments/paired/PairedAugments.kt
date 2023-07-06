@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
@@ -176,17 +177,19 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         val returnList: MutableList<Identifier> = mutableListOf()
         if (type == Type.SINGLE) {
             val result = augments[0].onCast(context, world, source, user, hand, level, effects, AugmentType.EMPTY, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
+            if (result.success()){
+                returnList.addAll(result.results())
             }
         } else if (type == Type.PAIRED){
             val result = augments[1].onCast(context, world,source, user,hand,level, effects,augments[0].augmentType, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
-                val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,
-                    AugmentType.EMPTY, this)
-                if (result2.result.isAccepted){
-                    returnList.addAll(result.value)
+            if (result.success()){
+                returnList.addAll(result.results())
+                if (!result.overwrite()){
+                    val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,
+                        AugmentType.EMPTY, this)
+                    if (result2.success()){
+                        returnList.addAll(result2.results())
+                    }
                 }
             }
         }
@@ -236,17 +239,19 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         if (type == Type.SINGLE) {
             val result = augments[0].onEntityHit(entityHitResult,context, world,source, user, hand, level, effects,
                 AugmentType.EMPTY, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
+            if (result.success()){
+                returnList.addAll(result.results())
             }
         } else if (type == Type.PAIRED){
             val result = augments[1].onEntityHit(entityHitResult,context, world,source, user, hand, level, effects,augments[0].augmentType, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
-                val result2 = augments[0].onEntityHit(entityHitResult,context, world,source, user,hand,level, effects,
-                    AugmentType.EMPTY, this)
-                if (result2.result.isAccepted){
-                    returnList.addAll(result.value)
+            if (result.success()){
+                returnList.addAll(result.results())
+                if (!result.overwrite()){
+                    val result2 = augments[0].onEntityHit(entityHitResult,context, world,source, user,hand,level, effects,
+                        AugmentType.EMPTY, this)
+                    if (result2.success()){
+                        returnList.addAll(result2.results())
+                    }
                 }
             }
         }
@@ -289,18 +294,20 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             for (augment in augments) {
                 val result = augment.onBlockHit(blockHitResult,context, world,source, user, hand, level, effects,
                     AugmentType.EMPTY, this)
-                if (result.result.isAccepted){
-                    returnList.addAll(result.value)
+                if (result.success()){
+                    returnList.addAll(result.results())
                 }
             }
         } else if (type == Type.PAIRED){
             val result = augments[1].onBlockHit(blockHitResult,context, world,source, user,hand,level, effects,augments[0].augmentType, this)
-            if (result.result.isAccepted){
-                returnList.addAll(result.value)
-                val result2 = augments[0].onBlockHit(blockHitResult,context, world,source, user,hand,level, effects,
-                    AugmentType.EMPTY, this)
-                if (result2.result.isAccepted){
-                    returnList.addAll(result.value)
+            if (result.success()){
+                returnList.addAll(result.results())
+                if (!result.overwrite()){
+                    val result2 = augments[0].onBlockHit(blockHitResult,context, world,source, user,hand,level, effects,
+                        AugmentType.EMPTY, this)
+                    if (result2.success()){
+                        returnList.addAll(result.results())
+                    }
                 }
             }
         }
@@ -313,15 +320,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     fun processOnKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect){
         if (type == Type.PAIRED){
             val result = augments[1].onEntityKill(entityHitResult,context, world, source, user,hand,level, effects,augments[0].augmentType, this)
-            if (result.result.isAccepted){
-                augments[0].onEntityKill(entityHitResult,context, world,source, user,hand,level, effects,
-                    AugmentType.EMPTY, this)
+            if (result.success() && !result.overwrite()){
+                augments[0].onEntityKill(entityHitResult,context, world,source, user,hand,level, effects,AugmentType.EMPTY, this)
             }
         } else {
             for (augment in augments) {
-                val result = augment.onEntityKill(entityHitResult,context, world,source, user, hand, level, effects,
-                    AugmentType.EMPTY, this)
-                if (!result.result.isAccepted) break
+                val result = augment.onEntityKill(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+                if (!result.success()) break
             }
         }
     }
