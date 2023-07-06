@@ -16,4 +16,5 @@ object NbtKeys {
     val PAIRED_ENCHANTS = "paired_enchants"
     val PAIRED_ENCHANT = "paired_enchant_id"
     val PAIRED_BOOST = "paired_boost_id"
+    val FALLBACK_INIT = "fallback_init"
 }

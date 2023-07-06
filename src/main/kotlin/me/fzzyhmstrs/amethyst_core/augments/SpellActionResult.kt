@@ -1,11 +1,10 @@
 package me.fzzyhmstrs.amethyst_core.augments
 
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.util.Identifier
 
 class SpellActionResult private constructor (private val type: Type, list: MutableList<Identifier> = mutableListOf()) {
 
-    private val results: MutableList<Identifier>
+    private val results: MutableList<Identifier> = list
 
     fun success(): Boolean{
         return type.succeeds
@@ -19,55 +18,55 @@ class SpellActionResult private constructor (private val type: Type, list: Mutab
         return type == Type.OVERWRITE
     }
     
-    fun withResults(vararg results: Identifier){
+    fun withResults(vararg results: Identifier): SpellActionResult{
         this.results.addAll(results)
         return this
     }
-    fun withResults(results: List<Identifier>){
+    fun withResults(results: List<Identifier>): SpellActionResult{
         this.results.addAll(results)
         return this
     }
     
     companion object{
-        fun success(vararg results: Identifier){
-            return SpellActionResult(Type.SUCCESS,results.asMutableList())
+        fun success(vararg results: Identifier): SpellActionResult{
+            return SpellActionResult(Type.SUCCESS,results.toMutableList())
         }
-        fun success(results: List<Identifier>){
-            return SpellActionResult(Type.SUCCESS,results.asMutableList())
+        fun success(results: List<Identifier>): SpellActionResult{
+            return SpellActionResult(Type.SUCCESS,results.toMutableList())
         }
-        fun success(previous: SpellActionResult){
-            return SpellActionResult(Type.SUCCESS,other.results.asMutableList())
+        fun success(previous: SpellActionResult): SpellActionResult{
+            return SpellActionResult(Type.SUCCESS,previous.results.toMutableList())
         }
-        fun pass(vararg results: Identifier){
-            return SpellActionResult(Type.PASS,results.asMutableList())
+        fun pass(vararg results: Identifier): SpellActionResult{
+            return SpellActionResult(Type.PASS,results.toMutableList())
         }
-        fun pass(results: List<Identifier>){
-            return SpellActionResult(Type.PASS,results.asMutableList())
+        fun pass(results: List<Identifier>): SpellActionResult{
+            return SpellActionResult(Type.PASS,results.toMutableList())
         }
-        fun pass(previous: SpellActionResult){
-            return SpellActionResult(Type.PASS,other.results.asMutableList())
+        fun pass(previous: SpellActionResult): SpellActionResult{
+            return SpellActionResult(Type.PASS,previous.results.toMutableList())
         }
-        fun overwrite(vararg results: Identifier){
-            return SpellActionResult(Type.OVERWRITE,results.asMutableList())
+        fun overwrite(vararg results: Identifier): SpellActionResult{
+            return SpellActionResult(Type.OVERWRITE,results.toMutableList())
         }
-        fun overwrite(results: List<Identifier>){
-            return SpellActionResult(Type.OVERWRITE,results.asMutableList())
+        fun overwrite(results: List<Identifier>): SpellActionResult{
+            return SpellActionResult(Type.OVERWRITE,results.toMutableList())
         }
-        fun overwrite(previous: SpellActionResult){
-            return SpellActionResult(Type.OVERWRITE,other.results.asMutableList())
+        fun overwrite(previous: SpellActionResult): SpellActionResult{
+            return SpellActionResult(Type.OVERWRITE,previous.results.toMutableList())
         }
-        fun fail(vararg results: Identifier){
-            return SpellActionResult(Type.PASS,results.asMutableList())
+        fun fail(vararg results: Identifier): SpellActionResult{
+            return SpellActionResult(Type.PASS,results.toMutableList())
         }
-        fun fail(results: List<Identifier>){
-            return SpellActionResult(Type.PASS,results.asMutableList())
+        fun fail(results: List<Identifier>): SpellActionResult{
+            return SpellActionResult(Type.PASS,results.toMutableList())
         }
-        fun fail(previous: SpellActionResult){
-            return SpellActionResult(Type.PASS,other.results.asMutableList())
+        fun fail(previous: SpellActionResult): SpellActionResult{
+            return SpellActionResult(Type.PASS,previous.results.toMutableList())
         }
     }
     
-    enum class Type(private val succeeds: Boolean){
+    enum class Type(internal val succeeds: Boolean){
         SUCCESS(true),
         PASS(true),
         FAIL(false),

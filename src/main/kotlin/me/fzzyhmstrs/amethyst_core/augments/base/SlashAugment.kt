@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.augments.base
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
@@ -17,10 +18,8 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
-import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
@@ -49,7 +48,7 @@ abstract class SlashAugment(
         level: Int,
         effects: AugmentEffect,
         spells: PairedAugments
-    ): TypedActionResult<List<Identifier>> {
+    ): SpellActionResult {
         if (world !is ServerWorld) return FAIL
         if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
@@ -83,7 +82,7 @@ abstract class SlashAugment(
         val buf = ScepterHelper.prepareParticlePacket(adderId,spells.getCastParticleType())
         buf.writeInt(level)
         ScepterHelper.sendSpellParticlesFromServer(world,user.pos,buf)
-        return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
+        return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
     
     open fun filter(list: List<Entity>, user: LivingEntity): MutableList<EntityHitResult>{
@@ -111,7 +110,7 @@ abstract class SlashAugment(
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): TypedActionResult<List<Identifier>> {
+    ): SpellActionResult {
         if (othersType.empty){
             val closestEntity = if (context is SlashContext) context.closestEntity else null
             val baseDamage = effects.damage(level)
@@ -125,10 +124,10 @@ abstract class SlashAugment(
                 user.applyDamageEffects(user,entityHitResult.entity)
                 hitSoundEvent(world, entityHitResult.entity.blockPos)
                 if (entityHitResult.entity.isAlive) {
-                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED)
+                    SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED)
                 } else {
                     spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
-                    actionResult(ActionResult.SUCCESS, AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED, AugmentHelper.KILLED_MOB)
+                    SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED, AugmentHelper.KILLED_MOB)
                 }
             } else {
                 FAIL

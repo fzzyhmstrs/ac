@@ -2,7 +2,6 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent

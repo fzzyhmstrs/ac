@@ -19,7 +19,6 @@ import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -55,7 +54,7 @@ abstract class AugmentScepterItem(
 
     var defaultAugments: List<ScepterAugment> = listOf()
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
-    var noFallback: Boolean = false
+    override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
 
     override fun getTier(): Int{
@@ -80,7 +79,7 @@ abstract class AugmentScepterItem(
         return this
     }
 
-    open fun defaultAugments(): List<ScepterAugment>{
+    override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
 
@@ -96,7 +95,7 @@ abstract class AugmentScepterItem(
         return this
     }
 
-    open fun hasFallback(): Boolean{
+    override fun hasFallback(): Boolean{
         return !noFallback
     }
 
@@ -193,7 +192,7 @@ abstract class AugmentScepterItem(
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
 
-    override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
+    /*override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT + stack.translationKey)) return
         val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && hasFallback()){
@@ -207,7 +206,7 @@ abstract class AugmentScepterItem(
             }
         }
         scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt.NbtKeys.ENCHANT_INIT + stack.translationKey,true)
-    }
+    }*/
 
 
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {

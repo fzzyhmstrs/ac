@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.augments.base
 
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
@@ -9,10 +10,7 @@ import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
-import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.Identifier
-import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
@@ -34,12 +32,12 @@ abstract class EntityAoeAugment(
     constructor(tier: ScepterTier,
                 positive: Boolean = true): this(tier, if(positive) AugmentType.AOE_POSITIVE else AugmentType.AOE_NEGATIVE)
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): TypedActionResult<List<Identifier>> {
+    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): SpellActionResult {
         val entityList = RaycasterUtil.raycastEntityArea(effects.range(level), user)
         if (entityList.isEmpty()) return FAIL
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
         list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
-        return if (list.isEmpty()) FAIL else actionResult(ActionResult.SUCCESS,list)
+        return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
 
     override fun onEntityHit(
@@ -53,9 +51,9 @@ abstract class EntityAoeAugment(
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): TypedActionResult<List<Identifier>> {
+    ): SpellActionResult {
         val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.result.isAccepted)
+        if (result.success())
             castSoundEvent(world,user.blockPos)
         return result
     }
@@ -71,7 +69,7 @@ abstract class EntityAoeAugment(
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): TypedActionResult<List<Identifier>> {
-        return actionResult(ActionResult.PASS)
+    ): SpellActionResult {
+        return SUCCESSFUL_PASS
     }
 }

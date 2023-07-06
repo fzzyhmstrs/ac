@@ -62,7 +62,7 @@ abstract class AugmentMiningItem(
 
     var defaultAugments: List<ScepterAugment> = listOf()
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
-    var noFallback: Boolean = false
+    override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
         
     override var glint: Boolean = false
@@ -99,7 +99,7 @@ abstract class AugmentMiningItem(
         return this
     }
 
-    open fun defaultAugments(): List<ScepterAugment>{
+    override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
     
@@ -115,7 +115,7 @@ abstract class AugmentMiningItem(
         return this
     }
 
-    open fun hasFallback(): Boolean{
+    override fun hasFallback(): Boolean{
         return !noFallback
     }
 
