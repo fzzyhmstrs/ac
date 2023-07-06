@@ -14,6 +14,10 @@ class SpellActionResult private constructor (private val type: Type, list: Mutab
     fun results(): List<Identifier>{
         return results
     }
+
+    fun overwrite(): Boolean{
+        return type == Type.OVERWRITE
+    }
     
     fun withResults(vararg results: Identifier){
         this.results.addAll(results)
