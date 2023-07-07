@@ -15,7 +15,7 @@ import java.util.function.Consumer
 /**
  * a simple container that holds a consumer and a type notation for sorting.
  */
-data class AugmentConsumer private  constructor(val consumer: Consumer<List<LivingEntity>>, val type: Type) {
+data class AugmentConsumer private constructor(val consumer: Consumer<List<LivingEntity>>, val type: Type) {
     enum class Type {
         HARMFUL,
         BENEFICIAL,
@@ -25,7 +25,7 @@ data class AugmentConsumer private  constructor(val consumer: Consumer<List<Livi
     companion object{
         val REGISTRY : SimpleRegistry<AugmentConsumer> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<AugmentConsumer>(Identifier(AC.MOD_ID,"augment_consumers"))).buildAndRegister()
 
-        fun createAndRegisterConsumer(id: Identifier, consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentConsumer{
+        fun createAndRegisterConsumer(id: Identifier, consumer: Consumer<List<LivingEntity>>, type: Type): AugmentConsumer{
             return Registry.register(REGISTRY,id, AugmentConsumer(consumer, type))
         }
 
