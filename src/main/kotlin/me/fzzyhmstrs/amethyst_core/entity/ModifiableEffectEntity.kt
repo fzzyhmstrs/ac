@@ -32,6 +32,7 @@ interface ModifiableEffectEntity<T: LivingEntity> {
         modifiableNbt.put("entityEffects",entityEffects.writeNbt())
         modifiableNbt.putInt("level",level)
         modifiableNbt.put("spells", AugmentHelper.writePairedAugmentsToNbt(spells))
+        modifiableNbt.put("tickEffects",TickEffect.toNbtList(tickEffects))
         nbtCompound.put("modifiable_effects",modifiableNbt)
     }
 
@@ -41,6 +42,7 @@ interface ModifiableEffectEntity<T: LivingEntity> {
         entityEffects = AugmentEffect.readNbt(modifiableNbt.getCompound("entityEffects"))
         level = modifiableNbt.getInt("level")
         spells = AugmentHelper.getOrCreatePairedAugmentsFromNbt(modifiableNbt.getCompound("spells"))
+        tickeEffects.addAll(TickEffect.fromNbtList(modifiableNbt.getList("tickEffects",8))
     }
 
     fun tickingEntity(): T
