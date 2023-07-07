@@ -61,7 +61,18 @@ object ScepterHelper {
 
 
 
-    fun useScepter(activeEnchantId: String, pairedAugments: PairedAugments, stack: ItemStack, world: World, level: Int, modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>, user: LivingEntity, checkEnchant: Boolean = true): Int?{
+    fun useScepter(
+        activeEnchantId: String, 
+        pairedAugments: PairedAugments, 
+        stack: ItemStack, 
+        world: World, 
+        level: Int, 
+        modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>, 
+        user: LivingEntity, 
+        checkEnchant: Boolean = true)
+    : 
+    Int?
+    {
         if (world !is ServerWorld){return null}
         val scepterNbt = stack.orCreateNbt
         if (checkEnchant) {
@@ -87,9 +98,9 @@ object ScepterHelper {
         }
     }
 
-    fun castSpell(
+    fun <T> castSpell(
         world: World,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         stack: ItemStack,
         activeEnchantId: String,
@@ -98,39 +109,27 @@ object ScepterHelper {
         testLevel: Int,
         spellCaster: SpellCasting,
         incrementStats: Boolean = true,
-        checkEnchant: Boolean = true): TypedActionResult<ItemStack>{
+        checkEnchant: Boolean = true)
+    : 
+    TypedActionResult<ItemStack> 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         // Modify Modifiers event fires here //
         val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(stack))
         // Modify Spell Event fires here //
         val level = getEffectiveLevel(testLevel,modifiers.compiledData.levelModifier,user)
         val result = ModifySpellEvent.EVENT.invoker().modifySpell(spell,world,user,hand,modifiers)
         if (result == ActionResult.CONSUME) {
-            useScepter(
-                activeEnchantId,
-                pairedAugments,
-                stack,
-                world,
-                level,
-                modifiers,
-                user,
-                checkEnchant
-            )
+            useScepter(activeEnchantId,pairedAugments,stack,world,level,modifiers,user,checkEnchant)
             return TypedActionResult.success(stack)
         }
         else if (result == ActionResult.FAIL) {
             return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
         }
 
-        val cooldown : Int? = useScepter(
-            activeEnchantId,
-            pairedAugments,
-            stack,
-            world,
-            level,
-            modifiers,
-            user,
-            checkEnchant
-        )
+        val cooldown : Int? = useScepter(activeEnchantId,pairedAugments,stack,world,level,modifiers,user,checkEnchant)
         return if (cooldown != null) {
             val manaCost = AugmentHelper.getEffectiveManaCost(pairedAugments,modifiers.compiledData.manaCostModifier,level,user)
             //val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
