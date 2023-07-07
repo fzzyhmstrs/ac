@@ -31,7 +31,13 @@ abstract class PlaceItemAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(4.5)
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): SpellActionResult {
+    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (user !is ServerPlayerEntity) return FAIL
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
         if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
@@ -47,18 +53,24 @@ abstract class PlaceItemAugment(
         return FAIL
     }
     
-    override fun onBlockHit(
+    override fun <T> onBlockHit(
         blockHitResult: BlockHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
         if (user !is ServerPlayerEntity) return FAIL
         when (item) {
@@ -80,7 +92,13 @@ abstract class PlaceItemAugment(
         }
     }
     
-    open fun customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): SpellActionResult{
+    open fun <T> customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
     
@@ -94,7 +112,13 @@ abstract class PlaceItemAugment(
         }
     }
 
-    open fun itemToPlace(world: World, user: LivingEntity): ItemStack {
+    open fun <T> itemToPlace(world: World, user: T)
+    : 
+    ItemStack 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return ItemStack(item)
     }
 }
