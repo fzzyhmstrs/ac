@@ -32,7 +32,13 @@ abstract class SingleTargetAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(6.0,0.0, 0.0)
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): SpellActionResult {
+    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
         val hit = if (target is EntityHitResult) target else return FAIL
         val list = spells.processSingleEntityHit(hit,world,null,user, hand, level, effects)
@@ -40,36 +46,47 @@ abstract class SingleTargetAugment(
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
 
-    override fun onEntityHit(
+    override fun <T> onEntityHit(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             castSoundEvent(world,user.blockPos)
         return result
     }
 
-    open fun entityEffects(
+    open fun <T> entityEffects(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
-        spells: PairedAugments
-    ): SpellActionResult {
+        spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
 }
