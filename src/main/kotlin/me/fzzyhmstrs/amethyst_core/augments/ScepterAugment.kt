@@ -51,7 +51,13 @@ abstract class ScepterAugment(
         return augmentData.id
     }
 
-    fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments): Boolean{
+    fun <T> applyModifiableTasks(world: World, user: T, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments)
+    : 
+    Boolean
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (!augmentData.enabled) {
             if (user is PlayerEntity){
                 user.sendMessage(AcText.translatable("scepter.augment.disabled_message", this.getName(1)), false)
@@ -78,23 +84,54 @@ abstract class ScepterAugment(
     /**
      * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
      */
-    abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): SpellActionResult
+    abstract fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
 
     /**
      * If your scepter has some client side effects/tasks, extend them here. This can be something like adding visual effects, or affecting a GUI, and so on.
      */
     open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
     }
-    open fun onCast(context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): SpellActionResult{
+
+    open fun <T> onCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
-    open fun onBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): SpellActionResult{
+    
+    open fun <T> onBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
-    open fun onEntityHit(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): SpellActionResult{
+    open fun <T> onEntityHit(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): SpellActionResult{
+    open fun <T> onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
 
@@ -155,7 +192,13 @@ abstract class ScepterAugment(
      *
      * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
      */
-    open fun modifyDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): Float{
+    open fun <T> modifyDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    Float
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return amount
     }
     /**
@@ -163,7 +206,13 @@ abstract class ScepterAugment(
      *
      * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
      */
-    open fun modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): DamageSourceBuilder {
+    open fun <T> modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    DamageSourceBuilder 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return builder
     }
     /**
@@ -182,8 +231,16 @@ abstract class ScepterAugment(
      *
      * Can also modify certain features like armor, provide persistent attributes like health, speed, etc., or change quantity summoned
      */
-    open fun <T> modifySummons(summons: List<T>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<T> where T: Entity,
-                                                                                                                                                                                                                          T: ModifiableEffectEntity {
+    open fun <T, U> modifySummons(summons: List<T>, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    List<T> 
+    where 
+    T: Entity,
+    T: ModifiableEffectEntity
+    where
+    U: LivingEntity,
+    U: SpellCastingEntity
+    {
         return summons
     }
 
@@ -192,7 +249,13 @@ abstract class ScepterAugment(
      *
      * Use to do things like changing the blocks that are created (snow instead of fire, for example)
      */
-    open fun modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): ExplosionBuilder {
+    open fun <T> modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    ExplosionBuilder 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return builder
     }
 
@@ -201,7 +264,13 @@ abstract class ScepterAugment(
      *
      * Currently unused by anything in AC itself, it can be used by something like Excavate to drop smelted things if paired with flame spell.
      */
-    open fun modifyDrops(stacks: List<ItemStack>, cause: ScepterAugment, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments): List<ItemStack>{
+    open fun <T> modifyDrops(stacks: List<ItemStack>, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    : 
+    List<ItemStack>
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return stacks
     }
 
