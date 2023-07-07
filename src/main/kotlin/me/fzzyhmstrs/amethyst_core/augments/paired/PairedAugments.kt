@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
 import me.fzzyhmstrs.amethyst_core.event.EntityHitActionEvent
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
@@ -518,8 +519,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     : List<T>
     where 
     T: Entity,
-    T: ModifiableEffectEntity 
-    where 
+    T: ModifiableEffectEntity<T>,
     U: LivingEntity,
     U: SpellCastingEntity
     {

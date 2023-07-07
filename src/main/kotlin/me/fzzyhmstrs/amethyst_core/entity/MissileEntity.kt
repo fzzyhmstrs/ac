@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
 import net.minecraft.entity.Entity
@@ -17,6 +18,7 @@ import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * basic missile projectile for use with spells or any other projectile-lobbing object.
@@ -30,7 +32,7 @@ import net.minecraft.world.World
  * Similarly, if the effect is provided with a consumer, on hit the missile will apply any of those consumers marked as harmful. An example consumer would be one that applies 10 seconds of blindness to any affected entity. Basically a bucket for applying secondary effects on hit. See [AugmentEffect] for more info.
  */
 
-open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity {
+open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity<MissileEntity> {
 
     constructor(world: World, owner: LivingEntity): this(RegisterBaseEntity.MISSILE_ENTITY,world, owner)
 
@@ -45,6 +47,12 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     override var spells: PairedAugments = PairedAugments()
+    override val tickEffects: ConcurrentLinkedQueue<TickEffect> = ConcurrentLinkedQueue()
+
+    override fun tickingEntity(): MissileEntity {
+        return this
+    }
+
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
     open val maxAge = 200
@@ -99,7 +107,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
-        if (entity is LivingEntity) {
+        if (entity is LivingEntity && entity is SpellCastingEntity) {
             spells.processSingleEntityHit(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
                 spells.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
@@ -115,7 +123,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
-        if (entity is LivingEntity) {
+        if (entity is LivingEntity && entity is SpellCastingEntity) {
             spells.processSingleBlockHit(blockHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
         }
     }

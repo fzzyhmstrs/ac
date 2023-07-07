@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
 import net.minecraft.nbt.NbtString
 import net.minecraft.registry.Registry
+import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.SimpleRegistry
 import net.minecraft.util.Identifier
 import java.util.function.Consumer
@@ -22,9 +23,7 @@ data class AugmentConsumer private  constructor(val consumer: Consumer<List<Livi
     }
 
     companion object{
-        val REGISTRY : SimpleRegistry<AugmentConsumer> = FabricRegistryBuilder.createSimple(AugmentConsumer::class.java, Identifier(
-            AC.MOD_ID,"augment_consumers")
-        ).buildAndRegister()
+        val REGISTRY : SimpleRegistry<AugmentConsumer> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<AugmentConsumer>(Identifier(AC.MOD_ID,"augment_consumers"))).buildAndRegister()
 
         fun createAndRegisterConsumer(id: Identifier, consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentConsumer{
             return Registry.register(REGISTRY,id, AugmentConsumer(consumer, type))

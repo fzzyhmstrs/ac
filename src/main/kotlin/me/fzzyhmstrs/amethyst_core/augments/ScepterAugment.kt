@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.*
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
@@ -236,8 +237,7 @@ abstract class ScepterAugment(
     List<T> 
     where 
     T: Entity,
-    T: ModifiableEffectEntity
-    where
+    T: ModifiableEffectEntity<T>,
     U: LivingEntity,
     U: SpellCastingEntity
     {

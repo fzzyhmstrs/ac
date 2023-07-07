@@ -7,6 +7,7 @@ import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.item.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item.SpellCasting
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier

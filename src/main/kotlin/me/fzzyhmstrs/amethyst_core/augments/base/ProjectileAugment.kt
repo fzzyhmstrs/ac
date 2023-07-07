@@ -7,6 +7,7 @@ import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.entity.MissileEntity
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
 import net.minecraft.entity.Entity
@@ -72,7 +73,7 @@ abstract class ProjectileAugment(
             if(world.spawnEntity(projectile)) success++
         }
         if(success > 0) {
-            castSoundEvent(world, entity.blockPos)
+            castSoundEvent(world, user.blockPos)
             list.add(AugmentHelper.PROJECTILE_FIRED)
         }
         return if(list.isNotEmpty()) SpellActionResult.success(list) else FAIL
@@ -123,7 +124,7 @@ abstract class ProjectileAugment(
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,

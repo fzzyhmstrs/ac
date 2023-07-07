@@ -41,14 +41,20 @@ abstract class SlashAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(2.5,0.25,0.0)
 
-    override fun applyTasks(
+    override fun <T> applyTasks(
         world: World,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    :
+    SpellActionResult
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (world !is ServerWorld) return FAIL
         if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
@@ -99,18 +105,24 @@ abstract class SlashAugment(
         return hostileEntityList
     }
 
-    override fun onEntityHit(
+    override fun <T> onEntityHit(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    :
+    SpellActionResult
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (othersType.empty){
             val closestEntity = if (context is SlashContext) context.closestEntity else null
             val baseDamage = effects.damage(level)
