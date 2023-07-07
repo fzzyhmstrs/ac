@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.nbt.NbtCompound
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * interface for meshing an entity (or any object really) with the Modifier system. The interface provides a base [AugmentEffect] instance for storing and passing effect attributes. See that doc for details on what is stored.
@@ -13,11 +14,12 @@ import net.minecraft.nbt.NbtCompound
  * passEffects defines how you want your entity to be affected by any modifications. For example, if you want the area-of-effect of a status effect cloud your entity creates to be affected, add a setRange or addRange call to passEffects so any calling object that affects range will affect this entity. Then, in the AOE effect implementation, define the range/size of the cloud with the [entityEffects] range instance rather than with a static number.
  */
 
-interface ModifiableEffectEntity {
+interface ModifiableEffectEntity<T: LivingEntity> {
 
     var entityEffects: AugmentEffect
     var level: Int
     var spells: PairedAugments
+    protected val tickEffects: ConcurrentLinkedQueue<TickEffect>
 
     fun passEffects(spells: PairedAugments, ae: AugmentEffect, level: Int){
         entityEffects = AugmentEffect().plus(ae)
@@ -41,4 +43,15 @@ interface ModifiableEffectEntity {
         spells = AugmentHelper.getOrCreatePairedAugmentsFromNbt(modifiableNbt.getCompound("spells"))
     }
 
+    fun tickingEntity(): T
+    
+    fun tickTickEffects(){
+        for (effect in tickEffects){
+            effect.tick(tickingEntity())
+        }
+    }
+
+    fun addTickEffect(effect: TickEffect){
+        tickEffects.add(effect)
+    }
 }
