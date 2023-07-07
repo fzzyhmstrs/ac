@@ -32,41 +32,69 @@ abstract class ProjectileAugment(
     ScepterAugment(tier, augmentType)
 {
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): SpellActionResult {
+    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val list = spells.processOnCast(world,null,user, hand, level, effects)
-        return spawnProjectileEntity(world, user, entityClass(world, user, level, effects, spells), list)
+        val projectiles = createProjectileEntities(world, user, level, effects, spells)
+        return spawnProjectileEntities(world, user, projectiles, list)
     }
 
-    open fun entityClass(world: World, user: LivingEntity, level: Int = 1, effects: AugmentEffect, spells: PairedAugments): ProjectileEntity {
+    open fun <T> createProjectileEntities(world: World, user: T, level: Int = 1, effects: AugmentEffect, spells: PairedAugments)
+    : 
+    List<ProjectileEntity>
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val me = MissileEntity(world, user)
+        val direction = user.getRotationVec3d()
         me.setVelocity(user,user.pitch,user.yaw,0.0f,
             2.0f,
             0.1f)
         me.passEffects(spells,effects,level)
-        return me
+        return listOf(me)
     }
 
-    open fun spawnProjectileEntity(world: World, entity: LivingEntity, projectile: ProjectileEntity, list: MutableList<Identifier>): SpellActionResult{
-        val bl = world.spawnEntity(projectile)
-        if(bl) {
+    open fun <T> spawnProjectileEntities(world: World, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        var success = 0
+        for (projectile in projectiles){
+            if(world.spawnEntity(projectile)) success++
+        }
+        if(success > 0) {
             castSoundEvent(world, entity.blockPos)
             list.add(AugmentHelper.PROJECTILE_FIRED)
         }
         return if(list.isNotEmpty()) SpellActionResult.success(list) else FAIL
     }
     
-    override fun onEntityHit(
+    override fun <T> onEntityHit(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    ): 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (othersType.empty){
             val amount = spells.provideDealtDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
             val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
@@ -90,7 +118,7 @@ abstract class ProjectileAugment(
         return super.onEntityHit(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
     
-    override fun onBlockHit(
+    override fun <T> onBlockHit(
         blockHitResult: BlockHitResult,
         context: ProcessContext,
         world: World,
@@ -101,7 +129,13 @@ abstract class ProjectileAugment(
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val pos = source?.pos?: blockHitResult.pos
         splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
         if (othersType == AugmentType.EMPTY){
