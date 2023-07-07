@@ -39,7 +39,13 @@ abstract class BeamAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(7.0,0.0, 0.0)
 
-    override fun applyTasks(world: World,user: LivingEntity,hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments): SpellActionResult {
+    override fun <T> applyTasks(world: World,user: T, hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments)
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (world !is ServerWorld) return FAIL
         if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
@@ -76,35 +82,47 @@ abstract class BeamAugment(
         return Vec3d(0.0,user.height/2.0,0.0)
     }
 
-    override fun onEntityHit(
+    override fun <T> onEntityHit(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val result = entityEffects(entityHitResult, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             hitSoundEvent(world,user.blockPos)
         return result
     }
 
-    open fun entityEffects(
+    open fun <T> entityEffects(
         entityHitResult: EntityHitResult,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         if (othersType.empty){
             val amount = spells.provideDealtDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
             val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
@@ -128,35 +146,47 @@ abstract class BeamAugment(
         return SUCCESSFUL_PASS
     }
 
-    override fun onBlockHit(
+    override fun <T> onBlockHit(
         blockHitResult: BlockHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult 
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val result = blockEffects(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             hitSoundEvent(world,user.blockPos)
         return result
     }
 
-    open fun blockEffects(
+    open fun <T> blockEffects(
         blockHitResult: BlockHitResult,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    : 
+    SpellActionResult
+    where 
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val pos = blockHitResult.pos
         if(!world.getBlockState(blockHitResult.blockPos).isSolidBlock(world,blockHitResult.blockPos))
             splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
