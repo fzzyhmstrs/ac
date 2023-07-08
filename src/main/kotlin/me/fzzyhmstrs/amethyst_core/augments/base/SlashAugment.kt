@@ -16,6 +16,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Hand
@@ -78,7 +79,7 @@ abstract class SlashAugment(
             entityDistance[dist] = entity
         }
         val closest = entityDistance[entityDistance.firstKey()] ?:return FAIL
-        val context = SlashContext(closest.entity)
+        val context = createClosestContext(closest.entity)
         val list = if (hostileEntityList.isNotEmpty()) {
             spells.processMultipleEntityHits(hostileEntityList,context, world, null, user, hand, level, effects)
         } else {
@@ -124,7 +125,7 @@ abstract class SlashAugment(
     T: SpellCastingEntity
     {
         if (othersType.empty){
-            val closestEntity = if (context is SlashContext) context.closestEntity else null
+            val closestEntity = closestFromContext(context, world)
             val baseDamage = effects.damage(level)
             val splashDamage = effects.damage(level - 2)
             val inputDamage = if(closestEntity == entityHitResult.entity) baseDamage else splashDamage
@@ -212,10 +213,17 @@ abstract class SlashAugment(
         }
     }
 
-    protected class SlashContext(val closestEntity: Entity): ProcessContext {
-        override fun getType(): Identifier {
-            return contextId
-        }
+    protected fun createClosestContext(entity: Entity): ProcessContext{
+        val nbtCompound = NbtCompound()
+        nbtCompound.putInt("closest", entity.id)
+        return ProcessContext(contextId,nbtCompound)
+    }
+
+    protected fun closestFromContext(context: ProcessContext, world: World): Entity?{
+        val nbt = context.getNbt()
+        if (!nbt.contains("closest")) return null
+        val id = nbt.getInt("closest")
+        return world.getEntityById(id)
     }
 
 }

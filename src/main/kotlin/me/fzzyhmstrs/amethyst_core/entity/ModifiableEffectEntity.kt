@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -22,6 +23,7 @@ interface ModifiableEffectEntity<T: Entity> {
     var level: Int
     var spells: PairedAugments
     val tickEffects: ConcurrentLinkedQueue<TickEffect>
+    var processContext: ProcessContext
 
     fun passEffects(spells: PairedAugments, ae: AugmentEffect, level: Int){
         entityEffects = AugmentEffect().plus(ae)
@@ -35,6 +37,7 @@ interface ModifiableEffectEntity<T: Entity> {
         modifiableNbt.putInt("level",level)
         modifiableNbt.put("spells", AugmentHelper.writePairedAugmentsToNbt(spells))
         modifiableNbt.put("tickEffects",TickEffect.toNbtList(tickEffects))
+        modifiableNbt.put("processContext", processContext.writeNbt())
         nbtCompound.put("modifiable_effects",modifiableNbt)
     }
 
@@ -45,6 +48,7 @@ interface ModifiableEffectEntity<T: Entity> {
         level = modifiableNbt.getInt("level")
         spells = AugmentHelper.getOrCreatePairedAugmentsFromNbt(modifiableNbt.getCompound("spells"))
         tickEffects.addAll(TickEffect.fromNbtList(modifiableNbt.getList("tickEffects",8)))
+        processContext = ProcessContext.readNbt(modifiableNbt.getCompound("processContext"))
     }
 
     fun tickingEntity(): T

@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
@@ -10,6 +11,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.projectile.ExplosiveProjectileEntity
 import net.minecraft.entity.projectile.ProjectileUtil
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
@@ -17,6 +19,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -46,28 +49,40 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         this.setRotation(owner.yaw, owner.pitch)
     }
 
+    override var entityEffects: AugmentEffect = AugmentEffect()
+    override var level: Int = 0
     override var spells: PairedAugments = PairedAugments()
     override val tickEffects: ConcurrentLinkedQueue<TickEffect> = ConcurrentLinkedQueue()
-
+    override var processContext: ProcessContext = ProcessContext.EMPTY
+    open val maxAge = 200
+    open var colorData = ColorData()
+    private val particle
+        get() = spells.getCastParticleType()
     override fun tickingEntity(): MissileEntity {
         return this
     }
 
-    override var entityEffects: AugmentEffect = AugmentEffect()
-    override var level: Int = 0
-    open val maxAge = 200
-    open val colorData = ColorData()
-    private val particle
-        get() = spells.getCastParticleType()
+    fun color(color: ColorData): MissileEntity{
+        colorData = color
+        return this
+    }
 
+    override fun readCustomDataFromNbt(nbt: NbtCompound) {
+        readModifiableNbt(nbt)
+        super.readCustomDataFromNbt(nbt)
+    }
 
-    override fun initDataTracker() {}
+    override fun writeCustomDataToNbt(nbt: NbtCompound) {
+        writeModifiableNbt(nbt)
+        super.writeCustomDataToNbt(nbt)
+    }
 
     override fun tick() {
         super.tick()
         if (age > maxAge){
             discard()
         }
+        tickTickEffects()
         val vec3d = velocity
         val hitResult = ProjectileUtil.getCollision(
             this
@@ -99,32 +114,41 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         this.setPosition(d, e, f)
     }
 
+    override fun onCollision(hitResult: HitResult) {
+        super.onCollision(hitResult)
+        discard()
+    }
+
     override fun onEntityHit(entityHitResult: EntityHitResult) {
         super.onEntityHit(entityHitResult)
+        if (world.isClient) {
+            return
+        }
         onMissileEntityHit(entityHitResult)
-        discard()
     }
 
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
-            spells.processSingleEntityHit(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleEntityHit(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
-                spells.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+                spells.processOnKill(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             }
         }
     }
 
     override fun onBlockHit(blockHitResult: BlockHitResult) {
         super.onBlockHit(blockHitResult)
+        if (world.isClient) {
+            return
+        }
         onMissileBlockHit(blockHitResult)
-        discard()
     }
 
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
-            spells.processSingleBlockHit(blockHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleBlockHit(blockHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
         }
     }
 

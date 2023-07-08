@@ -31,6 +31,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.random.Random
 import net.minecraft.world.World
 
@@ -154,6 +155,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             Type.SINGLE -> augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
             Type.PAIRED -> augments[1].hitParticleType(hit)?:augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
             Type.EMPTY -> ParticleTypes.CRIT
+        }
+    }
+
+    fun castSoundEvents(world: World, blockPos: BlockPos){
+        for (spell in augments){
+            spell.castSoundEvent(world, blockPos)
+        }
+    }
+
+    fun hitSoundEvents(world: World, blockPos: BlockPos){
+        for (spell in augments){
+            spell.hitSoundEvent(world, blockPos)
         }
     }
 
@@ -390,6 +403,23 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return returnList
     }
 
+    fun <T> processMultipleOnKill(list: List<EntityHitResult>, world: World,source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        processMultipleOnKill(list,ProcessContext.EMPTY, world, source, user, hand, level, effects)
+    }
+    fun <T> processMultipleOnKill(list: List<EntityHitResult>,processContext: ProcessContext, world: World,source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        for (entityHitResult in list) {
+            if (!entityHitResult.entity.isAlive)
+                processOnKill(entityHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        }
+    }
     fun <T> processOnKill(entityHitResult: EntityHitResult, world: World,source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     where 
     T: LivingEntity,

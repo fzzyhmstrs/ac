@@ -1,55 +1,98 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity
+import net.minecraft.item.Item
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
+import java.util.concurrent.ConcurrentLinkedQueue
 
-abstract class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity<PlayerItemEntity> {
+open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity<PlayerItemEntity> {
 
-    constructor (entityType: EntityType<out PlayerItemEntity?>?, world: World?):
-            super(entityType, world)
+    constructor (entityType: EntityType<out PlayerItemEntity?>?, world: World?, item: Item):
+            super(entityType, world){
+                this.item = item
+            }
 
-    constructor(entityType: EntityType<out PlayerItemEntity?>?,world: World?, owner: LivingEntity?):
-            super(entityType, owner, world)
+    constructor(entityType: EntityType<out PlayerItemEntity?>?,world: World?, owner: LivingEntity?, item: Item):
+            super(entityType, owner, world){
+                this.item = item
+            }
 
-    override var spells: PairedAugments = PairedAugments()
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
+    override var spells: PairedAugments = PairedAugments()
+    override val tickEffects: ConcurrentLinkedQueue<TickEffect> = ConcurrentLinkedQueue()
+    override var processContext: ProcessContext = ProcessContext.EMPTY
+    private val item: Item
+
+    override fun tickingEntity(): PlayerItemEntity {
+        return this
+    }
+
+    override fun tick() {
+        super.tick()
+        tickTickEffects()
+    }
+
+    override fun onCollision(hitResult: HitResult) {
+        super.onCollision(hitResult)
+        discard()
+    }
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
         super.onEntityHit(entityHitResult)
+        if (world.isClient) {
+            return
+        }
         onItemEntityHit(entityHitResult)
-        discard()
     }
 
     open fun onItemEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
-            spells.processSingleEntityHit(entityHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleEntityHit(entityHitResult,processContext,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
-                spells.processOnKill(entityHitResult,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
+                spells.processOnKill(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             }
         }
     }
 
     override fun onBlockHit(blockHitResult: BlockHitResult) {
         super.onBlockHit(blockHitResult)
+        if (world.isClient) {
+            return
+        }
         onItemBlockHit(blockHitResult)
-        discard()
     }
 
     open fun onItemBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
-            spells.processSingleBlockHit(blockHitResult,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
+            spells.processSingleBlockHit(blockHitResult,processContext,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
         }
     }
 
+    override fun readCustomDataFromNbt(nbt: NbtCompound) {
+        readModifiableNbt(nbt)
+        super.readCustomDataFromNbt(nbt)
+    }
+
+    override fun writeCustomDataToNbt(nbt: NbtCompound) {
+        writeModifiableNbt(nbt)
+        super.writeCustomDataToNbt(nbt)
+    }
+
+    override fun getDefaultItem(): Item {
+        return item
+    }
 }
