@@ -1,13 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
-import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
 import net.minecraft.nbt.NbtString
@@ -15,22 +11,23 @@ import net.minecraft.registry.Registry
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.SimpleRegistry
 import net.minecraft.util.Identifier
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 
-class TickEffect private constructor (private val consumer: Consumer<Entity>){
+class ModifiableEffect private constructor (private val consumer: BiConsumer<Entity,ProcessContext?>){
 
-    fun tick(entity: Entity){
-        consumer.accept(entity)
+    fun run(entity: Entity, context: ProcessContext?){
+        consumer.accept(entity, context)
     }
 
     companion object{
-        val REGISTRY : SimpleRegistry<TickEffect> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<TickEffect>(Identifier(AC.MOD_ID,"tick_effects"))).buildAndRegister()
+        val REGISTRY : SimpleRegistry<ModifiableEffect> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<ModifiableEffect>(Identifier(AC.MOD_ID,"tick_effects"))).buildAndRegister()
 
-        fun createAndRegisterConsumer(id: Identifier, consumer: Consumer<Entity>): TickEffect{
-            return Registry.register(REGISTRY,id, TickEffect(consumer))
+        fun createAndRegisterConsumer(id: Identifier, consumer: BiConsumer<Entity, ProcessContext?>): ModifiableEffect{
+            return Registry.register(REGISTRY,id, ModifiableEffect(consumer))
         }
 
-        fun toNbtList(effects: Collection<TickEffect>): NbtList {
+        fun toNbtList(effects: Collection<ModifiableEffect>): NbtList {
             val list = NbtList()
             for (consumer in effects){
                 val id = REGISTRY.getId(consumer)
@@ -40,9 +37,9 @@ class TickEffect private constructor (private val consumer: Consumer<Entity>){
             return list
         }
 
-        fun fromNbtList(list: NbtList): List<TickEffect>{
+        fun fromNbtList(list: NbtList): List<ModifiableEffect>{
             if (list.heldType != NbtElement.STRING_TYPE) return emptyList()
-            val consumers: MutableList<TickEffect> = mutableListOf()
+            val consumers: MutableList<ModifiableEffect> = mutableListOf()
             for (el in list){
                 val idString = el.asString()
                 val id = Identifier(idString)

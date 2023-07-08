@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Similarly, if the effect is provided with a consumer, on hit the missile will apply any of those consumers marked as harmful. An example consumer would be one that applies 10 seconds of blindness to any affected entity. Basically a bucket for applying secondary effects on hit. See [AugmentEffect] for more info.
  */
 
-open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity<MissileEntity> {
+open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity {
 
     constructor(world: World, owner: LivingEntity): this(RegisterBaseEntity.MISSILE_ENTITY,world, owner)
 
@@ -52,15 +52,12 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
     override var spells: PairedAugments = PairedAugments()
-    override val tickEffects: ConcurrentLinkedQueue<TickEffect> = ConcurrentLinkedQueue()
-    override var processContext: ProcessContext = ProcessContext.EMPTY
+    override var modifiableEffects = ModifiableEffectContainer()
+    override var processContext: ProcessContext = ProcessContext.EMPTY_CONTEXT
     open val maxAge = 200
     open var colorData = ColorData()
     private val particle
         get() = spells.getCastParticleType()
-    override fun tickingEntity(): MissileEntity {
-        return this
-    }
 
     fun color(color: ColorData): MissileEntity{
         colorData = color
@@ -82,7 +79,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         if (age > maxAge){
             discard()
         }
-        tickTickEffects()
+        tickTickEffects(this, processContext)
         val vec3d = velocity
         val hitResult = ProjectileUtil.getCollision(
             this

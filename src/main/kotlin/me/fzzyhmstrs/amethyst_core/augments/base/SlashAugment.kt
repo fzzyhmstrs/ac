@@ -42,14 +42,7 @@ abstract class SlashAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(2.5,0.25,0.0)
 
-    override fun <T> applyTasks(
-        world: World,
-        user: T,
-        hand: Hand,
-        level: Int,
-        effects: AugmentEffect,
-        spells: PairedAugments
-    )
+    override fun <T> applyTasks(world: World, context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     :
     SpellActionResult
     where
@@ -79,9 +72,11 @@ abstract class SlashAugment(
             entityDistance[dist] = entity
         }
         val closest = entityDistance[entityDistance.firstKey()] ?:return FAIL
-        val context = createClosestContext(closest.entity)
+        val closestContext = createClosestContext(closest.entity, context)
         val list = if (hostileEntityList.isNotEmpty()) {
-            spells.processMultipleEntityHits(hostileEntityList,context, world, null, user, hand, level, effects)
+            val temp = spells.processMultipleEntityHits(hostileEntityList,closestContext, world, null, user, hand, level, effects)
+            temp.addAll(spells.processOnCast(context,world,null,user,hand, level, effects))
+            temp
         } else {
             listOf(AugmentHelper.DRY_FIRED)
         }
@@ -129,8 +124,8 @@ abstract class SlashAugment(
             val baseDamage = effects.damage(level)
             val splashDamage = effects.damage(level - 2)
             val inputDamage = if(closestEntity == entityHitResult.entity) baseDamage else splashDamage
-            val damage = spells.provideDealtDamage(inputDamage, spellContext(),entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), spellContext(),entityHitResult, source, user, world, hand, level, effects)
+            val damage = spells.provideDealtDamage(inputDamage, context,entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), context,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, damage)
 
             return if(bl) {
@@ -139,7 +134,7 @@ abstract class SlashAugment(
                 if (entityHitResult.entity.isAlive) {
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED)
                 } else {
-                    spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
+                    spells.processOnKill(entityHitResult,context, world, source, user, hand, level, effects)
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED, AugmentHelper.KILLED_MOB)
                 }
             } else {
@@ -180,7 +175,7 @@ abstract class SlashAugment(
     }
 
     companion object{
-        protected val contextId = Identifier(AC.MOD_ID,"slash_context")
+        protected val CLOSEST_ENTITY = object : ProcessContext.Data<Int>("closest_entity_id", ProcessContext.IntDataType){}
     }
     protected val particleSpeed by lazy { particleSpeed() }
     protected val particles: Array<Pair<Double,Double>> = arrayOf(
@@ -213,16 +208,12 @@ abstract class SlashAugment(
         }
     }
 
-    protected fun createClosestContext(entity: Entity): ProcessContext{
-        val nbtCompound = NbtCompound()
-        nbtCompound.putInt("closest", entity.id)
-        return ProcessContext(contextId,nbtCompound)
+    protected fun createClosestContext(closest: Entity,context: ProcessContext = ProcessContext.EMPTY_CONTEXT): ProcessContext{
+        return spellContext(context).set(CLOSEST_ENTITY,closest.id)
     }
 
     protected fun closestFromContext(context: ProcessContext, world: World): Entity?{
-        val nbt = context.getNbt()
-        if (!nbt.contains("closest")) return null
-        val id = nbt.getInt("closest")
+        val id = context.get(CLOSEST_ENTITY)
         return world.getEntityById(id)
     }
 

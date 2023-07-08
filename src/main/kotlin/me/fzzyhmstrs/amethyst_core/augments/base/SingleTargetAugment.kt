@@ -33,7 +33,7 @@ abstract class SingleTargetAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(6.0,0.0, 0.0)
 
-    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    override fun <T> applyTasks(world: World, context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     : 
     SpellActionResult 
     where 
@@ -42,8 +42,8 @@ abstract class SingleTargetAugment(
     {
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
         val hit = if (target is EntityHitResult) target else return FAIL
-        val list = spells.processSingleEntityHit(hit,world,null,user, hand, level, effects)
-        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
+        val list = spells.processSingleEntityHit(hit,context,world,null,user, hand, level, effects)
+        list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
 
@@ -65,7 +65,7 @@ abstract class SingleTargetAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
+        val result = entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             castSoundEvent(world,user.blockPos)
         return result

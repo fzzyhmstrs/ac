@@ -33,19 +33,24 @@ abstract class ProjectileAugment(
     ScepterAugment(tier, augmentType)
 {
 
-    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    override fun <T> applyTasks(world: World,context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     : 
     SpellActionResult 
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val list = spells.processOnCast(world,null,user, hand, level, effects)
-        val projectiles = createProjectileEntities(world, user, level, effects, spells)
-        return spawnProjectileEntities(world, user, projectiles, list)
+        val projectiles = createProjectileEntities(world,context, user, level, effects, spells)
+        val result = spawnProjectileEntities(world,context, user, projectiles, mutableListOf())
+        return if (result.success()) {
+            result.withResults(spells.processOnCast(context, world, null, user, hand, level, effects))
+        } else {
+            FAIL
+        }
+
     }
 
-    open fun <T> createProjectileEntities(world: World, user: T, level: Int = 1, effects: AugmentEffect, spells: PairedAugments)
+    open fun <T> createProjectileEntities(world: World, context: ProcessContext, user: T, level: Int = 1, effects: AugmentEffect, spells: PairedAugments)
     : 
     List<ProjectileEntity>
     where 
@@ -60,7 +65,7 @@ abstract class ProjectileAugment(
         return listOf()
     }
 
-    open fun <T> spawnProjectileEntities(world: World, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>)
+    open fun <T> spawnProjectileEntities(world: World, context: ProcessContext, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>)
     : 
     SpellActionResult
     where 
@@ -96,8 +101,8 @@ abstract class ProjectileAugment(
     T: SpellCastingEntity
     {
         if (othersType.empty){
-            val amount = spells.provideDealtDamage(effects.damage(level), spellContext(), entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), spellContext(),entityHitResult, source, user, world, hand, level, effects)
+            val amount = spells.provideDealtDamage(effects.damage(level), context, entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), context,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
             
             return if(bl) {
@@ -108,7 +113,7 @@ abstract class ProjectileAugment(
                 if (entityHitResult.entity.isAlive) {
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.PROJECTILE_HIT)
                 } else {
-                    spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
+                    spells.processOnKill(entityHitResult, context, world, source, user, hand, level, effects)
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.PROJECTILE_HIT, AugmentHelper.KILLED_MOB)
                 }
             } else {

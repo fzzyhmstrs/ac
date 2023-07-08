@@ -57,7 +57,7 @@ abstract class ScepterAugment(
         return augmentData.id
     }
 
-    fun <T> applyModifiableTasks(world: World, user: T, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier, pairedAugments: PairedAugments)
+    fun <T> applyModifiableTasks(world: World, user: T, hand: Hand, level: Int, pairedAugments: PairedAugments, context: ProcessContext = ProcessContext.EMPTY_CONTEXT, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier = AugmentModifier())
     : 
     Boolean
     where 
@@ -71,13 +71,14 @@ abstract class ScepterAugment(
             return false
         }
         val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
-        val bl = applyTasks(world, user, hand, level, effectModifiers, pairedAugments)
+        val bl = applyTasks(world, spellContext(context), user, hand, level, effectModifiers, pairedAugments)
         if (bl.success()) {
             modifiers.forEach {
                 val secondary = it.getSecondaryEffect()
                 if (secondary != null) {
-                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level, listOf(), AugmentModifier(),
-                        PairedAugments(secondary)
+                    it.getSecondaryEffect()?.applyModifiableTasks(world, user, hand, level,PairedAugments(secondary),
+                        ProcessContext.EMPTY_CONTEXT, listOf(), AugmentModifier(),
+
                     )
                 }
             }
@@ -90,7 +91,7 @@ abstract class ScepterAugment(
     /**
      * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
      */
-    abstract fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    abstract fun <T> applyTasks(world: World,context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     : 
     SpellActionResult 
     where 
@@ -242,7 +243,7 @@ abstract class ScepterAugment(
     List<T> 
     where 
     T: Entity,
-    T: ModifiableEffectEntity<T>,
+    T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity
     {
@@ -261,7 +262,7 @@ abstract class ScepterAugment(
     T
     where
     T: Entity,
-    T: ModifiableEffectEntity<T>,
+    T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity
     {
@@ -469,14 +470,12 @@ abstract class ScepterAugment(
         return augmentData.pvpMode
     }
 
-    fun spellContext(): ProcessContext{
-        val nbt = NbtCompound()
-        nbt.putString("spell",this.id.toString())
-        return ProcessContext(spellType,nbt)
+    fun spellContext(context: ProcessContext = ProcessContext.EMPTY_CONTEXT): ProcessContext{
+        return context.set(ProcessContext.SPELL,this.id)
     }
 
     fun spellFromContext(context: ProcessContext): ScepterAugment?{
-        val id = Identifier.tryParse(context.getNbt().getString("spell"))
+        val id = context.get(ProcessContext.SPELL)
         return Registries.ENCHANTMENT.get(id) as? ScepterAugment
     }
 

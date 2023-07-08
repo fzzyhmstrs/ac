@@ -16,7 +16,7 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
 import java.util.concurrent.ConcurrentLinkedQueue
 
-open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity<PlayerItemEntity> {
+open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
 
     constructor (entityType: EntityType<out PlayerItemEntity?>?, world: World?, item: Item):
             super(entityType, world){
@@ -31,17 +31,13 @@ open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity<PlayerItem
     override var entityEffects: AugmentEffect = AugmentEffect()
     override var level: Int = 0
     override var spells: PairedAugments = PairedAugments()
-    override val tickEffects: ConcurrentLinkedQueue<TickEffect> = ConcurrentLinkedQueue()
-    override var processContext: ProcessContext = ProcessContext.EMPTY
+    override var modifiableEffects = ModifiableEffectContainer()
+    override var processContext: ProcessContext = ProcessContext.EMPTY_CONTEXT
     private val item: Item
-
-    override fun tickingEntity(): PlayerItemEntity {
-        return this
-    }
 
     override fun tick() {
         super.tick()
-        tickTickEffects()
+        tickTickEffects(this, processContext)
     }
 
     override fun onCollision(hitResult: HitResult) {

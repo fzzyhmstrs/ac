@@ -32,7 +32,7 @@ abstract class PlaceItemAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(4.5)
 
-    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    override fun <T> applyTasks(world: World, context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     : 
     SpellActionResult
     where 
@@ -42,8 +42,8 @@ abstract class PlaceItemAugment(
         if (user !is ServerPlayerEntity) return FAIL
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
         if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
-            val list = spells.processSingleBlockHit(hit,world,null,user, hand, level, effects)
-            list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
+            val list = spells.processSingleBlockHit(hit,context,world,null,user, hand, level, effects)
+            list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
             castSoundEvent(world, user.blockPos)
             return if (list.isNotEmpty()){
                 SpellActionResult.success(list)
@@ -72,7 +72,7 @@ abstract class PlaceItemAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
+        if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (user !is ServerPlayerEntity) return FAIL
         when (item) {
             is BlockItem -> {
@@ -93,7 +93,7 @@ abstract class PlaceItemAugment(
         }
     }
     
-    open fun <T> customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     SpellActionResult
     where 

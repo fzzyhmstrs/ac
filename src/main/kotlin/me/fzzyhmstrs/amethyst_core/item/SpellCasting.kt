@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.item
 
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import net.minecraft.entity.LivingEntity
@@ -16,7 +17,7 @@ interface SpellCasting {
     where T: LivingEntity,
     T: SpellCastingEntity
     {
-        return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
+        return ScepterHelper.castSpell(world, ProcessContext.EMPTY_CONTEXT,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
     fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
                   testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{

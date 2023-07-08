@@ -33,7 +33,7 @@ abstract class EntityAoeAugment(
     constructor(tier: ScepterTier,
                 positive: Boolean = true): this(tier, if(positive) AugmentType.AOE_POSITIVE else AugmentType.AOE_NEGATIVE)
 
-    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    override fun <T> applyTasks(world: World, context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     : 
     SpellActionResult 
     where 
@@ -42,8 +42,8 @@ abstract class EntityAoeAugment(
     {
         val entityList = RaycasterUtil.raycastEntityArea(effects.range(level), user)
         if (entityList.isEmpty()) return FAIL
-        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
-        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
+        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
+        list.addAll(spells.processOnCast(context, world,null,user, hand, level, effects))
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
 
@@ -65,7 +65,7 @@ abstract class EntityAoeAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
+        val result = entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             castSoundEvent(world,user.blockPos)
         return result

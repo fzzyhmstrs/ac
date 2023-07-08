@@ -15,6 +15,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.BlockPos
@@ -40,7 +41,7 @@ abstract class BeamAugment(
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(7.0,0.0, 0.0)
 
-    override fun <T> applyTasks(world: World,user: T, hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments)
+    override fun <T> applyTasks(world: World,context: ProcessContext,user: T, hand: Hand,level: Int,effects: AugmentEffect,spells: PairedAugments)
     : 
     SpellActionResult
     where 
@@ -63,7 +64,7 @@ abstract class BeamAugment(
                 0.8,
                 0.8)
         if (entityList.isEmpty()) return FAIL
-        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),world,null,user, hand, level, effects)
+        val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
         var range = effects.range(level)
         val blockList: MutableList<BlockHitResult> = mutableListOf()
         do {
@@ -72,9 +73,9 @@ abstract class BeamAugment(
             blockList.add(BlockHitResult(pos, Direction.UP,blockPos,true))
             range -= 1.0
         }while (range > 0.0)
-        val list2 = spells.processMultipleBlockHits(blockList, world, null, user, hand, level, effects)
+        val list2 = spells.processMultipleBlockHits(blockList, context, world, null, user, hand, level, effects)
         list.addAll(list2)
-        list.addAll(spells.processOnCast(world,null,user, hand, level, effects))
+        list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
         castSoundEvent(world,user.blockPos)
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
@@ -101,7 +102,7 @@ abstract class BeamAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult, world, source, user, hand, level, effects, othersType, spells)
+        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             hitSoundEvent(world,user.blockPos)
         return result
@@ -109,6 +110,7 @@ abstract class BeamAugment(
 
     open fun <T> entityEffects(
         entityHitResult: EntityHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: T,
@@ -125,8 +127,8 @@ abstract class BeamAugment(
     T: SpellCastingEntity
     {
         if (othersType.empty){
-            val amount = spells.provideDealtDamage(effects.damage(level), spellContext(), entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), spellContext(),entityHitResult, source, user, world, hand, level, effects)
+            val amount = spells.provideDealtDamage(effects.damage(level), context, entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), context, entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
 
             return if(bl) {
@@ -134,11 +136,15 @@ abstract class BeamAugment(
                 splashParticles(entityHitResult,world,pos.x,pos.y,pos.z,spells)
                 user.applyDamageEffects(user,entityHitResult.entity)
                 hitSoundEvent(world, entityHitResult.entity.blockPos)
+                val list: MutableList<Identifier> = mutableListOf()
                 if (entityHitResult.entity.isAlive) {
-                    SpellActionResult.success(AugmentHelper.DAMAGED_MOB)
+                    list.add(AugmentHelper.DAMAGED_MOB)
+                    SpellActionResult.success(list)
                 } else {
-                    spells.processOnKill(entityHitResult, world, source, user, hand, level, effects)
-                    SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.KILLED_MOB)
+                    list.add(AugmentHelper.DAMAGED_MOB)
+                    list.add(AugmentHelper.KILLED_MOB)
+                    spells.processOnKill(entityHitResult,context, world, source, user, hand, level, effects)
+                    SpellActionResult.success(list)
                 }
             } else {
                 FAIL
@@ -165,7 +171,7 @@ abstract class BeamAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = blockEffects(blockHitResult, world, source, user, hand, level, effects, othersType, spells)
+        val result = blockEffects(blockHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
             hitSoundEvent(world,user.blockPos)
         return result
@@ -173,6 +179,7 @@ abstract class BeamAugment(
 
     open fun <T> blockEffects(
         blockHitResult: BlockHitResult,
+        context: ProcessContext,
         world: World,
         source: Entity?,
         user: T,

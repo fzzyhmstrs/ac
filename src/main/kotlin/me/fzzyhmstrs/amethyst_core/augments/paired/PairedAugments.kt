@@ -190,7 +190,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return processOnCast(ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        return processOnCast(ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     fun <T> processOnCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     : 
@@ -229,7 +229,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: SpellCastingEntity
     {
         return processMultipleEntityHits(entityHitResults,
-            ProcessContext.EMPTY, world, source, user, hand, level, effects)
+            ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     
     fun <T> processMultipleEntityHits(entityHitResults: List<EntityHitResult>, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -264,7 +264,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return processSingleEntityHit(entityHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        return processSingleEntityHit(entityHitResult, ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     fun <T> processSingleEntityHit(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     : 
@@ -322,7 +322,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return processMultipleBlockHits(blockHitResults, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        return processMultipleBlockHits(blockHitResults, ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     
     fun <T> processMultipleBlockHits(blockHitResults: List<BlockHitResult>, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -353,7 +353,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return processSingleBlockHit(blockHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        return processSingleBlockHit(blockHitResult, ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     
     fun <T> processSingleBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -408,7 +408,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        processMultipleOnKill(list,ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        processMultipleOnKill(list,ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     fun <T> processMultipleOnKill(list: List<EntityHitResult>,processContext: ProcessContext, world: World,source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     where
@@ -417,7 +417,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     {
         for (entityHitResult in list) {
             if (!entityHitResult.entity.isAlive)
-                processOnKill(entityHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+                processOnKill(entityHitResult, ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
         }
     }
     fun <T> processOnKill(entityHitResult: EntityHitResult, world: World,source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -425,7 +425,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        processOnKill(entityHitResult, ProcessContext.EMPTY, world, source, user, hand, level, effects)
+        processOnKill(entityHitResult, ProcessContext.EMPTY_CONTEXT, world, source, user, hand, level, effects)
     }
     fun <T> processOnKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     where 
@@ -540,7 +540,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     : List<T>
     where 
     T: Entity,
-    T: ModifiableEffectEntity<T>,
+    T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity
     {
@@ -555,18 +555,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             : T
             where
             T: Entity,
-            T: ModifiableEffectEntity<T>,
+            T: ModifiableEffectEntity,
             U: LivingEntity,
             U: SpellCastingEntity
     {
-        return provideProjectile(projectile, ProcessContext.EMPTY, user, world, hand, level, effects)
+        return provideProjectile(projectile, ProcessContext.EMPTY_CONTEXT, user, world, hand, level, effects)
     }
 
     fun <T, U> provideProjectile(projectile: T, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
             : T
             where
             T: Entity,
-            T: ModifiableEffectEntity<T>,
+            T: ModifiableEffectEntity,
             U: LivingEntity,
             U: SpellCastingEntity
     {

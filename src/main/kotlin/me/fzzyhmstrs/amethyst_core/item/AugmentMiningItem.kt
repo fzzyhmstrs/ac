@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.item
 import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier.ModifierHelper
@@ -179,7 +180,7 @@ abstract class AugmentMiningItem(
         pairedAugments: PairedAugments,
         testLevel: Int
     ): TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
-        return ScepterHelper.castSpell(world,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
+        return ScepterHelper.castSpell(world,ProcessContext.EMPTY_CONTEXT,user,hand,stack,activeEnchantId,spell,pairedAugments,testLevel,this)
     }
 
     override fun clientUse(

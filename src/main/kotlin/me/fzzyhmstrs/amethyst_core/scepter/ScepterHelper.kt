@@ -5,6 +5,7 @@ import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
@@ -101,6 +102,7 @@ object ScepterHelper {
 
     fun <T> castSpell(
         world: World,
+        context: ProcessContext,
         user: T,
         hand: Hand,
         stack: ItemStack,
@@ -135,7 +137,7 @@ object ScepterHelper {
             val manaCost = AugmentHelper.getEffectiveManaCost(pairedAugments,modifiers.compiledData.manaCostModifier,level,user)
             //val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
-            if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData, pairedAugments)) {
+            if (spell.applyModifiableTasks(world, user, hand, level, pairedAugments, context, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
                 if (incrementStats) {
                     incrementScepterStats(

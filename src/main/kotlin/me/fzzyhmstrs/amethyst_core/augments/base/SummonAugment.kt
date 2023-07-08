@@ -29,13 +29,13 @@ abstract class SummonAugment<E>(
     ScepterAugment(tier, augmentType)
     where
     E: Entity,
-    E: ModifiableEffectEntity<E>
+    E: ModifiableEffectEntity
 {
 
     override val baseEffect: AugmentEffect
         get() = AugmentEffect().withRange(3.0)
 
-    override fun <T> applyTasks(world: World, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
+    override fun <T> applyTasks(world: World, context: ProcessContext, user: T, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments)
     :
     SpellActionResult
     where
@@ -48,12 +48,17 @@ abstract class SummonAugment<E>(
             includeFluids = true
         ) ?: BlockHitResult(user.pos,Direction.UP,user.blockPos,false)
         val list = if (hit is BlockHitResult) {
-            spells.processSingleBlockHit(hit, world, null, user, hand, level, effects)
+            spells.processSingleBlockHit(hit, context, world, null, user, hand, level, effects)
         } else {
             val entityHitResult = EntityHitResult(user)
-            spells.processSingleEntityHit(entityHitResult,world,null,user, hand, level, effects)
+            spells.processSingleEntityHit(entityHitResult,context,world,null,user, hand, level, effects)
         }
-        return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
+        return if (list.isEmpty()) {
+            FAIL
+        } else {
+            list.addAll(spells.processOnCast(context,world,null,user,hand, level, effects))
+            SpellActionResult.success(list)
+        }
     }
 
     override fun <T> onBlockHit(
@@ -74,9 +79,14 @@ abstract class SummonAugment<E>(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = spawnEntities<E,T>(blockHitResult, context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success()){
-            castSoundEvent(world,user.blockPos)
+        val result = if (context.get(SUMMONED_MOB)){
+            afterSummonBlockEffects(blockHitResult, context, world, source, user, hand, level, effects, othersType, spells)
+        } else {
+            val temp = spawnEntities<E, T>(blockHitResult, context, world, source, user, hand, level, effects, othersType, spells)
+            if (temp.success()){
+                castSoundEvent(world,user.blockPos)
+            }
+            temp
         }
         return result
     }
@@ -99,10 +109,16 @@ abstract class SummonAugment<E>(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = spawnEntities<E,T>(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success()){
-            castSoundEvent(world,user.blockPos)
+        val result = if (context.get(SUMMONED_MOB)){
+            afterSummonEntityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
+        } else {
+            val temp = spawnEntities<E, T>(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
+            if (temp.success()){
+                castSoundEvent(world,user.blockPos)
+            }
+            temp
         }
+
         return result
     }
 
@@ -121,17 +137,19 @@ abstract class SummonAugment<E>(
     SpellActionResult
     where
     T: Entity,
-    T: ModifiableEffectEntity<T>,
+    T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity
     {
         if (othersType.empty){
+            summonContext(context)
             val startCount = spawnCount(user,effects, othersType, spells)
-            val count = spells.provideCount(startCount, spellContext(), user, world, hand, level, effects, othersType, spells)
+            val count = spells.provideCount(startCount, context, user, world, hand, level, effects, othersType, spells)
             val startList: List<T> = entitiesToSpawn(world,user,hit,level,effects, count)
-            val list = spells.provideSummons(startList, spellContext(), user, world, hand, level, effects)
+            val list = spells.provideSummons(startList, context, user, world, hand, level, effects)
             var successes = 0
             for (entity in list){
+                entity.passContext(context)
                 if (world.spawnEntity(entity)) successes++
             }
             return if (successes > 0) {
@@ -148,7 +166,7 @@ abstract class SummonAugment<E>(
     List<T>
     where
     T: Entity,
-    T: ModifiableEffectEntity<T>
+    T: ModifiableEffectEntity
     {
         return listOf()
     }
@@ -161,5 +179,55 @@ abstract class SummonAugment<E>(
     T: SpellCastingEntity
     {
         return 1
+    }
+
+    open fun <T> afterSummonBlockEffects(
+        blockHitResult: BlockHitResult,
+        context: ProcessContext,
+        world: World,
+        source: Entity?,
+        user: T,
+        hand: Hand,
+        level: Int,
+        effects: AugmentEffect,
+        othersType: AugmentType,
+        spells: PairedAugments
+    )
+            :
+            SpellActionResult
+            where
+            T: LivingEntity,
+            T: SpellCastingEntity
+    {
+        return SUCCESSFUL_PASS
+    }
+
+    open fun <T> afterSummonEntityEffects(
+        entityHitResult: EntityHitResult,
+        context: ProcessContext,
+        world: World,
+        source: Entity?,
+        user: T,
+        hand: Hand,
+        level: Int,
+        effects: AugmentEffect,
+        othersType: AugmentType,
+        spells: PairedAugments
+    )
+    :
+    SpellActionResult
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return SUCCESSFUL_PASS
+    }
+
+    fun summonContext(context: ProcessContext): ProcessContext{
+        return context.set(SUMMONED_MOB, true).set(ProcessContext.FROM_ENTITY,true)
+    }
+
+    companion object{
+        val SUMMONED_MOB = object : ProcessContext.Data<Boolean>("mob_is_summoned",ProcessContext.BooleanDataType){}
     }
 }
