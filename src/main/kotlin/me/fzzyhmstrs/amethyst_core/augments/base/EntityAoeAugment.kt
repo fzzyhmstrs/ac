@@ -44,7 +44,12 @@ abstract class EntityAoeAugment(
         if (entityList.isEmpty()) return FAIL
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
         list.addAll(spells.processOnCast(context, world,null,user, hand, level, effects))
-        return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
+        return if (list.isEmpty()) {
+            FAIL
+        } else {
+            castSoundEvent(world,user.blockPos,context)
+            SpellActionResult.success(list)
+        }
     }
 
     override fun <T> onEntityHit(
@@ -59,16 +64,13 @@ abstract class EntityAoeAugment(
         othersType: AugmentType,
         spells: PairedAugments
     )
-    : 
-    SpellActionResult 
-    where 
-    T: LivingEntity,
-    T: SpellCastingEntity
+    :
+    SpellActionResult
+    where
+    T : LivingEntity,
+    T : SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success())
-            castSoundEvent(world,user.blockPos)
-        return result
+        return entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
 
     open fun <T> entityEffects(

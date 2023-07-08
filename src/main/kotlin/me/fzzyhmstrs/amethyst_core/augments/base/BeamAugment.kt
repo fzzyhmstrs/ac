@@ -76,7 +76,7 @@ abstract class BeamAugment(
         val list2 = spells.processMultipleBlockHits(blockList, context, world, null, user, hand, level, effects)
         list.addAll(list2)
         list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
-        castSoundEvent(world,user.blockPos)
+        spells.castSoundEvents(world,user.blockPos,context)
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
 
@@ -102,10 +102,7 @@ abstract class BeamAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success())
-            hitSoundEvent(world,user.blockPos)
-        return result
+        return entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
     }
 
     open fun <T> entityEffects(
@@ -135,7 +132,7 @@ abstract class BeamAugment(
                 val pos = source?.pos?:entityHitResult.entity.pos
                 splashParticles(entityHitResult,world,pos.x,pos.y,pos.z,spells)
                 user.applyDamageEffects(user,entityHitResult.entity)
-                hitSoundEvent(world, entityHitResult.entity.blockPos)
+                spells.hitSoundEvents(world, entityHitResult.entity.blockPos, context)
                 val list: MutableList<Identifier> = mutableListOf()
                 if (entityHitResult.entity.isAlive) {
                     list.add(AugmentHelper.DAMAGED_MOB)
@@ -165,16 +162,13 @@ abstract class BeamAugment(
         othersType: AugmentType,
         spells: PairedAugments
     )
-    : 
-    SpellActionResult 
-    where 
-    T: LivingEntity,
-    T: SpellCastingEntity
+    :
+    SpellActionResult
+    where
+    T : LivingEntity,
+    T : SpellCastingEntity
     {
-        val result = blockEffects(blockHitResult,context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success())
-            hitSoundEvent(world,user.blockPos)
-        return result
+        return blockEffects(blockHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
 
     open fun <T> blockEffects(

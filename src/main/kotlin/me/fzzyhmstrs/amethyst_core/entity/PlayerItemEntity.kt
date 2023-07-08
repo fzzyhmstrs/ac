@@ -56,6 +56,7 @@ open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
+            processContext.beforeRemoval()
             spells.processSingleEntityHit(entityHitResult,processContext,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
                 spells.processOnKill(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
@@ -74,6 +75,7 @@ open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     open fun onItemBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
+            processContext.beforeRemoval()
             spells.processSingleBlockHit(blockHitResult,processContext,world,this,entity, Hand.MAIN_HAND,level,entityEffects)
         }
     }

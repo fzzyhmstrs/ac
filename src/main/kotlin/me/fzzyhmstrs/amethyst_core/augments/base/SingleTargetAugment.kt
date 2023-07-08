@@ -67,7 +67,7 @@ abstract class SingleTargetAugment(
     {
         val result = entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
         if (result.success())
-            castSoundEvent(world,user.blockPos)
+            spells.castSoundEvents(world,user.blockPos,context)
         return result
     }
 

@@ -44,7 +44,7 @@ abstract class PlaceItemAugment(
         if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
             val list = spells.processSingleBlockHit(hit,context,world,null,user, hand, level, effects)
             list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
-            castSoundEvent(world, user.blockPos)
+            spells.castSoundEvents(world, user.blockPos, context)
             return if (list.isNotEmpty()){
                 SpellActionResult.success(list)
             } else {
@@ -78,13 +78,13 @@ abstract class PlaceItemAugment(
             is BlockItem -> {
                 val stack = itemToPlace(world,user)
                 if (!item.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
-                hitSoundEvent(world, blockHitResult.blockPos)
+                spells.hitSoundEvents(world, blockHitResult.blockPos,context)
                 //sendItemPacket(user, stack, hand, hit)
                 return SpellActionResult.success(AugmentHelper.BLOCK_PLACED)
             }
             is BucketItem -> {
                 if (!item.placeFluid(user,world,blockHitResult.blockPos,blockHitResult)) return FAIL
-                hitSoundEvent(world, blockHitResult.blockPos)
+                spells.hitSoundEvents(world, blockHitResult.blockPos, context)
                 return SpellActionResult.success(AugmentHelper.BLOCK_PLACED)
             }
             else -> {
@@ -103,7 +103,7 @@ abstract class PlaceItemAugment(
         return SUCCESSFUL_PASS
     }
     
-    override fun hitSoundEvent(world: World, blockPos: BlockPos){
+    override fun hitSoundEvent(world: World, blockPos: BlockPos, context: ProcessContext){
         if (item is BlockItem){
             val group = item.block.defaultState.soundGroup
             val sound = group.placeSound

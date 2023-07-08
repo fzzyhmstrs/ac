@@ -41,7 +41,7 @@ abstract class ProjectileAugment(
     T: SpellCastingEntity
     {
         val projectiles = createProjectileEntities(world,context, user, level, effects, spells)
-        val result = spawnProjectileEntities(world,context, user, projectiles, mutableListOf())
+        val result = spawnProjectileEntities(world,context, user, projectiles, mutableListOf(), spells)
         return if (result.success()) {
             result.withResults(spells.processOnCast(context, world, null, user, hand, level, effects))
         } else {
@@ -65,7 +65,7 @@ abstract class ProjectileAugment(
         return listOf()
     }
 
-    open fun <T> spawnProjectileEntities(world: World, context: ProcessContext, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>)
+    open fun <T> spawnProjectileEntities(world: World, context: ProcessContext, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>, spells: PairedAugments)
     : 
     SpellActionResult
     where 
@@ -77,7 +77,7 @@ abstract class ProjectileAugment(
             if(world.spawnEntity(projectile)) success++
         }
         if(success > 0) {
-            castSoundEvent(world, user.blockPos)
+            spells.castSoundEvents(world, user.blockPos, context)
             list.add(AugmentHelper.PROJECTILE_FIRED)
         }
         return if(list.isNotEmpty()) SpellActionResult.success(list) else FAIL
@@ -109,7 +109,7 @@ abstract class ProjectileAugment(
                 val pos = source?.pos?:entityHitResult.entity.pos
                 splashParticles(entityHitResult,world,pos.x,pos.y,pos.z,spells)
                 user.applyDamageEffects(user,entityHitResult.entity)
-                hitSoundEvent(world, entityHitResult.entity.blockPos)
+                spells.hitSoundEvents(world, entityHitResult.entity.blockPos,context)
                 if (entityHitResult.entity.isAlive) {
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.PROJECTILE_HIT)
                 } else {
@@ -144,7 +144,7 @@ abstract class ProjectileAugment(
         val pos = source?.pos?: blockHitResult.pos
         splashParticles(blockHitResult,world,pos.x,pos.y,pos.z,spells)
         if (othersType == AugmentType.EMPTY){
-            hitSoundEvent(world, blockHitResult.blockPos)
+            spells.hitSoundEvents(world, blockHitResult.blockPos,context)
             return SpellActionResult.success(AugmentHelper.BLOCK_HIT)
         }
         return SUCCESSFUL_PASS

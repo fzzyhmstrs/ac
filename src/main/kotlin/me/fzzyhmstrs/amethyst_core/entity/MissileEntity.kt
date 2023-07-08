@@ -127,6 +127,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
+            processContext.beforeRemoval()
             spells.processSingleEntityHit(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
                 spells.processOnKill(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
@@ -145,6 +146,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
+            processContext.beforeRemoval()
             spells.processSingleBlockHit(blockHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
         }
     }

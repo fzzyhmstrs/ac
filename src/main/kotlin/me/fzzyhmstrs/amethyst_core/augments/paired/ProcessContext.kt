@@ -18,6 +18,15 @@ class ProcessContext(private val data: NbtCompound) {
         return this
     }
 
+    fun beforeRemoval(): ProcessContext{
+        set(BEFORE_REMOVAL,true)
+        return this
+    }
+
+    fun isBeforeRemoval(): Boolean{
+        return get(BEFORE_REMOVAL)
+    }
+
     fun writeNbt(): NbtCompound{
         val nbtCompound = NbtCompound()
         nbtCompound.put("data", data.copy())
@@ -30,6 +39,7 @@ class ProcessContext(private val data: NbtCompound) {
         val ENTITY_TYPE = object : Data<Identifier>("entity_type_id",IdentifierDataType){}
         val FROM_ENTITY = object : Data<Boolean>("from_entity",BooleanDataType){}
         val SPELL = object : Data<Identifier>("spell_id",IdentifierDataType){}
+        private val BEFORE_REMOVAL = object : Data<Boolean>("before_removal",BooleanDataType){}
 
         val EMPTY_CONTEXT: ProcessContext
             get() = ProcessContext()

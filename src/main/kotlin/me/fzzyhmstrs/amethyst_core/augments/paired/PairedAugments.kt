@@ -158,15 +158,15 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
 
-    fun castSoundEvents(world: World, blockPos: BlockPos){
+    fun castSoundEvents(world: World, blockPos: BlockPos, context: ProcessContext){
         for (spell in augments){
-            spell.castSoundEvent(world, blockPos)
+            spell.castSoundEvent(world, blockPos, context)
         }
     }
 
-    fun hitSoundEvents(world: World, blockPos: BlockPos){
+    fun hitSoundEvents(world: World, blockPos: BlockPos, context: ProcessContext){
         for (spell in augments){
-            spell.hitSoundEvent(world, blockPos)
+            spell.hitSoundEvent(world, blockPos, context)
         }
     }
 

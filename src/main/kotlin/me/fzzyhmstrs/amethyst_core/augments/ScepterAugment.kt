@@ -311,13 +311,13 @@ abstract class ScepterAugment(
     /**
      * sound event to be played on cast
      */
-    open fun castSoundEvent(world: World, blockPos: BlockPos){
+    open fun castSoundEvent(world: World, blockPos: BlockPos, context: ProcessContext){
     }
 
     /**
      * sound event to be played on hit
      */
-    open fun hitSoundEvent(world: World, blockPos: BlockPos){
+    open fun hitSoundEvent(world: World, blockPos: BlockPos, context: ProcessContext){
     }
 
     /**

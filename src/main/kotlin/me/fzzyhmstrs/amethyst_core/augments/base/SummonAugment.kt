@@ -84,7 +84,7 @@ abstract class SummonAugment<E>(
         } else {
             val temp = spawnEntities<E, T>(blockHitResult, context, world, source, user, hand, level, effects, othersType, spells)
             if (temp.success()){
-                castSoundEvent(world,user.blockPos)
+                spells.castSoundEvents(world,user.blockPos,context)
             }
             temp
         }
@@ -114,7 +114,7 @@ abstract class SummonAugment<E>(
         } else {
             val temp = spawnEntities<E, T>(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
             if (temp.success()){
-                castSoundEvent(world,user.blockPos)
+                spells.castSoundEvents(world, user.blockPos, context)
             }
             temp
         }

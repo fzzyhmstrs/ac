@@ -80,7 +80,7 @@ abstract class SlashAugment(
         } else {
             listOf(AugmentHelper.DRY_FIRED)
         }
-        castSoundEvent(world, user.blockPos)
+        spells.castSoundEvents(world, user.blockPos,context)
         val buf = ScepterHelper.prepareParticlePacket(adderId,spells.getCastParticleType())
         buf.writeInt(level)
         ScepterHelper.sendSpellParticlesFromServer(world,user.pos,buf)
@@ -130,7 +130,7 @@ abstract class SlashAugment(
 
             return if(bl) {
                 user.applyDamageEffects(user,entityHitResult.entity)
-                hitSoundEvent(world, entityHitResult.entity.blockPos)
+                spells.hitSoundEvents(world, entityHitResult.entity.blockPos,context)
                 if (entityHitResult.entity.isAlive) {
                     SpellActionResult.success(AugmentHelper.DAMAGED_MOB, AugmentHelper.SLASHED)
                 } else {
