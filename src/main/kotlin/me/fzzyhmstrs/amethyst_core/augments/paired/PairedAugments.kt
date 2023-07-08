@@ -555,12 +555,31 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     {
         return if (type == Type.PAIRED){
             if (cause == augments[0]) {
-                augments[1].modifySummons(summons,cause, user, world, hand, level, effects, augments[0].augmentType, this)
+                augments[1].modifySummons(summons, cause, user, world, hand, level, effects, augments[0].augmentType, this)
             } else {
-                augments[0].modifySummons(summons,cause, user, world, hand, level, effects, augments[1].augmentType, this)
+                augments[0].modifySummons(summons, cause, user, world, hand, level, effects, augments[1].augmentType, this)
             }
         } else {
             summons
+        }
+    }
+
+    fun <T, U> provideProjectile(projectile: T, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+            : T
+            where
+            T: Entity,
+            T: ModifiableEffectEntity<T>,
+            U: LivingEntity,
+            U: SpellCastingEntity
+    {
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifyProjectile(projectile, cause, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                augments[0].modifyProjectile(projectile, cause, user, world, hand, level, effects, augments[1].augmentType, this)
+            }
+        } else {
+            projectile
         }
     }
 
@@ -579,6 +598,24 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             }
         } else {
             drops
+        }
+    }
+
+    fun <T> provideCount(start: Int, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    :
+    Int
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return if (type == Type.PAIRED){
+            if (cause == augments[0]) {
+                augments[1].modifyCount(start,cause, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                augments[0].modifyCount(start,cause, user, world, hand, level, effects, augments[1].augmentType, this)
+            }
+        } else {
+            start
         }
     }
     

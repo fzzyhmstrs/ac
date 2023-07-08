@@ -31,6 +31,10 @@ interface ModifiableEffectEntity<T: Entity> {
         this.spells = spells
     }
 
+    fun passContext(context: ProcessContext){
+        this.processContext = context
+    }
+
     fun writeModifiableNbt(nbtCompound: NbtCompound){
         val modifiableNbt = NbtCompound()
         modifiableNbt.put("entityEffects",entityEffects.writeNbt())

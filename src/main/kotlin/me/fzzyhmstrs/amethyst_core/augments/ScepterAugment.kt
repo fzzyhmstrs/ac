@@ -245,6 +245,25 @@ abstract class ScepterAugment(
     }
 
     /**
+     * Modifies (or replaces) projectiles for use in missile or other ranged contexts
+     *
+     * A common usage would be to replace a default projectile with a new one like ShardEntity -> MissileEntity
+     *
+     *
+     */
+    open fun <T, U> modifyProjectile(projectile: T, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    :
+    T
+    where
+    T: Entity,
+    T: ModifiableEffectEntity<T>,
+    U: LivingEntity,
+    U: SpellCastingEntity
+    {
+        return projectile
+    }
+
+    /**
      * Uses an explosion builder to create a custom explosion
      *
      * Use to do things like changing the blocks that are created (snow instead of fire, for example)
@@ -274,6 +293,15 @@ abstract class ScepterAugment(
         return stacks
     }
 
+    fun <T> modifyCount(start: Int, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    :
+    Int
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return start
+    }
     /**
      * sound event to be played on cast
      */

@@ -20,6 +20,7 @@ import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileCount
 
 abstract class SummonAugment<E>(
     tier: ScepterTier,
@@ -125,7 +126,9 @@ abstract class SummonAugment<E>(
     U: SpellCastingEntity
     {
         if (othersType.empty){
-            val startList: List<T> = entitiesToSpawn(world,user,hit,level,effects)
+            val startCount = spawnCount(user,effects, othersType, spells)
+            val count = spells.provideCount(startCount,this,user,world, hand, level, effects, othersType, spells)
+            val startList: List<T> = entitiesToSpawn(world,user,hit,level,effects, count)
             val list = spells.provideSummons(startList,this,user, world, hand, level, effects)
             var successes = 0
             for (entity in list){
@@ -140,7 +143,7 @@ abstract class SummonAugment<E>(
         return SUCCESSFUL_PASS
     }
 
-    open fun <T> entitiesToSpawn(world: World, user: LivingEntity, hit: HitResult, level: Int, effects: AugmentEffect)
+    open fun <T> entitiesToSpawn(world: World, user: LivingEntity, hit: HitResult, level: Int, effects: AugmentEffect, count: Int)
     :
     List<T>
     where
@@ -148,5 +151,15 @@ abstract class SummonAugment<E>(
     T: ModifiableEffectEntity<T>
     {
         return listOf()
+    }
+
+    open fun <T> spawnCount(user: T,effects: AugmentEffect,othersType: AugmentType, spells: PairedAugments)
+    :
+    Int
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return 1
     }
 }
