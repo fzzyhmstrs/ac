@@ -2,7 +2,9 @@ package me.fzzyhmstrs.amethyst_core.modifier
 
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -51,6 +53,10 @@ data class XpModifiers(var furyXpMod: Int = 0, var witXpMod: Int = 0, var graceX
     fun withGraceMod(graceXpMod: Int = 0): XpModifiers {
         return this.copy(graceXpMod = graceXpMod)
     }
+}
+
+fun MutableList<Text>.addLang(key: String, vararg args: Any){
+    this.add(AcText.translatable(key, args))
 }
 
 

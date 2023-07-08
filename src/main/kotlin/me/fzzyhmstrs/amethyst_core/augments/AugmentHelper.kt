@@ -309,12 +309,16 @@ object AugmentHelper {
         return testLevel
     }
 
-    fun getAugmentImbueLevel(id: Identifier, multiplier: Float = 1f): Int{
+    fun getAugmentImbueLevel(id: Identifier, multiplier: Float = 1f): Int {
         return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
     }
 
     fun getAugmentImbueLevel(id: String, multiplier: Float = 1f): Int{
         return getScepterAugment(id)?.augmentData?.imbueLevel?.times(multiplier)?.toInt() ?: 1
+    }
+
+    fun setAugmentImbueLevel(id: Identifier, level: Int){
+        getScepterAugment(id)?.augmentData?.imbueLevel = level
     }
     
     fun getAugmentEnabled(id: String): Boolean {

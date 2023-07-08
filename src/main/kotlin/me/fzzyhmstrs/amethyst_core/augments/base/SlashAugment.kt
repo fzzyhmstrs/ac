@@ -33,7 +33,7 @@ import java.util.*
 @Suppress("SameParameterValue")
 abstract class SlashAugment(
     tier: ScepterTier,
-    augmentType: AugmentType = AugmentType.BOLT)
+    augmentType: AugmentType = AugmentType.AREA_DAMAGE)
     :
     ScepterAugment(tier, augmentType)
 {
