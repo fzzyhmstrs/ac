@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.paired.DamageSourceBuilder
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.enchantment.Enchantments
@@ -23,7 +24,7 @@ class FlameBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"flame_boost"), E
 
     override fun modifyDamage(
         amount: Float,
-        cause: ScepterAugment,
+        context: ProcessContext,
         entityHitResult: EntityHitResult,
         user: LivingEntity,
         world: World,
@@ -36,6 +37,6 @@ class FlameBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"flame_boost"), E
         if (entity is LivingEntity){
             entity.setOnFireFor(2)
         }
-        return super.modifyDamage(amount, cause, entityHitResult, user, world, hand, level, effects, spells)
+        return super.modifyDamage(amount, context, entityHitResult, user, world, hand, level, effects, spells)
     }
 }

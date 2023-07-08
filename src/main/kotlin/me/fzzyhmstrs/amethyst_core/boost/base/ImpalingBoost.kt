@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.boost.base
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.enchantment.Enchantments
@@ -17,7 +18,7 @@ class ImpalingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"impaling_boos
 
     override fun modifyDamage(
         amount: Float,
-        cause: ScepterAugment,
+        context: ProcessContext,
         entityHitResult: EntityHitResult,
         user: LivingEntity,
         world: World,

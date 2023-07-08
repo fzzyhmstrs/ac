@@ -127,9 +127,9 @@ abstract class SummonAugment<E>(
     {
         if (othersType.empty){
             val startCount = spawnCount(user,effects, othersType, spells)
-            val count = spells.provideCount(startCount,this,user,world, hand, level, effects, othersType, spells)
+            val count = spells.provideCount(startCount, spellContext(), user, world, hand, level, effects, othersType, spells)
             val startList: List<T> = entitiesToSpawn(world,user,hit,level,effects, count)
-            val list = spells.provideSummons(startList,this,user, world, hand, level, effects)
+            val list = spells.provideSummons(startList, spellContext(), user, world, hand, level, effects)
             var successes = 0
             for (entity in list){
                 if (world.spawnEntity(entity)) successes++

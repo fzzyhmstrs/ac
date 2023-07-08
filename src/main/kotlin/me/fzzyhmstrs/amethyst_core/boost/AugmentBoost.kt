@@ -28,7 +28,7 @@ abstract class AugmentBoost(val id: Identifier) {
     open fun modifyStack(stack: ItemStack): ItemStack{
         return stack
     }
-    open fun modifyDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): Float{
+    open fun modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): Float{
         return amount
     }
     open fun onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments) {

@@ -506,7 +506,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return lvl
     }
 
-    fun <T> provideDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T> provideDealtDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     : 
     Float
     where 
@@ -514,18 +514,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: SpellCastingEntity
     {
         val amount1 = if (type == Type.PAIRED){
-            if (cause == augments[0]){
-                augments[1].modifyDealtDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
-            } else {
-                augments[0].modifyDealtDamage(amount,cause, entityHitResult, user, world, hand, level, effects, augments[1].augmentType, this)
-            }
+            augments[1].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             amount
         }
-        return boost?.modifyDamage(amount1, cause, entityHitResult, user, world, hand, level, effects, this) ?: amount1
+        return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, level, effects, this) ?: amount1
     }
     
-    fun <T> provideDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T> provideDamageSource(builder: DamageSourceBuilder, context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     : 
     DamageSource
     where 
@@ -533,19 +529,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]){
-                val mod = augments[1].modifyDamageSource(builder, cause, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
+                val mod = augments[1].modifyDamageSource(builder, context, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
                 boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
-            } else {
-                val mod = augments[0].modifyDamageSource(builder,cause, entityHitResult, source, user, world, hand, level, effects, augments[1].augmentType, this)
-                boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
-            }
         } else {
             boost?.modifyDamageSource(builder,user,source)?.build()?:builder.build()
         }
     }
     
-    fun <T, U> provideSummons(summons: List<T>, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T, U> provideSummons(summons: List<T>, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     : List<T>
     where 
     T: Entity,
@@ -554,17 +545,24 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     U: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifySummons(summons, cause, user, world, hand, level, effects, augments[0].augmentType, this)
-            } else {
-                augments[0].modifySummons(summons, cause, user, world, hand, level, effects, augments[1].augmentType, this)
-            }
+            augments[1].modifySummons(summons, context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             summons
         }
     }
 
-    fun <T, U> provideProjectile(projectile: T, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T, U> provideProjectile(projectile: T, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+            : T
+            where
+            T: Entity,
+            T: ModifiableEffectEntity<T>,
+            U: LivingEntity,
+            U: SpellCastingEntity
+    {
+        return provideProjectile(projectile, ProcessContext.EMPTY, user, world, hand, level, effects)
+    }
+
+    fun <T, U> provideProjectile(projectile: T, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
             : T
             where
             T: Entity,
@@ -573,17 +571,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             U: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifyProjectile(projectile, cause, user, world, hand, level, effects, augments[0].augmentType, this)
-            } else {
-                augments[0].modifyProjectile(projectile, cause, user, world, hand, level, effects, augments[1].augmentType, this)
-            }
+                augments[1].modifyProjectile(projectile, context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             projectile
         }
     }
 
-    fun <T> provideDrops(drops: List<ItemStack>, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T> provideDrops(drops: List<ItemStack>, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     : 
     List<ItemStack>
     where 
@@ -591,17 +585,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifyDrops(drops,cause, user, world, hand, level, effects, augments[0].augmentType, this)
-            } else {
-                augments[0].modifyDrops(drops,cause, user, world, hand, level, effects, augments[1].augmentType, this)
-            }
+            augments[1].modifyDrops(drops,context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             drops
         }
     }
 
-    fun <T> provideCount(start: Int, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    fun <T> provideCount(start: Int, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     :
     Int
     where
@@ -609,11 +599,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifyCount(start,cause, user, world, hand, level, effects, augments[0].augmentType, this)
-            } else {
-                augments[0].modifyCount(start,cause, user, world, hand, level, effects, augments[1].augmentType, this)
-            }
+            augments[1].modifyCount(start,context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             start
         }
@@ -655,17 +641,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return a + c
     }
 
-    fun <T> causeExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T> causeExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            if (cause == augments[0]) {
-                augments[1].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
-            } else {
-                augments[0].modifyExplosion(builder,cause, user, world, hand, level, effects, augments[1].augmentType, this).explode(world)
-            }
+                augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
         } else {
             builder.explode(world)
         }

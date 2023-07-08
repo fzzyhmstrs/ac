@@ -52,13 +52,12 @@ abstract class ProjectileAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val me = MissileEntity(world, user)
-        val direction = user.getRotationVec3d()
-        me.setVelocity(user,user.pitch,user.yaw,0.0f,
-            2.0f,
-            0.1f)
-        me.passEffects(spells,effects,level)
-        return listOf(me)
+        //val me = MissileEntity(world, user)
+        //val direction = user.rotationVec3d
+        //me.setVelocity(direction.x,direction.y,direction.z, 2.0f, 0.1f)
+        //me.passEffects(spells,effects,level)
+        //val finalMe = spells.provideProjectile(me, user, world, Hand.MAIN_HAND, level, effects)
+        return listOf()
     }
 
     open fun <T> spawnProjectileEntities(world: World, user: T, projectiles: List<ProjectileEntity>, list: MutableList<Identifier>)
@@ -97,8 +96,8 @@ abstract class ProjectileAugment(
     T: SpellCastingEntity
     {
         if (othersType.empty){
-            val amount = spells.provideDealtDamage(effects.damage(level),this, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
+            val amount = spells.provideDealtDamage(effects.damage(level), spellContext(), entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), spellContext(),entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
             
             return if(bl) {

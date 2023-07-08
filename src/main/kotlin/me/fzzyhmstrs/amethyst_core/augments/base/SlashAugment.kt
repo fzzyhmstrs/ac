@@ -129,8 +129,8 @@ abstract class SlashAugment(
             val baseDamage = effects.damage(level)
             val splashDamage = effects.damage(level - 2)
             val inputDamage = if(closestEntity == entityHitResult.entity) baseDamage else splashDamage
-            val damage = spells.provideDealtDamage(inputDamage,this,entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user),this,entityHitResult, source, user, world, hand, level, effects)
+            val damage = spells.provideDealtDamage(inputDamage, spellContext(),entityHitResult, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), spellContext(),entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, damage)
 
             return if(bl) {

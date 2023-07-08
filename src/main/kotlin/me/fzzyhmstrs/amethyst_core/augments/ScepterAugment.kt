@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.augments
 
+import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.*
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
@@ -13,13 +14,17 @@ import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.particle.ParticleEffect
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
@@ -193,7 +198,7 @@ abstract class ScepterAugment(
      *
      * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
      */
-    open fun <T> modifyDealtDamage(amount: Float, cause: ScepterAugment, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> modifyDealtDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     Float
     where 
@@ -207,7 +212,7 @@ abstract class ScepterAugment(
      *
      * A simple example is modifying damage based on the struck entity's EntityType. Damage might be doubled against Aquatic mobs, for example.
      */
-    open fun <T> modifyDamageSource(builder: DamageSourceBuilder, cause: ScepterAugment, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> modifyDamageSource(builder: DamageSourceBuilder, context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     DamageSourceBuilder 
     where 
@@ -232,7 +237,7 @@ abstract class ScepterAugment(
      *
      * Can also modify certain features like armor, provide persistent attributes like health, speed, etc., or change quantity summoned
      */
-    open fun <T, U> modifySummons(summons: List<T>, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T, U> modifySummons(summons: List<T>, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     List<T> 
     where 
@@ -251,7 +256,7 @@ abstract class ScepterAugment(
      *
      *
      */
-    open fun <T, U> modifyProjectile(projectile: T, cause: ScepterAugment, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T, U> modifyProjectile(projectile: T, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     :
     T
     where
@@ -268,7 +273,7 @@ abstract class ScepterAugment(
      *
      * Use to do things like changing the blocks that are created (snow instead of fire, for example)
      */
-    open fun <T> modifyExplosion(builder: ExplosionBuilder, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     ExplosionBuilder 
     where 
@@ -283,7 +288,7 @@ abstract class ScepterAugment(
      *
      * Currently unused by anything in AC itself, it can be used by something like Excavate to drop smelted things if paired with flame spell.
      */
-    open fun <T> modifyDrops(stacks: List<ItemStack>, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> modifyDrops(stacks: List<ItemStack>, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
     List<ItemStack>
     where 
@@ -293,7 +298,7 @@ abstract class ScepterAugment(
         return stacks
     }
 
-    fun <T> modifyCount(start: Int, cause: ScepterAugment, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    fun <T> modifyCount(start: Int, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     :
     Int
     where
@@ -464,6 +469,17 @@ abstract class ScepterAugment(
         return augmentData.pvpMode
     }
 
+    fun spellContext(): ProcessContext{
+        val nbt = NbtCompound()
+        nbt.putString("spell",this.id.toString())
+        return ProcessContext(spellType,nbt)
+    }
+
+    fun spellFromContext(context: ProcessContext): ScepterAugment?{
+        val id = Identifier.tryParse(context.getNbt().getString("spell"))
+        return Registries.ENCHANTMENT.get(id) as? ScepterAugment
+    }
+
     protected fun toLivingEntityList(list: List<Entity>): List<LivingEntity>{
         val newList: MutableList<LivingEntity> = mutableListOf()
         list.forEach {
@@ -475,6 +491,7 @@ abstract class ScepterAugment(
     }
 
     companion object{
+        val spellType = Identifier(AC.MOD_ID,"spell_context")
         val FAIL = SpellActionResult.fail()
         val SUCCESSFUL_PASS = SpellActionResult.pass()
     }
