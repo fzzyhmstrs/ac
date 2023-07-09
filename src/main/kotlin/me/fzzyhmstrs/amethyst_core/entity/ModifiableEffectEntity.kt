@@ -6,6 +6,7 @@ import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -57,12 +58,19 @@ interface ModifiableEffectEntity{
         processContext = ProcessContext.readNbt(modifiableNbt.getCompound("processContext"))
     }
     
-    fun tickTickEffects(entity: Entity, context: ProcessContext? = null){
-        modifiableEffects.run(TICK,entity,context)
+    fun tickTickEffects(entity: Entity, owner: Entity?, context: ProcessContext = processContext){
+        modifiableEffects.run(TICK,entity,owner,context)
     }
 
-    fun runEffect(type: Identifier, entity: Entity, context: ProcessContext?){
-        modifiableEffects.run(type, entity, context)
+    fun runEffect(type: Identifier, entity: Entity,owner: Entity?, context: ProcessContext = processContext){
+        modifiableEffects.run(type,entity,owner,context)
+    }
+
+    fun addEffect(type: Identifier, effect: ModifiableEffect){
+        modifiableEffects.add(type, effect)
+    }
+    fun addTemporaryEffect(type: Identifier, effect: ModifiableEffect, lifespan: Int){
+        modifiableEffects.addTemporary(type, effect, lifespan)
     }
     companion object{
 

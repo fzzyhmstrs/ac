@@ -37,7 +37,7 @@ open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
 
     override fun tick() {
         super.tick()
-        tickTickEffects(this, processContext)
+        tickTickEffects(this, owner, processContext)
     }
 
     override fun onCollision(hitResult: HitResult) {

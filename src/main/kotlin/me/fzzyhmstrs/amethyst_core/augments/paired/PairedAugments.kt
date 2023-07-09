@@ -521,13 +521,15 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, level, effects, this) ?: amount1
     }
     
-    fun <T> provideDamageSource(builder: DamageSourceBuilder, context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun <T> provideDamageSource(context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     : 
     DamageSource
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        if (type == Type.EMPTY) return user.damageSources.dryOut()
+        val builder: DamageSourceBuilder = augments[0].damageSourceBuilder(world,source,user)
         return if (type == Type.PAIRED){
                 val mod = augments[1].modifyDamageSource(builder, context, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
                 boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()

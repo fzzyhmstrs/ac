@@ -125,7 +125,7 @@ abstract class BeamAugment(
     {
         if (othersType.empty){
             val amount = spells.provideDealtDamage(effects.damage(level), context, entityHitResult, user, world, hand, level, effects)
-            val damageSource = spells.provideDamageSource(damageSourceBuilder(world, source, user), context, entityHitResult, source, user, world, hand, level, effects)
+            val damageSource = spells.provideDamageSource(context, entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)
 
             return if(bl) {

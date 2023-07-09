@@ -79,7 +79,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         if (age > maxAge){
             discard()
         }
-        tickTickEffects(this, processContext)
+        tickTickEffects(this, owner, processContext)
         val vec3d = velocity
         val hitResult = ProjectileUtil.getCollision(
             this
@@ -112,6 +112,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     override fun onCollision(hitResult: HitResult) {
+        processContext.beforeRemoval()
         super.onCollision(hitResult)
         discard()
     }
@@ -127,7 +128,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     open fun onMissileEntityHit(entityHitResult: EntityHitResult){
         val entity = owner
         if (entity is LivingEntity && entity is SpellCastingEntity) {
-            processContext.beforeRemoval()
+            runEffect(ModifiableEffectEntity.DAMAGE,this,owner,processContext)
             spells.processSingleEntityHit(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
             if (!entityHitResult.entity.isAlive){
                 spells.processOnKill(entityHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
@@ -149,6 +150,11 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
             processContext.beforeRemoval()
             spells.processSingleBlockHit(blockHitResult,processContext,world,this,entity,Hand.MAIN_HAND,level,entityEffects)
         }
+    }
+
+    override fun remove(reason: RemovalReason?) {
+        runEffect(ModifiableEffectEntity.ON_REMOVED,this,owner,processContext)
+        super.remove(reason)
     }
 
     override fun damage(source: DamageSource, amount: Float): Boolean {

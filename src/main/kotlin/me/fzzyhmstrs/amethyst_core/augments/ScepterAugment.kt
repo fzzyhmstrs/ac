@@ -370,17 +370,17 @@ abstract class ScepterAugment(
     }
 
     /**
-     * name provided when a spell is paired to itself. Shouldn't need to be overriden in most cases
+     * name provided when a spell is paired to itself. Shouldn't need to be overridden in most cases
      */
     open fun doubleName(): MutableText {
         return AcText.translatable("$orCreateTranslationKey.double")
     }
 
     /**
-     * name provided when a spell is paired to itself. Shouldn't need to be overriden in most cases
+     * name provided when a spell is paired to itself. Shouldn't need to be overridden in most cases
      */
-    open fun doubleNameDesc(): MutableText {
-        return AcText.translatable("$orCreateTranslationKey.double.desc")
+    open fun doubleNameDesc(): List<MutableText> {
+        return listOf(AcText.translatable("$orCreateTranslationKey.double.desc"))
     }
 
     /**
@@ -413,7 +413,7 @@ abstract class ScepterAugment(
 
     open fun appendBaseDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType){
         if (other == this){
-            description.add(doubleNameDesc())
+            description.addAll(doubleNameDesc())
             return
         }
         appendDescription(description, other, otherType)
@@ -435,7 +435,7 @@ abstract class ScepterAugment(
      * "Change Description 2"
      * etc.
      */
-    abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, otherType: AugmentType)
+    abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, othersType: AugmentType)
 
     /**
      * provides the maximum level the spell can reach

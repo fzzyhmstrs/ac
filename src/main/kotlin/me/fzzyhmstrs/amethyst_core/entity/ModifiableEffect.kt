@@ -4,6 +4,8 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.entity.Entity
+import net.minecraft.entity.LivingEntity
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
 import net.minecraft.nbt.NbtString
@@ -14,41 +16,41 @@ import net.minecraft.util.Identifier
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 
-class ModifiableEffect private constructor (private val consumer: BiConsumer<Entity,ProcessContext?>){
+class ModifiableEffect private constructor (private val consumer: EffectConsumer){
 
-    fun run(entity: Entity, context: ProcessContext?){
-        consumer.accept(entity, context)
+    fun run(entity: Entity, owner: Entity?, context: ProcessContext){
+        consumer.run(entity,owner, context)
     }
 
     companion object{
         val REGISTRY : SimpleRegistry<ModifiableEffect> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<ModifiableEffect>(Identifier(AC.MOD_ID,"tick_effects"))).buildAndRegister()
 
-        fun createAndRegisterConsumer(id: Identifier, consumer: BiConsumer<Entity, ProcessContext?>): ModifiableEffect{
+        fun createAndRegisterConsumer(id: Identifier, consumer: EffectConsumer): ModifiableEffect{
             return Registry.register(REGISTRY,id, ModifiableEffect(consumer))
         }
 
-        fun toNbtList(effects: Collection<ModifiableEffect>): NbtList {
+        fun toNbtList(effects: Collection<ModifiableEffectInstance>): NbtList {
             val list = NbtList()
-            for (consumer in effects){
-                val id = REGISTRY.getId(consumer)
-                if (id != null)
-                    list.add(NbtString.of(id.toString()))
+            for (instance in effects){
+                list.add(instance.toNbt())
             }
             return list
         }
 
-        fun fromNbtList(list: NbtList): List<ModifiableEffect>{
-            if (list.heldType != NbtElement.STRING_TYPE) return emptyList()
-            val consumers: MutableList<ModifiableEffect> = mutableListOf()
+        fun fromNbtList(list: NbtList): List<ModifiableEffectInstance>{
+            if (list.heldType != NbtElement.COMPOUND_TYPE) return emptyList()
+            val instances: MutableList<ModifiableEffectInstance> = mutableListOf()
             for (el in list){
-                val idString = el.asString()
-                val id = Identifier(idString)
-                val consumer = REGISTRY.get(id)
-                if (consumer != null)
-                    consumers.add(consumer)
+                val instance = ModifiableEffectInstance.fromNbt(el as NbtCompound)
+                instances.add(instance)
             }
-            return consumers
+            return instances
         }
 
-    } 
+    }
+
+    @FunctionalInterface
+    fun interface EffectConsumer{
+        fun run(entity: Entity, owner: Entity?, context: ProcessContext)
+    }
 }

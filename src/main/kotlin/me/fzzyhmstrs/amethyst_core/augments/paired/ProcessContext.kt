@@ -39,7 +39,7 @@ class ProcessContext(private val data: NbtCompound) {
         val ENTITY_TYPE = object : Data<Identifier>("entity_type_id",IdentifierDataType){}
         val FROM_ENTITY = object : Data<Boolean>("from_entity",BooleanDataType){}
         val SPELL = object : Data<Identifier>("spell_id",IdentifierDataType){}
-        private val BEFORE_REMOVAL = object : Data<Boolean>("before_removal",BooleanDataType){}
+        val BEFORE_REMOVAL = object : Data<Boolean>("before_removal",BooleanDataType){}
 
         val EMPTY_CONTEXT: ProcessContext
             get() = ProcessContext()

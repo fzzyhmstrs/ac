@@ -3,8 +3,13 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 import me.fzzyhmstrs.amethyst_core.augments.CustomExplosion
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
+import net.minecraft.world.GameRules
+import net.minecraft.world.GameRules.BooleanRule
 import net.minecraft.world.World
+import net.minecraft.world.World.ExplosionSourceType
 import net.minecraft.world.explosion.EntityExplosionBehavior
+import net.minecraft.world.explosion.Explosion
+import net.minecraft.world.explosion.Explosion.DestructionType
 import net.minecraft.world.explosion.ExplosionBehavior
 import java.util.function.Consumer
 import java.util.function.Function
@@ -50,7 +55,25 @@ class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Ent
         return this.power
     }
     fun explode(world: World){
-        world.createExplosion(source, damageSource.build(),behavior,pos,power,createFire,type)
+        val destructionType = when (type) {
+            ExplosionSourceType.NONE -> DestructionType.KEEP
+            ExplosionSourceType.BLOCK -> this.getDestructionType(world,GameRules.BLOCK_EXPLOSION_DROP_DECAY)
+            ExplosionSourceType.MOB -> {
+                if (world.gameRules.getBoolean(GameRules.DO_MOB_GRIEFING)) {
+                    this.getDestructionType(world,GameRules.MOB_EXPLOSION_DROP_DECAY)
+                }
+                DestructionType.KEEP
+            }
+            ExplosionSourceType.TNT -> this.getDestructionType(world,GameRules.TNT_EXPLOSION_DROP_DECAY)
+            else -> throw IncompatibleClassChangeError()
+        }
+        val explosion = CustomExplosion(world, source, damageSource.build(), behavior, pos.x, pos.y, pos.z, power, createFire, destructionType, customBehavior)
+        explosion.collectBlocksAndDamageEntities()
+        explosion.affectWorld(true)
     }
-  
+
+    private fun getDestructionType(world: World,gameRuleKey: GameRules.Key<BooleanRule>): DestructionType {
+        return if (world.gameRules.getBoolean(gameRuleKey)) DestructionType.DESTROY_WITH_DECAY else DestructionType.DESTROY
+    }
+
 }
