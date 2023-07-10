@@ -5,7 +5,9 @@ import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
+import java.util.function.Supplier
 
 @Suppress("MemberVisibilityCanBePrivate")
     //alternative version with the AugmentEffect directly included
@@ -55,8 +57,20 @@ data class XpModifiers(var furyXpMod: Int = 0, var witXpMod: Int = 0, var graceX
     }
 }
 
-fun MutableList<Text>.addLang(key: String, vararg args: Any){
-    this.add(AcText.translatable(key, args))
+fun MutableList<Text>.addLang(key: String, args: Array<Any> = arrayOf(), vararg conditions: Supplier<Boolean>){
+    var bl = true
+    for (condition in conditions){
+        if (!condition.get()){
+            bl = false
+            break
+        }
+    }
+    if (bl){
+        this.add(AcText.translatable(key, args))
+    } else {
+        this.add(AcText.translatable(key, args).formatted(Formatting.OBFUSCATED))
+    }
+
 }
 
 

@@ -18,6 +18,15 @@ class ProcessContext(private val data: NbtCompound) {
         return this
     }
 
+    fun double(): ProcessContext{
+        set(DOUBLE,true)
+        return this
+    }
+
+    fun isDouble(): Boolean{
+        return get(DOUBLE)
+    }
+
     fun beforeRemoval(): ProcessContext{
         set(BEFORE_REMOVAL,true)
         return this
@@ -39,6 +48,7 @@ class ProcessContext(private val data: NbtCompound) {
         val ENTITY_TYPE = object : Data<Identifier>("entity_type_id",IdentifierDataType){}
         val FROM_ENTITY = object : Data<Boolean>("from_entity",BooleanDataType){}
         val SPELL = object : Data<Identifier>("spell_id",IdentifierDataType){}
+        val DOUBLE = object : Data<Boolean>("double_spell",BooleanDataType){}
         val BEFORE_REMOVAL = object : Data<Boolean>("before_removal",BooleanDataType){}
 
         val EMPTY_CONTEXT: ProcessContext

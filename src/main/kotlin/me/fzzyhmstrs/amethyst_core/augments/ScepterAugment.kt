@@ -70,8 +70,9 @@ abstract class ScepterAugment(
             }
             return false
         }
+        val spellContext = spellContext(context).also { if(pairedAugments.spellsAreEqual()) it.double() }
         val effectModifiers = pairedAugments.processAugmentEffects(user, modifierData)
-        val bl = applyTasks(world, spellContext(context), user, hand, level, effectModifiers, pairedAugments)
+        val bl = applyTasks(world, spellContext, user, hand, level, effectModifiers, pairedAugments)
         if (bl.success()) {
             modifiers.forEach {
                 val secondary = it.getSecondaryEffect()
@@ -436,6 +437,7 @@ abstract class ScepterAugment(
      * etc.
      */
     abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, othersType: AugmentType)
+    // use "§k" to make the name go befgdgfsfg
 
     /**
      * provides the maximum level the spell can reach

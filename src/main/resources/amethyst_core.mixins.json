@@ -9,9 +9,9 @@
     "PlayerEntityMixin"
   ],
   "client": [
-    "ItemRendererMixin",
     "ItemStackMixin",
-    "PlayerInventoryMixin"
+    "PlayerInventoryMixin",
+    "ClientAdvancementManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
