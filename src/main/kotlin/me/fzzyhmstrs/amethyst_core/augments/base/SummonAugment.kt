@@ -42,6 +42,9 @@ abstract class SummonAugment<E>(
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
         val hit = RaycasterUtil.raycastHit(
             distance = effects.range(level),
             user,
@@ -56,7 +59,7 @@ abstract class SummonAugment<E>(
         return if (list.isEmpty()) {
             FAIL
         } else {
-            list.addAll(spells.processOnCast(context,world,null,user,hand, level, effects))
+            list.addAll(onCastResults.results())
             SpellActionResult.success(list)
         }
     }

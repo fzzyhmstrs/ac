@@ -40,10 +40,13 @@ abstract class ProjectileAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
         val projectiles = createProjectileEntities(world,context, user, level, effects, spells)
         val result = spawnProjectileEntities(world,context, user, projectiles, mutableListOf(), spells)
         return if (result.success()) {
-            result.withResults(spells.processOnCast(context, world, null, user, hand, level, effects))
+            result.withResults(onCastResults.results())
         } else {
             FAIL
         }

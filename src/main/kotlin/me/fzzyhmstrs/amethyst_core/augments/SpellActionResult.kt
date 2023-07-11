@@ -17,6 +17,10 @@ class SpellActionResult private constructor (private val type: Type, list: Mutab
     fun overwrite(): Boolean{
         return type == Type.OVERWRITE
     }
+
+    fun acted(): Boolean{
+        return results.isNotEmpty()
+    }
     
     fun withResults(vararg results: Identifier): SpellActionResult{
         this.results.addAll(results)
@@ -25,6 +29,10 @@ class SpellActionResult private constructor (private val type: Type, list: Mutab
     fun withResults(results: List<Identifier>): SpellActionResult{
         this.results.addAll(results)
         return this
+    }
+
+    fun copyTypeAndAddResults(previous: SpellActionResult): SpellActionResult{
+        return SpellActionResult(previous.type,previous.results).withResults(this.results)
     }
     
     companion object{

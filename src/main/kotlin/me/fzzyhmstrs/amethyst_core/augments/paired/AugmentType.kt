@@ -3,13 +3,14 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 import me.fzzyhmstrs.amethyst_core.AC
 import net.minecraft.util.Identifier
 
-class AugmentType(){
+class AugmentType private constructor (private val typeData: Set<Identifier>){
 
-    private val typeData: MutableSet<Identifier> = mutableSetOf()
+    constructor(): this(setOf())
 
-    fun with(feature: Identifier): AugmentType{
-        typeData.add(feature)
-        return this
+    fun plus(feature: Identifier): AugmentType{
+        val set = typeData.toMutableSet()
+        set.add(feature)
+        return AugmentType(set.toSet())
     }
 
     fun has(feature: Identifier): Boolean{
@@ -37,21 +38,33 @@ class AugmentType(){
         val AOE = Identifier(AC.MOD_ID,"area_of_effect")
         val EMPTY_TYPE = Identifier(AC.MOD_ID,"empty_type")
 
-        val EMPTY = AugmentType().with(EMPTY_TYPE)
-        val BOLT = AugmentType().with(BLOCK).with(ENTITY).with(DAMAGE).with(PROJECTILE)
-        val BALL = AugmentType().with(BLOCK).with(ENTITY).with(DAMAGE).with(EXPLODES).with(PROJECTILE)
-        val SINGLE_TARGET_OR_SELF = AugmentType().with(ENTITY).with(BENEFICIAL)
-        val SINGLE_TARGET = AugmentType().with(ENTITY)
-        val TARGET_DAMAGE = AugmentType().with(ENTITY).with(DAMAGE)
-        val AREA_DAMAGE = AugmentType().with(ENTITY).with(DAMAGE).with(AOE)
-        val DIRECTED_ENERGY = AugmentType().with(BLOCK).with(ENTITY).with(DAMAGE).with(AOE)
-        val AOE_POSITIVE = AugmentType().with(ENTITY).with(BENEFICIAL).with(AOE)
-        val AOE_NEGATIVE = AugmentType().with(ENTITY).with(AOE)
-        val SUMMON = AugmentType().with(BLOCK).with(ENTITY).with(DAMAGE).with(SUMMONS)
-        val SUMMON_BOOM = AugmentType().with(BLOCK).with(ENTITY).with(DAMAGE).with(SUMMONS).with(EXPLODES)
-        val SUMMON_GOOD = AugmentType().with(BLOCK).with(ENTITY).with(SUMMONS).with(BENEFICIAL)
-        val BLOCK_TARGET = AugmentType().with(BLOCK).with(BENEFICIAL)
-        val BLOCK_AREA = AugmentType().with(BLOCK).with(BENEFICIAL).with(AOE)
+        val EMPTY = Builder().with(EMPTY_TYPE).build()
+        val BOLT = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(PROJECTILE).build()
+        val BALL = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(EXPLODES).with(PROJECTILE).build()
+        val SINGLE_TARGET_OR_SELF = Builder().with(ENTITY).with(BENEFICIAL).build()
+        val SINGLE_TARGET = Builder().with(ENTITY).build()
+        val TARGET_DAMAGE = Builder().with(ENTITY).with(DAMAGE).build()
+        val AREA_DAMAGE = Builder().with(ENTITY).with(DAMAGE).with(AOE).build()
+        val DIRECTED_ENERGY = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(AOE).build()
+        val AOE_POSITIVE = Builder().with(ENTITY).with(BENEFICIAL).with(AOE).build()
+        val AOE_NEGATIVE = Builder().with(ENTITY).with(AOE).build()
+        val SUMMON = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(SUMMONS).build()
+        val SUMMON_BOOM = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(SUMMONS).with(EXPLODES).build()
+        val SUMMON_GOOD = Builder().with(BLOCK).with(ENTITY).with(SUMMONS).with(BENEFICIAL).build()
+        val BLOCK_TARGET = Builder().with(BLOCK).with(BENEFICIAL).build()
+        val BLOCK_AREA = Builder().with(BLOCK).with(BENEFICIAL).with(AOE).build()
     }
 
+    class Builder{
+        private val typeData: MutableSet<Identifier> = mutableSetOf()
+        fun with(feature: Identifier): Builder{
+            typeData.add(feature)
+            return this
+        }
+        fun build(): AugmentType{
+            return AugmentType(typeData.toSet())
+        }
+    }
 }
+
+

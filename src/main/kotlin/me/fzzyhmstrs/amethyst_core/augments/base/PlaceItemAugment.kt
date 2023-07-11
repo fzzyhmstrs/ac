@@ -10,9 +10,11 @@ import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
+import me.fzzyhmstrs.fzzy_core.entity_util.PlayerCreatable
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.Tameable
 import net.minecraft.item.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
@@ -39,11 +41,22 @@ abstract class PlaceItemAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (user !is ServerPlayerEntity) return FAIL
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
+        val owner = if (user is ServerPlayerEntity){
+            user
+        } else if (user is Tameable && user.owner is ServerPlayerEntity) {
+            user.owner as ServerPlayerEntity
+        }else if (user is PlayerCreatable && user.entityOwner is ServerPlayerEntity){
+            user.entityOwner as ServerPlayerEntity
+        } else {
+            return FAIL
+        }
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
-        if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,user.gameProfile,user)){
+        if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,owner.gameProfile,owner)){
             val list = spells.processSingleBlockHit(hit,context,world,null,user, hand, level, effects)
-            list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
+            list.addAll(onCastResults.results())
             spells.castSoundEvents(world, user.blockPos, context)
             return if (list.isNotEmpty()){
                 SpellActionResult.success(list)

@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core
 
+import me.fzzyhmstrs.amethyst_core.advancement.FeatureCriteria
 import me.fzzyhmstrs.amethyst_core.command.PairedSpellCommand
 import me.fzzyhmstrs.amethyst_core.item.AbstractAugmentBookItem
 import me.fzzyhmstrs.amethyst_core.modifier.GcChecker
@@ -32,6 +33,7 @@ object AC: ModInitializer {
         BoostRegistry.registerAll()
         GcChecker.registerProcessor()
         ScepterHelper.registerServer()
+        FeatureCriteria.registerServer()
         AbstractAugmentBookItem.registerServer()
         PairedSpellCommand.registerAll()
     }

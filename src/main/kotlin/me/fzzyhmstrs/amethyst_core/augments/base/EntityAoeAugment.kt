@@ -40,10 +40,13 @@ abstract class EntityAoeAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
         val entityList = RaycasterUtil.raycastEntityArea(effects.range(level), user)
         if (entityList.isEmpty()) return FAIL
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
-        list.addAll(spells.processOnCast(context, world,null,user, hand, level, effects))
+        list.addAll(onCastResults.results())
         return if (list.isEmpty()) {
             FAIL
         } else {

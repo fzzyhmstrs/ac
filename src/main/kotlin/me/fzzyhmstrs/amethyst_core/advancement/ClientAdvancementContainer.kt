@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.client
+package me.fzzyhmstrs.amethyst_core.advancement
 
 import net.minecraft.advancement.Advancement
 import net.minecraft.advancement.AdvancementProgress

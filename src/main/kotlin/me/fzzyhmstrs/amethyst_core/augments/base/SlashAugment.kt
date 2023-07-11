@@ -49,8 +49,10 @@ abstract class SlashAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
         if (world !is ServerWorld) return FAIL
-        if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
         val perpendicularVector = RaycasterUtil.perpendicularVector(rotation, RaycasterUtil.InPlane.XZ)
         val raycasterPos = user.pos.add(rotation.multiply(effects.range(level * 2)/2)).add(Vec3d(0.0,user.height/2.0,0.0))
@@ -75,10 +77,12 @@ abstract class SlashAugment(
         val closestContext = createClosestContext(closest.entity, context)
         val list = if (hostileEntityList.isNotEmpty()) {
             val temp = spells.processMultipleEntityHits(hostileEntityList,closestContext, world, null, user, hand, level, effects)
-            temp.addAll(spells.processOnCast(context,world,null,user,hand, level, effects))
+            temp.addAll(onCastResults.results())
             temp
         } else {
-            listOf(AugmentHelper.DRY_FIRED)
+            val temp = mutableListOf(AugmentHelper.DRY_FIRED)
+            temp.addAll(onCastResults.results())
+            temp
         }
         spells.castSoundEvents(world, user.blockPos,context)
         val buf = ScepterHelper.prepareParticlePacket(adderId,spells.getCastParticleType())
@@ -92,7 +96,7 @@ abstract class SlashAugment(
         if (list.isNotEmpty()) {
             for (entity in list) {
                 if (entity !== user) {
-                    if (entity is SpellCastingEntity && !getPvpMode()) continue
+                    if (entity is PlayerEntity && !getPvpMode()) continue
                     if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
                     hostileEntityList.add(EntityHitResult(entity))
                 }

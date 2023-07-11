@@ -73,5 +73,20 @@ fun MutableList<Text>.addLang(key: String, args: Array<Any> = arrayOf(), vararg 
 
 }
 
+fun MutableList<Text>.addLang(key: String, vararg conditions: Supplier<Boolean>){
+    var bl = true
+    for (condition in conditions){
+        if (!condition.get()){
+            bl = false
+            break
+        }
+    }
+    if (bl){
+        this.add(AcText.translatable(key))
+    } else {
+        this.add(AcText.translatable(key).formatted(Formatting.OBFUSCATED))
+    }
+}
+
 
 

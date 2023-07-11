@@ -2,6 +2,7 @@ package me.fzzyhmstrs.amethyst_core.augments.paired
 
 import me.fzzyhmstrs.amethyst_core.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.boost.AugmentBoost
 import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.event.BlockHitActionEvent
@@ -23,6 +24,7 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -130,6 +132,11 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return boost
     }
 
+    fun spellsAreUnique(): Boolean{
+        if (type == Type.EMPTY || type == Type.SINGLE) return false
+        return augments[1].specialName(augments[0]) != AcText.empty()
+    }
+
     fun spellsAreEqual(): Boolean{
         return if (augments.size < 2) false else augments[0] == augments[1]
     }
@@ -144,6 +151,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     override fun toString(): String {
         return "Paired Augment:[${primary()}, ${paired()}, ${boost()}]"
+    }
+
+    fun onPaired(player: ServerPlayerEntity){
+        paired()?.onPaired(player, this)
     }
 
     fun getCastParticleType(): ParticleEffect {
@@ -185,7 +196,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
     fun <T> processOnCast(world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     : 
-    MutableList<Identifier>
+    SpellActionResult
     where 
     T: LivingEntity,
     T: SpellCastingEntity
@@ -194,31 +205,27 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
     fun <T> processOnCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
     : 
-    MutableList<Identifier>
+    SpellActionResult
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val returnList: MutableList<Identifier> = mutableListOf()
+        var totalResult: SpellActionResult = SpellActionResult.pass()
         if (type == Type.SINGLE) {
             val result = augments[0].onCast(context, world, source, user, hand, level, effects, AugmentType.EMPTY, this)
-            if (result.success()){
-                returnList.addAll(result.results())
-            }
+            totalResult = totalResult.copyTypeAndAddResults(result)
         } else if (type == Type.PAIRED){
             val result = augments[1].onCast(context, world,source, user,hand,level, effects,augments[0].augmentType, this)
+            totalResult = totalResult.copyTypeAndAddResults(result)
             if (result.success()){
-                returnList.addAll(result.results())
                 if (!result.overwrite()){
                     val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,
                         AugmentType.EMPTY, this)
-                    if (result2.success()){
-                        returnList.addAll(result2.results())
-                    }
+                    totalResult = totalResult.copyTypeAndAddResults(result2)
                 }
             }
         }
-        return returnList
+        return totalResult
     }
 
     fun <T> processMultipleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -513,10 +520,17 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val amount1 = if (type == Type.PAIRED){
-            augments[1].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
-            amount
+        val amount1 = when (type) {
+            Type.PAIRED -> {
+                val mod1 = augments[1].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+                augments[0].modifyDealtDamage(mod1, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
+            }
+            Type.SINGLE -> {
+                augments[0].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
+            }
+            else -> {
+                amount
+            }
         }
         return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, level, effects, this) ?: amount1
     }

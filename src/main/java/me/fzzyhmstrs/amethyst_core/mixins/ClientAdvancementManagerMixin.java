@@ -1,6 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
-import me.fzzyhmstrs.amethyst_core.client.ClientAdvancementContainer;
+import me.fzzyhmstrs.amethyst_core.advancement.ClientAdvancementContainer;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementManager;
 import net.minecraft.advancement.AdvancementProgress;

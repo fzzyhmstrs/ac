@@ -26,6 +26,7 @@ import net.minecraft.particle.ParticleEffect
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.TagKey
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
@@ -437,7 +438,20 @@ abstract class ScepterAugment(
      * etc.
      */
     abstract fun appendDescription(description: MutableList<Text>, other: ScepterAugment, othersType: AugmentType)
-    // use "§k" to make the name go befgdgfsfg
+    // use "§k" or Formatting.OBFUSCATED to make the name go befgdgfsfg
+
+    /**
+     * called from PairedAugments on the paired spell only (if applicable) when something wants to perform an action when a Pair is "created"
+     *
+     * Does not happen automatically on PairedAugment construction, needs to be called from there. This is to avoid the
+     * situation that a PairedAugment is made for visual purposes only, and isn't "complete" yet.
+     *
+     * Would be called, for example, after a cost has been paid to "seal" a pair onto an item.
+     *
+     * ServerPlayerEntity passed to facilitate eg. Advancement Granting
+     */
+    open fun onPaired(player: ServerPlayerEntity, pair: PairedAugments){
+    }
 
     /**
      * provides the maximum level the spell can reach

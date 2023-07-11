@@ -48,8 +48,10 @@ abstract class BeamAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
+        val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
+        if (!onCastResults.success()) return  FAIL
+        if (onCastResults.overwrite()) return onCastResults
         if (world !is ServerWorld) return FAIL
-        if (user !is PlayerEntity) return FAIL
         val rotation = user.getRotationVec(1.0F)
         val perpendicularVector = RaycasterUtil.perpendicularVector(rotation, RaycasterUtil.InPlane.XZ)
         val raycastPos = user.pos.add(rotation.multiply(effects.range(level)/2)).add(beamOffset(user))
@@ -64,7 +66,9 @@ abstract class BeamAugment(
                 0.8,
                 0.8)
         if (entityList.isEmpty()) return FAIL
+
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
+        list.addAll(onCastResults.results())
         var range = effects.range(level)
         val blockList: MutableList<BlockHitResult> = mutableListOf()
         do {
@@ -75,7 +79,6 @@ abstract class BeamAugment(
         }while (range > 0.0)
         val list2 = spells.processMultipleBlockHits(blockList, context, world, null, user, hand, level, effects)
         list.addAll(list2)
-        list.addAll(spells.processOnCast(context,world,null,user, hand, level, effects))
         spells.castSoundEvents(world,user.blockPos,context)
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
     }
