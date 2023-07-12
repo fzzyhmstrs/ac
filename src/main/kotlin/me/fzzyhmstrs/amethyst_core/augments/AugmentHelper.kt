@@ -138,6 +138,20 @@ object AugmentHelper {
         return PairedAugments(augment,pairedSpell,boost)
     }
 
+    fun createTemporaryPairedAugments(augment: ScepterAugment, pairStack: ItemStack = ItemStack.EMPTY, boostId: Identifier): PairedAugments {
+        val enchants = EnchantmentHelper.get(pairStack)
+        var pairedSpell: ScepterAugment? = null
+        for (entry in enchants){
+            val enchant = entry.key
+            if (enchant is ScepterAugment){
+                pairedSpell = enchant
+                break
+            }
+        }
+        val boost = BoostRegistry.BOOSTS.get(boostId)
+        return PairedAugments(augment,pairedSpell,boost)
+    }
+
     fun writePairedAugments(stack: ItemStack, pairedAugments: PairedAugments){
         val enchants = EnchantmentHelper.get(stack)
         val augment = pairedAugments.primary()?:return

@@ -46,7 +46,7 @@ abstract class AugmentBoost(val id: Identifier) {
 
     abstract fun matches(stack: ItemStack): Boolean
     open fun canAccept(augment: ScepterAugment): Boolean{return true}
-    abstract fun asStack(): ItemStack
+    abstract fun asStacks(): Collection<ItemStack>
 
     protected fun isInTag(augment: Enchantment,tag: TagKey<Enchantment>): Boolean{
         val opt = Registries.ENCHANTMENT.getEntry(Registries.ENCHANTMENT.getRawId(augment))

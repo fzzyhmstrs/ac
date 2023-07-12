@@ -9,20 +9,20 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Identifier
 
-abstract class EnchantmentAugmentBoost(id: Identifier, private val enchantment: Enchantment, private val level: Int): AugmentBoost(id),
+open class EnchantmentAugmentBoost(id: Identifier, private val enchantment: Enchantment, private val level: Int): AugmentBoost(id),
     LevelProviding {
 
-    private val stack: ItemStack by lazy{
+    private val stacks: Set<ItemStack> by lazy{
         val book = ItemStack(Items.ENCHANTED_BOOK)
         EnchantedBookItem.addEnchantment(book, EnchantmentLevelEntry(enchantment, level))
-        book
+        setOf(book)
     }
 
     override fun matches(stack: ItemStack): Boolean {
         return EnchantmentHelper.getLevel(enchantment, stack) >= level
     }
 
-    override fun asStack(): ItemStack {
-        return stack
+    override fun asStacks(): Collection<ItemStack> {
+        return stacks
     }
 }

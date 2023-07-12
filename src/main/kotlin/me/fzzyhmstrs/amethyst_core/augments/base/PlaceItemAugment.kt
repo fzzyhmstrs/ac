@@ -54,7 +54,7 @@ abstract class PlaceItemAugment(
             return FAIL
         }
         val hit = RaycasterUtil.raycastHit(effects.range(level),entity = user)
-        if (hit != null && hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,owner.gameProfile,owner)){
+        if (hit is BlockHitResult && CommonProtection.canPlaceBlock(world,hit.blockPos,owner.gameProfile,owner)){
             val list = spells.processSingleBlockHit(hit,context,world,null,user, hand, level, effects)
             list.addAll(onCastResults.results())
             spells.castSoundEvents(world, user.blockPos, context)
@@ -86,10 +86,11 @@ abstract class PlaceItemAugment(
     T: SpellCastingEntity
     {
         if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult,context, world, source, user, hand, level, effects, othersType, spells)
+        if (!othersType.empty) return SUCCESSFUL_PASS
         if (user !is ServerPlayerEntity) return FAIL
         when (item) {
             is BlockItem -> {
-                val stack = itemToPlace(world,user)
+                val stack = itemToPlace()
                 if (!item.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
                 spells.hitSoundEvents(world, blockHitResult.blockPos,context)
                 //sendItemPacket(user, stack, hand, hit)
@@ -126,13 +127,11 @@ abstract class PlaceItemAugment(
         }
     }
 
-    open fun <T> itemToPlace(world: World, user: T)
-    : 
-    ItemStack 
-    where 
-    T: LivingEntity,
-    T: SpellCastingEntity
-    {
+    fun item(): Item{
+        return this.item
+    }
+
+    open fun itemToPlace(): ItemStack {
         return ItemStack(item)
     }
 }

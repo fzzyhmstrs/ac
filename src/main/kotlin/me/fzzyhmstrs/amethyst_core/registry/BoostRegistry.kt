@@ -16,7 +16,7 @@ object BoostRegistry {
     private val boostStacks: List<ItemStack> by lazy {
         val list: MutableList<ItemStack> = mutableListOf()
         for (boost in BOOSTS){
-            list.add(boost.asStack())
+            list.addAll(boost.asStacks())
         }
         list
     }
@@ -54,6 +54,16 @@ object BoostRegistry {
             }
         }
         return null
+    }
+
+    fun findMatches(stack: ItemStack, augment: ScepterAugment): Set<AugmentBoost>{
+        val boosts: MutableSet<AugmentBoost> = mutableSetOf()
+        for (boost in BOOSTS){
+            if (boost.matches(stack) && boost.canAccept(augment)){
+                boosts.add(boost)
+            }
+        }
+        return boosts
     }
 
     fun registerAll(){
