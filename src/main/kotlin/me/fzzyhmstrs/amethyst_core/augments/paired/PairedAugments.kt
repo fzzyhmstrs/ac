@@ -532,7 +532,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 amount
             }
         }
-        return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, level, effects, this) ?: amount1
+        return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, this) ?: amount1
     }
     
     fun <T> provideDamageSource(context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
@@ -546,9 +546,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         val builder: DamageSourceBuilder = augments[0].damageSourceBuilder(world,source,user)
         return if (type == Type.PAIRED){
                 val mod = augments[1].modifyDamageSource(builder, context, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
-                boost?.modifyDamageSource(mod,user,source)?.build()?:mod.build()
+                boost?.modifyDamageSource(mod,context,entityHitResult,source,user,world,hand,this)?.build()?:mod.build()
         } else {
-            boost?.modifyDamageSource(builder,user,source)?.build()?:builder.build()
+            boost?.modifyDamageSource(builder,context,entityHitResult,source,user,world,hand,this)?.build()?:builder.build()
         }
     }
     
@@ -614,11 +614,12 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return if (type == Type.PAIRED){
+        val count = if (type == Type.PAIRED){
             augments[1].modifyCount(start,context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             start
         }
+        return boost?.modifyCount(count,context, user, world, hand, level, effects, othersType, spells) ?: count
     }
     
     fun provideCastXp(spellType: SpellType): Int{
@@ -662,11 +663,13 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return if (type == Type.PAIRED){
-                augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this).explode(world)
+        val explosion = if (type == Type.PAIRED){
+            augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
-            builder.explode(world)
+            builder
         }
+        val explosion2 = boost?.modifyExplosion(explosion,context,user,world,hand, this)?:explosion
+        explosion2.explode(world)
     }
 
     private enum class Type{

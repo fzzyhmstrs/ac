@@ -93,7 +93,6 @@ abstract class PlaceItemAugment(
                 val stack = itemToPlace()
                 if (!item.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
                 spells.hitSoundEvents(world, blockHitResult.blockPos,context)
-                //sendItemPacket(user, stack, hand, hit)
                 return SpellActionResult.success(AugmentHelper.BLOCK_PLACED)
             }
             is BucketItem -> {

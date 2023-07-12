@@ -47,7 +47,12 @@ abstract class SingleTargetOrSelfAugment(
         val hit = if (target is EntityHitResult) target else EntityHitResult(user)
         val list = spells.processSingleEntityHit(hit,context,world,null,user, hand, level, effects)
         list.addAll(onCastResults.results())
-        return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
+        return if (list.isEmpty()) {
+            FAIL
+        } else {
+            spells.castSoundEvents(world, user.blockPos, context)
+            SpellActionResult.success(list)
+        }
     }
 
     override fun <T> onEntityHit(
@@ -65,14 +70,10 @@ abstract class SingleTargetOrSelfAugment(
     :
     SpellActionResult
     where
-    T: LivingEntity,
-    T: SpellCastingEntity
+    T : LivingEntity,
+    T : SpellCastingEntity
     {
-        val result = entityEffects(entityHitResult,context, world, source, user, hand, level, effects, othersType, spells)
-        if (result.success()) {
-            spells.castSoundEvents(world, user.blockPos, context)
-        }
-        return result
+        return entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
 
     open fun entityEffects(

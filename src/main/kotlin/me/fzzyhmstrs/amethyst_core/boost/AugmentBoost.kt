@@ -1,10 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.boost
 
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
-import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
-import me.fzzyhmstrs.amethyst_core.augments.paired.DamageSourceBuilder
-import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
-import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
+import me.fzzyhmstrs.amethyst_core.augments.paired.*
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
@@ -28,13 +26,41 @@ abstract class AugmentBoost(val id: Identifier) {
     open fun modifyStack(stack: ItemStack): ItemStack{
         return stack
     }
-    open fun modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: LivingEntity, world: World, hand: Hand, level: Int, effects: AugmentEffect, spells: PairedAugments): Float{
+    open fun <T> modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, spells: PairedAugments)
+    :
+    Float
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         return amount
     }
-    open fun onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments) {
+    open fun <T> modifyDamageSource(builder: DamageSourceBuilder, context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, spells: PairedAugments)
+    :
+    DamageSourceBuilder
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return builder
     }
-    open fun modifyDamageSource(damageSource: DamageSourceBuilder, attacker: LivingEntity, source: Entity?): DamageSourceBuilder {
-        return damageSource
+    open fun <T> modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, spells: PairedAugments)
+    :
+    ExplosionBuilder
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return builder
+    }
+    fun <T> modifyCount(start: Int, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    :
+    Int
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return start
     }
 
     open fun name(): Text{

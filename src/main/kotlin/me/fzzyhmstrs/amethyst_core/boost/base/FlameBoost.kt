@@ -1,12 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.boost.base
 
 import me.fzzyhmstrs.amethyst_core.AC
-import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.paired.DamageSourceBuilder
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.boost.EnchantmentAugmentBoost
-import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -18,25 +17,36 @@ import net.minecraft.world.World
 
 class FlameBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"flame_boost"), Enchantments.FLAME, 1) {
 
-    override fun modifyDamageSource(damageSource: DamageSourceBuilder, attacker: LivingEntity, source: Entity?): DamageSourceBuilder {
-        return damageSource.add(DamageTypes.IN_FIRE)
-    }
-
-    override fun modifyDamage(
-        amount: Float,
+    override fun <T> modifyDamageSource(
+        builder: DamageSourceBuilder,
         context: ProcessContext,
         entityHitResult: EntityHitResult,
-        user: LivingEntity,
+        source: Entity?,
+        user: T,
         world: World,
         hand: Hand,
-        level: Int,
-        effects: AugmentEffect,
         spells: PairedAugments
-    ): Float {
+    )
+    :
+    DamageSourceBuilder
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return builder.add(DamageTypes.IN_FIRE)
+    }
+
+    override fun <T> modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, spells: PairedAugments)
+    :
+    Float
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
         val entity = entityHitResult.entity
         if (entity is LivingEntity){
             entity.setOnFireFor(2)
         }
-        return super.modifyDamage(amount, context, entityHitResult, user, world, hand, level, effects, spells)
+        return super.modifyDamage(amount, context, entityHitResult, user, world, hand, spells)
     }
 }
