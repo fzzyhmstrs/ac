@@ -44,7 +44,12 @@ abstract class SingleTargetOrSelfAugment(
         if (!onCastResults.success()) return  FAIL
         if (onCastResults.overwrite()) return onCastResults
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
-        val hit = if (target is EntityHitResult) target else EntityHitResult(user)
+        val hit = if (target is EntityHitResult) {
+            if (!canTarget(target,context, world, user, hand, spells)) return if (!onCastResults.acted()) FAIL else SpellActionResult.success(onCastResults.results())
+            target
+        } else {
+            EntityHitResult(user)
+        }
         val list = spells.processSingleEntityHit(hit,context,world,null,user, hand, level, effects)
         list.addAll(onCastResults.results())
         return if (list.isEmpty()) {
@@ -76,18 +81,24 @@ abstract class SingleTargetOrSelfAugment(
         return entityEffects(entityHitResult, context, world, source, user, hand, level, effects, othersType, spells)
     }
 
-    open fun entityEffects(
+    open fun <T> entityEffects(
         entityHitResult: EntityHitResult,
         context: ProcessContext,
         world: World,
         source: Entity?,
-        user: LivingEntity,
+        user: T,
         hand: Hand,
         level: Int,
         effects: AugmentEffect,
         othersType: AugmentType,
         spells: PairedAugments
-    ): SpellActionResult {
+    )
+    :
+    SpellActionResult
+    where
+    T : LivingEntity,
+    T : SpellCastingEntity
+    {
         return SUCCESSFUL_PASS
     }
 

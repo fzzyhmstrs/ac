@@ -104,6 +104,7 @@ abstract class ProjectileAugment(
     T: SpellCastingEntity
     {
         if (othersType.empty){
+            if (!canTarget(entityHitResult, context, world, user, hand, spells)) return FAIL
             val amount = spells.provideDealtDamage(effects.damage(level), context, entityHitResult, user, world, hand, level, effects)
             val damageSource = spells.provideDamageSource(context,entityHitResult, source, user, world, hand, level, effects)
             val bl  = entityHitResult.entity.damage(damageSource, amount)

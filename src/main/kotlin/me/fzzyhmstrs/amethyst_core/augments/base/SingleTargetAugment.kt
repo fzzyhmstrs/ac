@@ -44,7 +44,12 @@ abstract class SingleTargetAugment(
         if (!onCastResults.success()) return  FAIL
         if (onCastResults.overwrite()) return onCastResults
         val target = RaycasterUtil.raycastHit(distance = effects.range(level),user)
-        val hit = if (target is EntityHitResult) target else return FAIL
+        val hit = if (target is EntityHitResult) {
+            if (!canTarget(target,context, world, user, hand, spells)) return if (!onCastResults.acted()) FAIL else SpellActionResult.success(onCastResults.results())
+            target
+        } else {
+            return FAIL
+        }
         val list = spells.processSingleEntityHit(hit,context,world,null,user, hand, level, effects)
         list.addAll(onCastResults.results())
         return if (list.isEmpty()) {

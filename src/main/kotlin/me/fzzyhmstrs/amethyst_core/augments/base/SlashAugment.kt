@@ -16,7 +16,6 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.NbtCompound
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Hand
@@ -67,16 +66,16 @@ abstract class SlashAugment(
                 effects.range(level),
                 1.2)
 
-        val hostileEntityList = filter(entityList,user)
+        val filteredList = filter(entityList,user)
         val entityDistance: SortedMap<Double, EntityHitResult> = mutableMapOf<Double, EntityHitResult>().toSortedMap()
-        for (entity in hostileEntityList){
+        for (entity in filteredList){
             val dist = entity.squaredDistanceTo(user)
             entityDistance[dist] = entity
         }
         val closest = entityDistance[entityDistance.firstKey()] ?:return FAIL
         val closestContext = createClosestContext(closest.entity, context)
-        val list = if (hostileEntityList.isNotEmpty()) {
-            val temp = spells.processMultipleEntityHits(hostileEntityList,closestContext, world, null, user, hand, level, effects)
+        val list = if (filteredList.isNotEmpty()) {
+            val temp = spells.processMultipleEntityHits(filteredList,closestContext, world, null, user, hand, level, effects)
             temp.addAll(onCastResults.results())
             temp
         } else {

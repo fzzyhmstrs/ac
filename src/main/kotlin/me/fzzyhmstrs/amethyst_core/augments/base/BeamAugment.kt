@@ -65,8 +65,8 @@ abstract class BeamAugment(
                 effects.range(level),
                 0.8,
                 0.8)
-        if (entityList.isEmpty()) return FAIL
-
+        val filteredList = filter(entityList,user)
+        if (filteredList.isEmpty()) return FAIL
         val list = spells.processMultipleEntityHits(entityList.stream().map { EntityHitResult(it) }.toList(),context,world,null,user, hand, level, effects)
         list.addAll(onCastResults.results())
         var range = effects.range(level)
@@ -81,6 +81,20 @@ abstract class BeamAugment(
         list.addAll(list2)
         spells.castSoundEvents(world,user.blockPos,context)
         return if (list.isEmpty()) FAIL else SpellActionResult.success(list)
+    }
+
+    open fun filter(list: List<Entity>, user: LivingEntity): MutableList<EntityHitResult>{
+        val hostileEntityList: MutableList<EntityHitResult> = mutableListOf()
+        if (list.isNotEmpty()) {
+            for (entity in list) {
+                if (entity !== user) {
+                    if (entity is PlayerEntity && !getPvpMode()) continue
+                    if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
+                    hostileEntityList.add(EntityHitResult(entity))
+                }
+            }
+        }
+        return hostileEntityList
     }
 
     open fun beamOffset(user: LivingEntity): Vec3d{

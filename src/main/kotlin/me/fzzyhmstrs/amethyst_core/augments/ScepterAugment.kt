@@ -135,13 +135,23 @@ abstract class ScepterAugment(
         return SUCCESSFUL_PASS
     }
     open fun <T> onEntityKill(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
-    : 
+    :
     SpellActionResult
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
         return SUCCESSFUL_PASS
+    }
+
+    open fun <T> canTarget(entityHitResult: EntityHitResult,context: ProcessContext, world: World,user: T, hand: Hand, spells: PairedAugments)
+    :
+    Boolean
+    where
+    T: LivingEntity,
+    T: SpellCastingEntity
+    {
+        return true
     }
 
     /**
@@ -301,7 +311,7 @@ abstract class ScepterAugment(
         return stacks
     }
 
-    fun <T> modifyCount(start: Int, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T> modifyCount(start: Int, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     :
     Int
     where
