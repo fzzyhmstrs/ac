@@ -552,16 +552,16 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun <T, U> provideSummons(summons: List<T>, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
-    : List<T>
-    where 
+    fun <T, U> provideSummons(summons: List<T>,hit: HitResult, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    : List<Entity>
+    where
     T: Entity,
     T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity
     {
         return if (type == Type.PAIRED){
-            augments[1].modifySummons(summons, context, user, world, hand, level, effects, augments[0].augmentType, this)
+            augments[1].modifySummons(summons,hit, context, user, world, hand, level, effects, augments[0].augmentType, this)
         } else {
             summons
         }

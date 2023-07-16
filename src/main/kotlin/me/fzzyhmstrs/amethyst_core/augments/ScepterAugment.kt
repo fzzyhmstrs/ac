@@ -250,9 +250,9 @@ abstract class ScepterAugment(
      *
      * Can also modify certain features like armor, provide persistent attributes like health, speed, etc., or change quantity summoned
      */
-    open fun <T, U> modifySummons(summons: List<T>, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun <T, U> modifySummons(summons: List<T>, hit: HitResult, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
-    List<T> 
+    List<Entity>
     where 
     T: Entity,
     T: ModifiableEffectEntity,
