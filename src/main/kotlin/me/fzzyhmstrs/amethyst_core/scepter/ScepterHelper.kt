@@ -100,6 +100,25 @@ object ScepterHelper {
         }
     }
 
+    fun customScepterCooldown(
+        activeEnchantId: String,
+        pairedAugments: PairedAugments,
+        stack: ItemStack,
+        world: World,
+        level: Int,
+        modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>,
+        user: LivingEntity,
+        customCooldown: Int){
+        if (world !is ServerWorld) return
+        val scepterNbt = stack.orCreateNbt
+        val cdMod = modifiers.compiledData.cooldownModifier
+        val cooldown = AugmentHelper.getEffectiveCooldown(pairedAugments,cdMod,level,user)
+        val time = world.time
+        val customTime = time - cooldown + customCooldown
+        val lastUsedList = Nbt.getOrCreateSubCompound(scepterNbt, NbtKeys.LAST_USED_LIST.str())
+        updateLastUsed(lastUsedList, activeEnchantId, customTime)
+    }
+
     fun <T> castSpell(
         world: World,
         context: ProcessContext,
@@ -139,6 +158,10 @@ object ScepterHelper {
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
             if (spell.applyModifiableTasks(world, user, hand, level, pairedAugments, context, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
+                val customCooldown = context.get(ProcessContext.COOLDOWN)
+                if (customCooldown != 0){
+                    customScepterCooldown(activeEnchantId,pairedAugments,stack,world,level,modifiers,user,customCooldown)
+                }
                 if (incrementStats) {
                     incrementScepterStats(
                         stack.orCreateNbt,

@@ -50,6 +50,7 @@ class ProcessContext(private val data: NbtCompound) {
         val SPELL = object : Data<Identifier>("spell_id",IdentifierDataType){}
         val DOUBLE = object : Data<Boolean>("double_spell",BooleanDataType){}
         val BEFORE_REMOVAL = object : Data<Boolean>("before_removal",BooleanDataType){}
+        val COOLDOWN = object : Data<Int>("custom_cooldown",IntDataType){}
 
         val EMPTY_CONTEXT: ProcessContext
             get() = ProcessContext()
