@@ -46,6 +46,7 @@ object AugmentHelper {
     val BLOCK_BROKE = Identifier(AC.MOD_ID,"block_broke")
     val BLOCK_PLACED = Identifier(AC.MOD_ID,"block_placed")
     val DRY_FIRED = Identifier(AC.MOD_ID,"dry_fired")
+    val TELEPORTED = Identifier(AC.MOD_ID,"teleported")
 
     fun getOrCreatePairedAugments(activeEnchantId: String, activeEnchant: ScepterAugment, stack: ItemStack): PairedAugments {
         val pairedEnchantId: String? = getPairedEnchantId(stack,activeEnchantId)
