@@ -76,8 +76,14 @@ abstract class ProjectileAugment(
     T: SpellCastingEntity
     {
         var success = 0
+        var angle = (15f * (projectiles.size - 1)) / 2f
+
+
         for (projectile in projectiles){
+            val newVel = projectile.velocity.rotateY(angle)
+            projectile.velocity = newVel
             if(world.spawnEntity(projectile)) success++
+            angle -= 15f
         }
         if(success > 0) {
             spells.castSoundEvents(world, user.blockPos, context)

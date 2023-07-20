@@ -132,6 +132,10 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return boost
     }
 
+    fun empty(): Boolean{
+        return type == Type.EMPTY
+    }
+
     fun spellsAreUnique(): Boolean{
         if (type == Type.EMPTY || type == Type.SINGLE) return false
         return augments[1].specialName(augments[0]) != AcText.empty()
