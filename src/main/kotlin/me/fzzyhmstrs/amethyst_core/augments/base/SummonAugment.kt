@@ -144,7 +144,7 @@ abstract class SummonAugment<E>(
     {
         if (othersType.empty){
             summonContext(context)
-            val startCount = spawnCount(user,effects, othersType, spells)
+            val startCount = startCount(user,effects, othersType, spells)
             val count = spells.provideCount(startCount, context, user, world, hand, level, effects, othersType, spells)
             val startList: List<E> = entitiesToSpawn(world,user,hit,level,effects, spells, count)
             val list = spells.provideSummons(startList,hit, context, user, world, hand, level, effects)
@@ -169,16 +169,6 @@ abstract class SummonAugment<E>(
     List<E>
     {
         return listOf()
-    }
-
-    open fun <T> spawnCount(user: T,effects: AugmentEffect,othersType: AugmentType, spells: PairedAugments)
-    :
-    Int
-    where
-    T: LivingEntity,
-    T: SpellCastingEntity
-    {
-        return 1
     }
 
     open fun <T> afterSummonBlockEffects(

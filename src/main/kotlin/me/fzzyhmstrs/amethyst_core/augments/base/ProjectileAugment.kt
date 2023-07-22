@@ -7,6 +7,7 @@ import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.entity.MissileEntity
+import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffectEntity
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
@@ -18,6 +19,8 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
+import kotlin.math.max
+import kotlin.streams.toList
 
 /**
  * template for summoning a projectile entity. Used for basic "bolt"/"blast"/"missile" spells like Amethyst Imbuements base spell Magic Missile
@@ -43,8 +46,12 @@ abstract class ProjectileAugment(
         val onCastResults = spells.processOnCast(context,world,null,user, hand, level, effects)
         if (!onCastResults.success()) return  FAIL
         if (onCastResults.overwrite()) return onCastResults
-        val projectiles = createProjectileEntities(world,context, user, level, effects, spells)
-        val result = spawnProjectileEntities(world,context, user, projectiles, mutableListOf(), spells)
+        val type = AugmentType.EMPTY
+        val startCount = startCount(user,effects,type,spells)
+        val count = max(1, spells.provideCount(startCount,context, user, world, hand, level, effects, type, spells))
+        val projectiles = createProjectileEntities(world, context, user, level, effects, spells, count)
+        val projectiles2 = projectiles.stream().map { if (it is ModifiableEffectEntity) spells.provideProjectile(it,user,world, hand, level, effects) else it }.toList()
+        val result = spawnProjectileEntities(world,context, user, projectiles2, mutableListOf(), spells)
         return if (result.success()) {
             result.withResults(onCastResults.results())
         } else {
@@ -53,7 +60,7 @@ abstract class ProjectileAugment(
 
     }
 
-    open fun <T> createProjectileEntities(world: World, context: ProcessContext, user: T, level: Int = 1, effects: AugmentEffect, spells: PairedAugments)
+    open fun <T> createProjectileEntities(world: World, context: ProcessContext, user: T, level: Int = 1, effects: AugmentEffect, spells: PairedAugments, count: Int)
     : 
     List<ProjectileEntity>
     where 

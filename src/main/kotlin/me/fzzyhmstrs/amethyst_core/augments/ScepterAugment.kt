@@ -320,6 +320,17 @@ abstract class ScepterAugment(
     {
         return start
     }
+
+    open fun <T> startCount(user: T,effects: AugmentEffect,othersType: AugmentType, spells: PairedAugments)
+            :
+            Int
+            where
+            T: LivingEntity,
+            T: SpellCastingEntity
+    {
+        return 1
+    }
+
     /**
      * sound event to be played on cast
      */
