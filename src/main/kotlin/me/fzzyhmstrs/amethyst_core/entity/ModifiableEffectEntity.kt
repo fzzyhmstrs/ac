@@ -74,10 +74,10 @@ interface ModifiableEffectEntity{
     }
     companion object{
 
-        val TICK = Identifier(AC.MOD_ID, "tick_effects")
-        val DAMAGE = Identifier(AC.MOD_ID, "damage_effects")
-        val ON_DAMAGED = Identifier(AC.MOD_ID, "on_damaged_effects")
-        val KILL = Identifier(AC.MOD_ID, "kill_effects")
-        val ON_REMOVED = Identifier(AC.MOD_ID, "on_removed_effects")
+        val TICK = AC.identity( "tick_effects")
+        val DAMAGE = AC.identity( "damage_effects")
+        val ON_DAMAGED = AC.identity( "on_damaged_effects")
+        val KILL = AC.identity( "kill_effects")
+        val ON_REMOVED = AC.identity( "on_removed_effects")
     }
 }

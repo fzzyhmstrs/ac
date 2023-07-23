@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class FlameBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"flame_boost"), Enchantments.FLAME, 1) {
+class FlameBoost: EnchantmentAugmentBoost(AC.identity("flame_boost"), Enchantments.FLAME, 1) {
 
     override fun <T> modifyDamageSource(
         builder: DamageSourceBuilder,

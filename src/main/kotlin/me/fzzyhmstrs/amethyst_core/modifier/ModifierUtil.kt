@@ -16,7 +16,7 @@ import java.util.function.Supplier
  * default and blank properties for initialization etc.
  */
 object ModifierDefaults{
-    val BLANK_ID = Identifier(AC.MOD_ID,"blank_modifier")
+    val BLANK_ID = AC.identity("blank_modifier")
     val BLANK_AUG_MOD = AugmentModifier(BLANK_ID)
     val BLANK_EFFECT = AugmentEffect()
     val BLANK_XP_MOD = XpModifiers()

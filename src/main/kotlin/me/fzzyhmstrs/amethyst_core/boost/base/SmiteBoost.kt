@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class SmiteBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"smite_boost"), Enchantments.SMITE, 5) {
+class SmiteBoost: EnchantmentAugmentBoost(AC.identity("smite_boost"), Enchantments.SMITE, 5) {
 
     override fun <T> modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, spells: PairedAugments)
     :

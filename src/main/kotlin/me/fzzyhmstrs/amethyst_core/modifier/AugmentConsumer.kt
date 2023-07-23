@@ -23,7 +23,7 @@ data class AugmentConsumer private constructor(val consumer: Consumer<List<Livin
     }
 
     companion object{
-        val REGISTRY : SimpleRegistry<AugmentConsumer> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<AugmentConsumer>(Identifier(AC.MOD_ID,"augment_consumers"))).buildAndRegister()
+        val REGISTRY : SimpleRegistry<AugmentConsumer> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<AugmentConsumer>(AC.identity("augment_consumers"))).buildAndRegister()
 
         fun createAndRegisterConsumer(id: Identifier, consumer: Consumer<List<LivingEntity>>, type: Type): AugmentConsumer{
             return Registry.register(REGISTRY,id, AugmentConsumer(consumer, type))

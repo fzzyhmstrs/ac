@@ -37,6 +37,10 @@ object AC: ModInitializer {
         AbstractAugmentBookItem.registerServer()
         PairedSpellCommand.registerAll()
     }
+
+    fun identity(path: String): Identifier{
+        return Identifier(MOD_ID,path)
+    }
 }
 
 object ACC: ClientModInitializer {

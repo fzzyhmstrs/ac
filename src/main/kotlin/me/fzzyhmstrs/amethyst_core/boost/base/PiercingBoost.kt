@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class PiercingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"aqua_boost"), Enchantments.PIERCING, 4) {
+class PiercingBoost: EnchantmentAugmentBoost(AC.identity("aqua_boost"), Enchantments.PIERCING, 4) {
 
     override fun <T> modifyDamageSource(
         builder: DamageSourceBuilder,

@@ -47,18 +47,18 @@ object RegisterAttribute {
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_cooldown"), SPELL_COOLDOWN)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_mana_cost"), SPELL_MANA_COST)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_damage"), SPELL_DAMAGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_amplifier"), SPELL_AMPLIFIER)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_duration"), SPELL_DURATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "magic_resistance"), MAGIC_RESISTANCE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_level"), SPELL_LEVEL)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_cooldown"), SPELL_COOLDOWN)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_mana_cost"), SPELL_MANA_COST)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_damage"), SPELL_DAMAGE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_amplifier"), SPELL_AMPLIFIER)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_duration"), SPELL_DURATION)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_range"), SPELL_RANGE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_experience"), SPELL_EXPERIENCE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "damage_multiplication"), DAMAGE_MULTIPLICATION)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "player_experience"), PLAYER_EXPERIENCE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "shielding"), SHIELDING)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "magic_resistance"), MAGIC_RESISTANCE)
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {

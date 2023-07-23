@@ -28,15 +28,15 @@ class AugmentType private constructor (private val typeData: Set<Identifier>){
 
     companion object{
 
-        val BLOCK = Identifier(AC.MOD_ID,"interacts_blocks")
-        val ENTITY = Identifier(AC.MOD_ID,"interacts_entities")
-        val DAMAGE = Identifier(AC.MOD_ID,"damage_dealing")
-        val EXPLODES = Identifier(AC.MOD_ID,"explodes")
-        val SUMMONS = Identifier(AC.MOD_ID,"summons_mob")
-        val PROJECTILE = Identifier(AC.MOD_ID,"spawns_projectiles")
-        val BENEFICIAL = Identifier(AC.MOD_ID,"beneficial_effects")
-        val AOE = Identifier(AC.MOD_ID,"area_of_effect")
-        val EMPTY_TYPE = Identifier(AC.MOD_ID,"empty_type")
+        val BLOCK = AC.identity("interacts_blocks")
+        val ENTITY = AC.identity("interacts_entities")
+        val DAMAGE = AC.identity("damage_dealing")
+        val EXPLODES = AC.identity("explodes")
+        val SUMMONS = AC.identity("summons_mob")
+        val PROJECTILE = AC.identity("spawns_projectiles")
+        val BENEFICIAL = AC.identity("beneficial_effects")
+        val AOE = AC.identity("area_of_effect")
+        val EMPTY_TYPE = AC.identity("empty_type")
 
         val EMPTY = Builder().with(EMPTY_TYPE).build()
         val BOLT = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(PROJECTILE).build()

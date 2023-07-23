@@ -15,7 +15,7 @@ object RegisterBaseEntity {
 
     val MISSILE_ENTITY: EntityType<MissileEntity> = Registry.register(
         Registries.ENTITY_TYPE,
-        Identifier(AC.MOD_ID, "missile_entity"),
+        AC.identity( "missile_entity"),
         FabricEntityTypeBuilder.create(
             SpawnGroup.MISC
         ) { entityType: EntityType<MissileEntity>, world: World ->

@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class ImpalingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"impaling_boost"), Enchantments.IMPALING, Enchantments.IMPALING.maxLevel) {
+class ImpalingBoost: EnchantmentAugmentBoost(AC.identity("impaling_boost"), Enchantments.IMPALING, Enchantments.IMPALING.maxLevel) {
 
     override fun <T> modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, spells: PairedAugments)
     :

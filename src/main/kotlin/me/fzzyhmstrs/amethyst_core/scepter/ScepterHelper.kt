@@ -55,11 +55,11 @@ import kotlin.math.max
  */
 object ScepterHelper {
 
-    private val SCEPTER_SYNC_PACKET = Identifier(AC.MOD_ID,"scepter_sync_packet")
-    private val SPELL_PARTICLE_PACKET = Identifier(AC.MOD_ID,"spell_particle_packet")
+    private val SCEPTER_SYNC_PACKET = AC.identity("scepter_sync_packet")
+    private val SPELL_PARTICLE_PACKET = AC.identity("spell_particle_packet")
     private val particleAdders: MutableMap<Identifier,ParticleAdder> = mutableMapOf()
-    val CAST_SPELL = SpellCriterion(Identifier(AC.MOD_ID,"cast_spell"))
-    val USED_KNOWLEDGE_BOOK = TickCriterion(Identifier(AC.MOD_ID,"used_knowledge_book"))
+    val CAST_SPELL = SpellCriterion(AC.identity("cast_spell"))
+    val USED_KNOWLEDGE_BOOK = TickCriterion(AC.identity("used_knowledge_book"))
 
 
 

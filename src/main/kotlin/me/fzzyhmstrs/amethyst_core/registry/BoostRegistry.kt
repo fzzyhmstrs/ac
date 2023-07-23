@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier
 
 object BoostRegistry {
 
-    val BOOSTS: SimpleRegistry<AugmentBoost> = FabricRegistryBuilder.createSimple(AugmentBoost::class.java, Identifier(AC.MOD_ID,"augment_boosts")).buildAndRegister()
+    val BOOSTS: SimpleRegistry<AugmentBoost> = FabricRegistryBuilder.createSimple(AugmentBoost::class.java, AC.identity("augment_boosts")).buildAndRegister()
     private val boostStacks: List<ItemStack> by lazy {
         val list: MutableList<ItemStack> = mutableListOf()
         for (boost in BOOSTS){

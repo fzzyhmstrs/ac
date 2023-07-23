@@ -10,9 +10,9 @@ import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.Identifier
 
-class SoulSpeedBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"soul_speed_boost"), Enchantments.SOUL_SPEED, 3) {
+class SoulSpeedBoost: EnchantmentAugmentBoost(AC.identity("soul_speed_boost"), Enchantments.SOUL_SPEED, 3) {
 
-    private val SOUL_AUGMENTS: TagKey<Enchantment> = TagKey.of(RegistryKeys.ENCHANTMENT, Identifier(AC.MOD_ID,"soul_augments"))
+    private val SOUL_AUGMENTS: TagKey<Enchantment> = TagKey.of(RegistryKeys.ENCHANTMENT, AC.identity("soul_augments"))
 
     override val cooldownModifier: PerLvlI
         get() = PerLvlI(0,0,-20)

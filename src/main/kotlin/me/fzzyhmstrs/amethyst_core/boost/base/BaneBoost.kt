@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.world.World
 
-class BaneBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"bane_boost"), Enchantments.BANE_OF_ARTHROPODS, 5) {
+class BaneBoost: EnchantmentAugmentBoost(AC.identity("bane_boost"), Enchantments.BANE_OF_ARTHROPODS, 5) {
 
     override fun <T> modifyDamage(amount: Float, context: ProcessContext, entityHitResult: EntityHitResult, user: T, world: World, hand: Hand, spells: PairedAugments)
             :

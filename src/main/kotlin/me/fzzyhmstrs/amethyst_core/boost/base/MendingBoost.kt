@@ -6,7 +6,7 @@ import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.util.Identifier
 
-class MendingBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"mending_boost"), Enchantments.MENDING, 1) {
+class MendingBoost: EnchantmentAugmentBoost(AC.identity("mending_boost"), Enchantments.MENDING, 1) {
 
     override val manaCostModifier: PerLvlI
         get() = PerLvlI(0,0,-10)

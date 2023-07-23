@@ -50,7 +50,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     }
 
     fun createAugmentTag(path: String): TagKey<Enchantment> {
-        return TagKey.of(RegistryKeys.ENCHANTMENT, Identifier(AC.MOD_ID,path))
+        return TagKey.of(RegistryKeys.ENCHANTMENT, AC.identity(path))
     }
 
     fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{

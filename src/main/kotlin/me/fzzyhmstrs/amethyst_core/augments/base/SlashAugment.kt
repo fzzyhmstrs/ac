@@ -198,7 +198,7 @@ abstract class SlashAugment(
         0.05,
         0.15,
         0.3)
-    private val adderId = Identifier(AC.MOD_ID,"slash_adder")
+    private val adderId = AC.identity("slash_adder")
 
     init{
         ScepterHelper.registerParticleAdder(adderId){ client, buf, effect ->

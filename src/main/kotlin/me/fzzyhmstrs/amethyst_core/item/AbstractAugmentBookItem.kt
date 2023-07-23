@@ -171,7 +171,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
     companion object{
 
         private var preSync = 0L
-        val PRE_SYNC_CHANNEL = Identifier(AC.MOD_ID,"book_rand_pre_sync")
+        val PRE_SYNC_CHANNEL = AC.identity("book_rand_pre_sync")
 
         fun registerClient(){
             ClientPlayNetworking.registerGlobalReceiver(PRE_SYNC_CHANNEL){_,_,b,_ ->

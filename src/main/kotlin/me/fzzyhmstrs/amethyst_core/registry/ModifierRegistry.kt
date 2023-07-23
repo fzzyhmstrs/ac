@@ -29,7 +29,7 @@ object ModifierRegistry {
     /**
      * example harmful [AugmentConsumer] that applies wither to targets specified to receive Harmful effects in the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment] implementation.
      */
-    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_necrotic"),{ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
+    private val DEBUG_NECROTIC_CONSUMER = AugmentConsumer.createAndRegisterConsumer(AC.identity("debug_necrotic"),{ list: List<LivingEntity> -> necroticConsumer(list)}, AugmentConsumer.Type.HARMFUL)
     private fun necroticConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(
@@ -41,7 +41,7 @@ object ModifierRegistry {
     /**
      * example beneficial [AugmentConsumer] that applies regeneration to targets specified to receive beneficial effects. Most commonly, this will be the player than cast the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter.augments.ScepterAugment], but may also be other targets of, for example, a mass healing spell.
      */
-    private val DEBUG_HEALING_CONSUMER = AugmentConsumer.createAndRegisterConsumer(Identifier(AC.MOD_ID,"debug_healing"),{ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
+    private val DEBUG_HEALING_CONSUMER = AugmentConsumer.createAndRegisterConsumer(AC.identity("debug_healing"),{ list: List<LivingEntity> -> healingConsumer(list)}, AugmentConsumer.Type.BENEFICIAL)
     private fun healingConsumer(list: List<LivingEntity>){
         list.forEach {
             it.addStatusEffect(
@@ -55,25 +55,25 @@ object ModifierRegistry {
      *
      * Amethyst Imbuement namespace kept for Reach and Enduring lineages to avoid breaking changes in-game
      */
-    val GREATER_ATTUNED = AugmentModifier(Identifier(AC.MOD_ID,"greater_attuned"), cooldownModifier = -22.5, rollToll = 4)
-    val ATTUNED = AugmentModifier(Identifier(AC.MOD_ID,"attuned"), cooldownModifier = -15.0, rollToll = 4).withDescendant(GREATER_ATTUNED)
-    val LESSER_ATTUNED = AugmentModifier(Identifier(AC.MOD_ID,"lesser_attuned"), cooldownModifier = -7.5, rollToll = 3).withDescendant(ATTUNED)
-    val GREATER_THRIFTY = AugmentModifier(Identifier(AC.MOD_ID,"greater_thrifty"), manaCostModifier = -15.0, rollToll = 4)
-    val THRIFTY = AugmentModifier(Identifier(AC.MOD_ID,"thrifty"), manaCostModifier = -10.0, rollToll = 4).withDescendant(GREATER_THRIFTY)
-    val LESSER_THRIFTY = AugmentModifier(Identifier(AC.MOD_ID,"lesser_thrifty"), manaCostModifier = -5.0, rollToll = 3).withDescendant(THRIFTY)
+    val GREATER_ATTUNED = AugmentModifier(AC.identity("greater_attuned"), cooldownModifier = -22.5, rollToll = 4)
+    val ATTUNED = AugmentModifier(AC.identity("attuned"), cooldownModifier = -15.0, rollToll = 4).withDescendant(GREATER_ATTUNED)
+    val LESSER_ATTUNED = AugmentModifier(AC.identity("lesser_attuned"), cooldownModifier = -7.5, rollToll = 3).withDescendant(ATTUNED)
+    val GREATER_THRIFTY = AugmentModifier(AC.identity("greater_thrifty"), manaCostModifier = -15.0, rollToll = 4)
+    val THRIFTY = AugmentModifier(AC.identity("thrifty"), manaCostModifier = -10.0, rollToll = 4).withDescendant(GREATER_THRIFTY)
+    val LESSER_THRIFTY = AugmentModifier(AC.identity("lesser_thrifty"), manaCostModifier = -5.0, rollToll = 3).withDescendant(THRIFTY)
     val GREATER_REACH = AugmentModifier(Identifier("amethyst_imbuement","greater_reach"), rollToll = 4).withRange(rangePercent = 24.0)
     val REACH = AugmentModifier(Identifier("amethyst_imbuement","reach"), rollToll = 4).withDescendant(GREATER_REACH).withRange(rangePercent = 16.0)
     val LESSER_REACH = AugmentModifier(Identifier("amethyst_imbuement","lesser_reach"), rollToll = 3).withDescendant(REACH).withRange(rangePercent = 8.0)
     val GREATER_ENDURING = AugmentModifier(Identifier("amethyst_imbuement","greater_enduring"), rollToll = 4).withDuration(durationPercent = 65)
     val ENDURING = AugmentModifier(Identifier("amethyst_imbuement","enduring"), rollToll = 4).withDescendant(GREATER_ENDURING).withDuration(durationPercent = 30)
     val LESSER_ENDURING = AugmentModifier(Identifier("amethyst_imbuement","lesser_enduring"), rollToll = 3).withDescendant(ENDURING).withDuration(durationPercent = 15)
-    val MODIFIER_DEBUG = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug")).withDamage(2.0F,2.0F).withRange(2.75)
-    val MODIFIER_DEBUG_2 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
-    val MODIFIER_DEBUG_3 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
+    val MODIFIER_DEBUG = AugmentModifier(AC.identity("modifier_debug")).withDamage(2.0F,2.0F).withRange(2.75)
+    val MODIFIER_DEBUG_2 = AugmentModifier(AC.identity("modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
+    val MODIFIER_DEBUG_3 = AugmentModifier(AC.identity("modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
 
     val MODIFIER_TYPE: ModifierHelperType = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
 
-    object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper")){
+    object ModifierType: ModifierHelperType(AC.identity("amethyst_core_helper")){
         override fun getModifierIdKey(): String {
             return "modifier_id"
         }

@@ -6,7 +6,7 @@ import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.util.Identifier
 
-class SharpnessBoost: EnchantmentAugmentBoost(Identifier(AC.MOD_ID,"sharpness_boost"), Enchantments.SHARPNESS, Enchantments.SHARPNESS.maxLevel) {
+class SharpnessBoost: EnchantmentAugmentBoost(AC.identity("sharpness_boost"), Enchantments.SHARPNESS, Enchantments.SHARPNESS.maxLevel) {
     override val boostEffect: AugmentEffect
         get() = super.boostEffect.withDamage(0f,0f,10f)
 }

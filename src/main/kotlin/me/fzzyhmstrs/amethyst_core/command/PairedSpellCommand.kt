@@ -20,7 +20,7 @@ object PairedSpellCommand {
 
     fun registerAll(){
         ArgumentTypeRegistry.registerArgumentType(
-            Identifier(AC.MOD_ID,"current_spell_argument"),
+            AC.identity("current_spell_argument"),
             CurrentSpellsArgumentType::class.java, ConstantArgumentSerializer.of(
                 Supplier {
                     CurrentSpellsArgumentType()
@@ -28,7 +28,7 @@ object PairedSpellCommand {
             )
         )
         ArgumentTypeRegistry.registerArgumentType(
-            Identifier(AC.MOD_ID,"all_spell_argument"),
+            AC.identity("all_spell_argument"),
             AllSpellsArgumentType::class.java, ConstantArgumentSerializer.of(
                 Supplier {
                     AllSpellsArgumentType()
@@ -36,7 +36,7 @@ object PairedSpellCommand {
             )
         )
         ArgumentTypeRegistry.registerArgumentType(
-            Identifier(AC.MOD_ID,"boost_argument"),
+            AC.identity("boost_argument"),
             BoostsArgumentType::class.java, ConstantArgumentSerializer.of(
                 Supplier {
                     BoostsArgumentType()

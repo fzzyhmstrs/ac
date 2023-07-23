@@ -6,7 +6,7 @@ import net.minecraft.util.Identifier
 
 object FeatureCriteria {
 
-    val PAIRED_FEATURE = AugmentFeatureCriterion(Identifier(AC.MOD_ID,"paired_feature"))
+    val PAIRED_FEATURE = AugmentFeatureCriterion(AC.identity("paired_feature"))
 
     fun registerServer(){
         Criteria.register(PAIRED_FEATURE)

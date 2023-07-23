@@ -527,7 +527,7 @@ abstract class ScepterAugment(
     }
 
     companion object{
-        val spellType = Identifier(AC.MOD_ID,"spell_context")
+        val spellType = AC.identity("spell_context")
         val FAIL = SpellActionResult.fail()
         val SUCCESSFUL_PASS = SpellActionResult.pass()
     }
