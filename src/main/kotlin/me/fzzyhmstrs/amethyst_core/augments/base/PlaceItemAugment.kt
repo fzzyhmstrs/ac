@@ -85,18 +85,17 @@ abstract class PlaceItemAugment(
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (othersType == AugmentType.BLOCK_TARGET) return customItemPlaceOnBlockHit(blockHitResult,context, world, source, user, hand, level, effects, othersType, spells)
         if (!othersType.empty) return SUCCESSFUL_PASS
         if (user !is ServerPlayerEntity) return FAIL
-        when (item) {
+        when (val itemToPlace = (spells.paired() as? PlaceItemAugment)?.customItemPlaceOnBlockHit(item, blockHitResult,context, world, source, user, hand, level, effects, augmentType, spells)?:item) {
             is BlockItem -> {
-                val stack = itemToPlace()
-                if (!item.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
+                val stack = ItemStack(itemToPlace)
+                if (!itemToPlace.place(ItemPlacementContext(user, hand, stack, blockHitResult)).isAccepted) return FAIL
                 spells.hitSoundEvents(world, blockHitResult.blockPos,context)
                 return SpellActionResult.success(AugmentHelper.BLOCK_PLACED)
             }
             is BucketItem -> {
-                if (!item.placeFluid(user,world,blockHitResult.blockPos,blockHitResult)) return FAIL
+                if (!itemToPlace.placeFluid(user,world,blockHitResult.blockPos,blockHitResult)) return FAIL
                 spells.hitSoundEvents(world, blockHitResult.blockPos, context)
                 return SpellActionResult.success(AugmentHelper.BLOCK_PLACED)
             }
@@ -105,15 +104,20 @@ abstract class PlaceItemAugment(
             }
         }
     }
-    
-    open fun <T> customItemPlaceOnBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+
+    /**
+     * Used by a spell when it's PAIRED to define the custom item it might pass to the primary.
+     *
+     * The primary's item is passed into startItem
+     */
+    open fun <T> customItemPlaceOnBlockHit(startItem: Item, blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
-    SpellActionResult
+    Item
     where 
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return SUCCESSFUL_PASS
+        return startItem
     }
     
     override fun hitSoundEvent(world: World, blockPos: BlockPos, context: ProcessContext){
@@ -128,9 +132,5 @@ abstract class PlaceItemAugment(
 
     fun item(): Item{
         return this.item
-    }
-
-    open fun itemToPlace(): ItemStack {
-        return ItemStack(item)
     }
 }
