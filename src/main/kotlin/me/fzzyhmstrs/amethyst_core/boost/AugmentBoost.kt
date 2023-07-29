@@ -44,12 +44,9 @@ abstract class AugmentBoost(val id: Identifier) {
     {
         return builder
     }
-    open fun <T> modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, spells: PairedAugments)
+    open fun modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: LivingEntity?, world: World, hand: Hand, spells: PairedAugments)
     :
     ExplosionBuilder
-    where
-    T: LivingEntity,
-    T: SpellCastingEntity
     {
         return builder
     }

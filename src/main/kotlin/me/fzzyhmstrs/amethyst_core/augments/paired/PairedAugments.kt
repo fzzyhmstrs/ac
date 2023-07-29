@@ -12,6 +12,7 @@ import me.fzzyhmstrs.amethyst_core.modifier.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
+import me.fzzyhmstrs.amethyst_core.scepter.CustomDamageSource
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
@@ -21,9 +22,11 @@ import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.damage.DamageTypes
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
@@ -546,7 +549,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (type == Type.EMPTY) return user.damageSources.dryOut()
+        if (type == Type.EMPTY) return CustomDamageSource(world.registryManager.get(RegistryKeys.DAMAGE_TYPE).entryOf(DamageTypes.MOB_ATTACK),source,user)
         val builder: DamageSourceBuilder = augments[0].damageSourceBuilder(world,source,user)
         return if (type == Type.PAIRED){
                 val mod = augments[1].modifyDamageSource(builder, context, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
@@ -662,10 +665,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return a + c
     }
 
-    fun <T> causeExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
-    where 
-    T: LivingEntity,
-    T: SpellCastingEntity
+    fun causeExplosion(builder: ExplosionBuilder, context: ProcessContext, user: LivingEntity?, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     {
         val explosion = if (type == Type.PAIRED){
             augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this)

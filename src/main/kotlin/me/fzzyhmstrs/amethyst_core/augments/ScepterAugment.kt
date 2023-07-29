@@ -286,12 +286,9 @@ abstract class ScepterAugment(
      *
      * Use to do things like changing the blocks that are created (snow instead of fire, for example)
      */
-    open fun <T> modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
+    open fun modifyExplosion(builder: ExplosionBuilder, context: ProcessContext, user: LivingEntity?, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     : 
-    ExplosionBuilder 
-    where 
-    T: LivingEntity,
-    T: SpellCastingEntity
+    ExplosionBuilder
     {
         return builder
     }

@@ -9,6 +9,10 @@ class ProcessContext(private val data: NbtCompound) {
 
     constructor(): this(NbtCompound())
 
+    fun copy(): ProcessContext{
+        return ProcessContext(data.copy())
+    }
+
     fun<T> get(dataKey: Data<T>): T{
         return dataKey.get(data)
     }
