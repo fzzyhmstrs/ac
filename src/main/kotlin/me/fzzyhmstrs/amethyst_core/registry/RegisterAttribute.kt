@@ -47,7 +47,7 @@ object RegisterAttribute {
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_level"), SPELL_LEVEL)
+/*        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_level"), SPELL_LEVEL)
         Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_cooldown"), SPELL_COOLDOWN)
         Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_mana_cost"), SPELL_MANA_COST)
         Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_damage"), SPELL_DAMAGE)
@@ -58,15 +58,11 @@ object RegisterAttribute {
         Registry.register(Registries.ATTRIBUTE, AC.identity( "damage_multiplication"), DAMAGE_MULTIPLICATION)
         Registry.register(Registries.ATTRIBUTE, AC.identity( "player_experience"), PLAYER_EXPERIENCE)
         Registry.register(Registries.ATTRIBUTE, AC.identity( "shielding"), SHIELDING)
-        Registry.register(Registries.ATTRIBUTE, AC.identity( "magic_resistance"), MAGIC_RESISTANCE)
+        Registry.register(Registries.ATTRIBUTE, AC.identity( "magic_resistance"), MAGIC_RESISTANCE)*/
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
-        return ClampedEntityAttribute(
-            "attribute.name.generic." + AC.MOD_ID + "." + name,
-            base,
-            min,
-            max
-        ).setTracked(true)
+        return  Registry.register(Registries.ATTRIBUTE, AC.identity(name), ClampedEntityAttribute(
+            "attribute.name.generic." + AC.MOD_ID + "." + name, base, min, max).setTracked(true))
     }
 }

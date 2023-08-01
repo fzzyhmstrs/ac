@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.augments
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.item.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.registry.BoostRegistry
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
@@ -10,7 +11,10 @@ import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.mob.Monster
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
@@ -19,6 +23,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
+import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.math.max
@@ -47,6 +52,34 @@ object AugmentHelper {
     val BLOCK_PLACED = AC.identity("block_placed")
     val DRY_FIRED = AC.identity("dry_fired")
     val TELEPORTED = AC.identity("teleported")
+
+    fun hostileFilter(list: List<Entity>, user: LivingEntity, spell: ScepterAugment): MutableList<EntityHitResult> {
+        val hostileEntityList: MutableList<EntityHitResult> = mutableListOf()
+        if (list.isNotEmpty()) {
+            for (entity in list) {
+                if (entity !== user) {
+                    if (entity is PlayerEntity && !spell.getPvpMode()) continue
+                    if (entity is SpellCastingEntity && spell.getPvpMode() && entity.isTeammate(user)) continue
+                    hostileEntityList.add(EntityHitResult(entity))
+                }
+            }
+        }
+        return hostileEntityList
+    }
+
+    fun friendlyFilter(list: List<Entity>, user: LivingEntity, spell: ScepterAugment): MutableList<EntityHitResult> {
+        val friendlyEntityList: MutableList<EntityHitResult> = mutableListOf()
+        if (list.isNotEmpty()) {
+            for (entity in list) {
+                if (entity !== user) {
+                    if (entity is PlayerEntity && spell.getPvpMode() && !entity.isTeammate(user)) continue
+                    if (entity is Monster) continue
+                    friendlyEntityList.add(EntityHitResult(entity))
+                }
+            }
+        }
+        return friendlyEntityList
+    }
 
     fun getOrCreatePairedAugments(activeEnchantId: String, activeEnchant: ScepterAugment, stack: ItemStack): PairedAugments {
         val pairedEnchantId: String? = getPairedEnchantId(stack,activeEnchantId)

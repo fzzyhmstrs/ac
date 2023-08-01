@@ -59,46 +59,6 @@ abstract class EntityAoeAugment(
     }
 
     abstract fun filter(list: List<Entity>, user: LivingEntity): MutableList<EntityHitResult>
-        /*val hostileEntityList: MutableList<EntityHitResult> = mutableListOf()
-        if (list.isNotEmpty()) {
-            for (entity in list) {
-                if (entity !== user) {
-                    if (entity is PlayerEntity && !getPvpMode()) continue
-                    if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
-                    hostileEntityList.add(EntityHitResult(entity))
-                }
-            }
-        }
-        return hostileEntityList*/
-
-    fun hostileFilter(list: List<Entity>, user: LivingEntity): MutableList<EntityHitResult> {
-        val hostileEntityList: MutableList<EntityHitResult> = mutableListOf()
-        if (list.isNotEmpty()) {
-            for (entity in list) {
-                if (entity !== user) {
-                    if (entity is PlayerEntity && !getPvpMode()) continue
-                    if (entity is SpellCastingEntity && getPvpMode() && entity.isTeammate(user)) continue
-                    hostileEntityList.add(EntityHitResult(entity))
-                }
-            }
-        }
-        return hostileEntityList
-    }
-
-    fun friendlyFilter(list: List<Entity>, user: LivingEntity): MutableList<EntityHitResult> {
-        val friendlyEntityList: MutableList<EntityHitResult> = mutableListOf()
-        if (list.isNotEmpty()) {
-            for (entity in list) {
-                if (entity !== user) {
-                    if (entity is PlayerEntity && getPvpMode() && !entity.isTeammate(user)) continue
-                    if (entity is Monster) continue
-                    friendlyEntityList.add(EntityHitResult(entity))
-                }
-            }
-        }
-        return friendlyEntityList
-    }
-
 
     override fun <T> onEntityHit(
         entityHitResult: EntityHitResult,
