@@ -36,13 +36,17 @@ ManaItemMaterial
         return attackSpeed.get()
     }
 
-    open class Builder(private val tier: Int): ValidatedToolMaterial.Builder(){
+    open class Builder(private val tier: Int): ValidatedToolMaterial.AbstractBuilder<ScepterToolMaterial, Builder>(){
         protected var aS = ValidatedFloat(-3f,0f,-4f)
 
         fun attackSpeed(default: Float): Builder{
             aS = ValidatedFloat(default,0f,-4f)
         }
 
+        override fun builderClass(): Builder{
+            return this
+        }
+        
         override fun build(): ScepterToolMaterial{
             return ScepterToolMaterial(tier, aS, d, mSM, aD, mL, e, rI)
         }
