@@ -43,7 +43,9 @@ abstract class LivingEntityMixin {
 
     @WrapOperation(method = "applyDamage", at = @At(value = "INVOKE", target = "net/minecraft/entity/LivingEntity.applyArmorToDamage (Lnet/minecraft/entity/damage/DamageSource;F)F"))
     private float amethyst_core_applyMultiplicationAttributeToDamage(LivingEntity instance, DamageSource source, float amount, Operation<Float> operation){
-        return operation.call(instance,source,amount * ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()))) ;
+        int newAmount = amount * ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()));
+        newAmount *= source.isIn(DamageTypeTags.BYPASSES_ARMOR) ? 1f - ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getMAGIC_RESISTANCE())) : 1f;
+        return operation.call(instance,source,newAmount);
     }
     
     @WrapOperation(method = "getEquipmentChanges", at = @At(value = "INVOKE", target = "net/minecraft/item/ItemStack.getAttributeModifiers (Lnet/minecraft/entity/EquipmentSlot;)Lcom/google/common/collect/Multimap;"))
