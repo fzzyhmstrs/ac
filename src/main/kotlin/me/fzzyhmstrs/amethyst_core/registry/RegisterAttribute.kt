@@ -43,8 +43,9 @@ object RegisterAttribute {
     //shielding represents a fractional chance that damage is entirely blocked
     val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
 
-    //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection
-    val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
+    //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection. 
+    //Negative resistance means you take extra magic damage
+    val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, -32.0, 1.0)
 
     fun registerAll(){
 /*        Registry.register(Registries.ATTRIBUTE, AC.identity( "spell_level"), SPELL_LEVEL)
