@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter
 
+import me.fzzyhmstrs.fzzy_config.validated_field.*
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItemMaterial
 import net.minecraft.item.ToolMaterial
 
@@ -9,12 +10,14 @@ import net.minecraft.item.ToolMaterial
 open class ScepterToolMaterial protected constructor(
     private val tier: Int,
     attackSpeedDefault: ValidatedDouble,
+    healCooldownDefault: ValidatedLong,
     durabilityDefault: ValidatedInt,
     miningSpeedDefault: ValidatedFloat,
     attackDamageDefault: ValidatedFloat,
     miningLevelDefault: ValidatedInt,
     enchantabilityDefault: ValidatedInt,
-    repairIngredientDefault: ValidatedIngredient)
+    repairIngredientDefault: ValidatedIngredient
+)
 : 
 ValidatedToolMaterial(
     durabilityDefault,
@@ -27,6 +30,7 @@ ValidatedToolMaterial(
 ManaItemMaterial 
 {
     var attackSpeed = attackSpeedDefault
+    var healCooldown = healCooldownDefault
     
     fun scepterTier(): Int{
         return tier
@@ -36,11 +40,23 @@ ManaItemMaterial
         return attackSpeed.get()
     }
 
-    open class Builder(private val tier: Int): ValidatedToolMaterial.AbstractBuilder<ScepterToolMaterial, Builder>(){
-        protected var aS = ValidatedFloat(-3f,0f,-4f)
+    override fun healCooldown(): Long {
+        return healCooldown.get()
+    }
 
-        fun attackSpeed(default: Float): Builder{
-            aS = ValidatedFloat(default,0f,-4f)
+
+    open class Builder(private val tier: Int): AbstractBuilder<ScepterToolMaterial, Builder>(){
+        protected var aS = ValidatedDouble(-3.0,0.0,-4.0)
+        protected var hC = ValidatedLong(70L,1200L,10L)
+
+        fun attackSpeed(default: Double): Builder{
+            aS = ValidatedDouble(default,0.0,-4.0)
+            return builderClass()
+        }
+
+        fun healCooldown(default: Long): Builder{
+            hC = ValidatedLong(default,1200L,10L)
+            return builderClass()
         }
 
         override fun builderClass(): Builder{
@@ -48,7 +64,7 @@ ManaItemMaterial
         }
         
         override fun build(): ScepterToolMaterial{
-            return ScepterToolMaterial(tier, aS, d, mSM, aD, mL, e, rI)
+            return ScepterToolMaterial(tier, aS,hC, d, mSM, aD, mL, e, rI)
         }
         
     }

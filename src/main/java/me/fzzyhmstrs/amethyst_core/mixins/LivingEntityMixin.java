@@ -12,6 +12,7 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.DamageTypeTags;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,8 +44,8 @@ abstract class LivingEntityMixin {
 
     @WrapOperation(method = "applyDamage", at = @At(value = "INVOKE", target = "net/minecraft/entity/LivingEntity.applyArmorToDamage (Lnet/minecraft/entity/damage/DamageSource;F)F"))
     private float amethyst_core_applyMultiplicationAttributeToDamage(LivingEntity instance, DamageSource source, float amount, Operation<Float> operation){
-        int newAmount = amount * ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()));
-        newAmount *= source.isIn(DamageTypeTags.BYPASSES_ARMOR) ? 1f - ((float)this.getAttributeValue(RegisterAttribute.INSTANCE.getMAGIC_RESISTANCE())) : 1f;
+        float newAmount = amount * ((float)instance.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()));
+        newAmount *= source.isIn(DamageTypeTags.BYPASSES_ARMOR) ? 1f - ((float)instance.getAttributeValue(RegisterAttribute.INSTANCE.getMAGIC_RESISTANCE())) : 1f;
         return operation.call(instance,source,newAmount);
     }
     
