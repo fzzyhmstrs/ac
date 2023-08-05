@@ -11,7 +11,7 @@ import java.util.function.Predicate
 open class CustomDamageSource(
     type: RegistryEntry<DamageType>,
     source: Entity?,
-    attacker: LivingEntity,
+    attacker: LivingEntity?,
     private val exclusions: Predicate<TagKey<DamageType>> = Predicate {_ -> false},
     private val additions: Predicate<TagKey<DamageType>> = Predicate {_ -> false})
     :

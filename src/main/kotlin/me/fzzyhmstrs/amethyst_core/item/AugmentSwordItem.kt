@@ -12,7 +12,7 @@ import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterToolMaterial
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
-import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
+import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
@@ -54,7 +54,7 @@ abstract class AugmentSwordItem(
     settings: Settings)
     :
     SwordItem(material,damage,attackSpeed, settings),
-    SpellCasting, ScepterLike, Modifiable, ManaItem, Flavorful<AugmentSwordItem>
+    SpellCasting, ScepterLike, Modifiable, ManaItem
 {
 
     var defaultAugments: List<ScepterAugment> = listOf()
@@ -62,16 +62,19 @@ abstract class AugmentSwordItem(
     override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
         
-    override var glint: Boolean = false
-    override var flavor: String = ""
-    override var flavorDesc: String = ""
-    
+    private var glint: Boolean = false
+
+    fun withGlint(): AugmentSwordItem {
+        glint = true
+        return this
+    }
+
     private val flavorText: MutableText by lazy{
-        makeFlavorText()
+        FlavorHelper.makeFlavorText(this)
     }
     
     private val flavorTextDesc: MutableText by lazy{
-        makeFlavorTextDesc()
+        FlavorHelper.makeFlavorTextDesc(this)
     }
     
     override fun getTier(): Int{
@@ -227,7 +230,8 @@ abstract class AugmentSwordItem(
 
     
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
-        return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
+        return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(
+            NbtKeys.ACTIVE_ENCHANT.str())
     }
     
     override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
@@ -300,7 +304,7 @@ abstract class AugmentSwordItem(
 
     override fun appendTooltip(stack: ItemStack, world: World?, tooltip: MutableList<Text>, context: TooltipContext) {
         super.appendTooltip(stack, world, tooltip, context)
-        addFlavorText(tooltip, context)
+        FlavorHelper.addFlavorText(tooltip, context,flavorText,flavorTextDesc)
     }
 
     override fun hasGlint(stack: ItemStack): Boolean {
@@ -309,16 +313,5 @@ abstract class AugmentSwordItem(
         } else {
             super.hasGlint(stack)
         }
-    }
-    
-    override fun flavorText(): MutableText{
-        return flavorText
-    }
-    override fun flavorDescText(): MutableText{
-        return flavorTextDesc
-    }
-
-    override fun getFlavorItem(): AugmentSwordItem {
-        return this
     }
 }

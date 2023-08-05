@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap
 import dev.emi.trinkets.api.SlotReference
 import dev.emi.trinkets.api.TrinketItem
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
-import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
+import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper
 import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
 import me.fzzyhmstrs.fzzy_core.trinket_util.AugmentTasks
 import net.minecraft.client.item.TooltipContext
@@ -28,18 +28,21 @@ import java.util.*
  *
  * Notably absent from this default item is an implementation for activated abilities (abilities that might be turned on/off with use)
  */
-open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings), AugmentTasks, Flavorful<AbstractAugmentJewelryItem> {
+open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings), AugmentTasks {
 
-    override var glint: Boolean = false
-    override var flavor: String = ""
-    override var flavorDesc: String = ""
+    private var glint: Boolean = false
+
+    fun withGlint(): AbstractAugmentJewelryItem {
+        glint = true
+        return this
+    }
 
     private val flavorText: MutableText by lazy{
-        makeFlavorText()
+        FlavorHelper.makeFlavorText(this)
     }
     
     private val flavorTextDesc: MutableText by lazy{
-        makeFlavorTextDesc()
+        FlavorHelper.makeFlavorTextDesc(this)
     }
     
     private fun makeFlavorText(): MutableText{
@@ -54,18 +57,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
 
     override fun appendTooltip(stack: ItemStack, world: World?, tooltip: MutableList<Text>, context: TooltipContext) {
         super.appendTooltip(stack, world, tooltip, context)
-        addFlavorText(tooltip, context)
-    }
-
-    override fun getFlavorItem(): AbstractAugmentJewelryItem {
-        return this
-    }
-    
-    override fun flavorText(): MutableText{
-        return flavorText
-    }
-    override fun flavorDescText(): MutableText{
-        return flavorTextDesc
+        FlavorHelper.addFlavorText(tooltip, context,flavorText,flavorTextDesc)
     }
 
     override fun getModifiers(

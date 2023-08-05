@@ -13,7 +13,7 @@ import net.minecraft.registry.tag.TagKey
 import net.minecraft.world.World
 import java.util.function.Predicate
 
-class DamageSourceBuilder(world: World, private val attacker: LivingEntity, private val source: Entity? = null){
+class DamageSourceBuilder(world: World, private val attacker: LivingEntity? = null, private val source: Entity? = null){
 
     private val registry = world.registryManager.get(RegistryKeys.DAMAGE_TYPE)
 

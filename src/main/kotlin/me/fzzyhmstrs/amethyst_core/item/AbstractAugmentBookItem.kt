@@ -9,6 +9,7 @@ import me.fzzyhmstrs.amethyst_core.scepter.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
+import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
@@ -94,15 +95,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             val castXp = aug.augmentData.castXp
             tooltip.add(AcText.translatable("lore_book.cast_xp",castXp.toString()).formatted(Formatting.WHITE))
         } else {
-            addFlavorText(tooltip, context)
-        }
-    }
-
-    override fun hasGlint(stack: ItemStack): Boolean {
-        return if (glint) {
-            true
-        } else {
-            super.hasGlint(stack)
+            super.appendTooltip(stack, world, tooltip, context)
         }
     }
 

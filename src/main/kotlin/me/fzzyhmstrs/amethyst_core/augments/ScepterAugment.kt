@@ -36,6 +36,7 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
 /**
@@ -291,6 +292,10 @@ abstract class ScepterAugment(
     ExplosionBuilder
     {
         return builder
+    }
+
+    open fun explosionBuilder(world: World, source: Entity?, attacker: LivingEntity?): ExplosionBuilder {
+        return ExplosionBuilder(DamageSourceBuilder(world,attacker, source),source,source?.pos?:attacker?.pos?: Vec3d(0.0,0.0,0.0))
     }
 
     /**

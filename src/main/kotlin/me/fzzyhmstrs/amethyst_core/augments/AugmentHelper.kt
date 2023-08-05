@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
@@ -25,6 +26,7 @@ import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.max
 import me.fzzyhmstrs.amethyst_core.nbt.NbtKeys as NbtKeys1
@@ -428,6 +430,12 @@ object AugmentHelper {
             }
         }
         return false
+    }
+
+    fun ProjectileEntity.place(caster: Entity, rotation: Vec3d, yOffset: Double, speed: Float, divergence: Float, posOffset: Double = 0.0){
+        this.setVelocity(rotation.x,rotation.y,rotation.z,speed,divergence)
+        val pos = caster.pos.add(0.0,caster.eyeY + yOffset,0.0).add(rotation.multiply(posOffset))
+        this.setPosition(pos)
     }
 
 }
