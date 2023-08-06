@@ -19,6 +19,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
@@ -272,9 +273,9 @@ abstract class ScepterAugment(
      */
     open fun <T, U> modifyProjectile(projectile: T, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
     :
-    T
+    ProjectileEntity
     where
-    T: Entity,
+    T: ProjectileEntity,
     T: ModifiableEffectEntity,
     U: LivingEntity,
     U: SpellCastingEntity

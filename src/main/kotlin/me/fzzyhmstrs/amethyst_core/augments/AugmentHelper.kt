@@ -54,6 +54,7 @@ object AugmentHelper {
     val BLOCK_PLACED = AC.identity("block_placed")
     val DRY_FIRED = AC.identity("dry_fired")
     val TELEPORTED = AC.identity("teleported")
+    val EXPLODED = AC.identity("exploded")
 
     fun hostileFilter(list: List<Entity>, user: LivingEntity, spell: ScepterAugment): MutableList<EntityHitResult> {
         val hostileEntityList: MutableList<EntityHitResult> = mutableListOf()

@@ -217,7 +217,7 @@ open class CustomExplosion(
                 customExplosionBehavior.setFireBlockState(world,blockPos3)
             }
         }
-        customExplosionBehavior.extraExplosionEffects(x,y,z,world)
+        customExplosionBehavior.extraExplosionEffects(x,y,z,world, entity)
     }
 
     private fun tryMergeStack(
@@ -244,7 +244,7 @@ open class CustomExplosion(
             world.setBlockState(pos,AbstractFireBlock.getState(world, pos))
         }
         open fun affectBlockDropStack(stack: ItemStack): ItemStack{return stack}
-        open fun extraExplosionEffects(x: Double, y: Double, z: Double, world: World){}
+        open fun extraExplosionEffects(x: Double, y: Double, z: Double, world: World, source: Entity?){}
     }
 
 }

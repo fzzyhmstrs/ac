@@ -23,6 +23,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.damage.DamageTypes
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
@@ -575,9 +576,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     fun <T, U> provideProjectile(projectile: T, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
-            : T
+            : ProjectileEntity
             where
-            T: Entity,
+            T: ProjectileEntity,
             T: ModifiableEffectEntity,
             U: LivingEntity,
             U: SpellCastingEntity
@@ -586,9 +587,9 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     fun <T, U> provideProjectile(projectile: T, context: ProcessContext, user: U, world: World, hand: Hand, level: Int, effects: AugmentEffect)
-            : T
+            : ProjectileEntity
             where
-            T: Entity,
+            T: ProjectileEntity,
             T: ModifiableEffectEntity,
             U: LivingEntity,
             U: SpellCastingEntity
