@@ -40,6 +40,7 @@ object AugmentHelper {
     private val augmentStats: MutableMap<String, AugmentDatapoint> = mutableMapOf()
     private val PAIRED_SPELL_CACHE: MutableMap<String, PairedAugments> = mutableMapOf()
     private val searchArray = intArrayOf(0,1,-1,2,-2,3,-3)
+    private val CLIENT_TASK_PACKET = AC.identity("client_task_packet")
 
     val PROJECTILE_FIRED = AC.identity("projectile_fired")
     val PROJECTILE_HIT = AC.identity("projectile_hit")
@@ -395,6 +396,23 @@ object AugmentHelper {
         return getEffectiveCooldown(pairedAugments, cooldownModifier, level, user)
     }
 
+    fun createClientEffectPacket(spell: ScepterAugment, user: PlayerEntity, context: ProcessContext, hand: Hand): PacketByteBuf{
+        val buf = PacketByteBufs.create()
+        buf.writeIdentifier(spell.id)
+        buf.writeInt(user.id)
+        buf.writeNbt(context.writeNbt)
+        but.writeEnumConstant(hand)
+    }
+
+    fun sendClientTask(player: PlayerEntity, buf: PacketByteBuf){
+        ServerPlayNetworking.send(player, CLIENT_TASK_PACKET, buf)
+    }
+    
+    private fun activateClientTask(spell: ScepterAugment, user: PlayerEntity, context: ProcessContext, hand: Hand, buf: PacketByteBuf, world: World){
+        spell.clientTask(context, world, user, hand, buf)
+    }
+
+    
     /**
      * A [LootFunction.Builder] that can be used in a loot pool builder to apply default augments to a scepter, the provided list of augments, or both.
      */
@@ -437,6 +455,27 @@ object AugmentHelper {
         this.setVelocity(rotation.x,rotation.y,rotation.z,speed,divergence)
         val pos = caster.pos.add(0.0,caster.eyeY + yOffset,0.0).add(rotation.multiply(posOffset))
         this.setPosition(pos)
+    }
+
+    fun registerClient() {
+        ClientPlayNetworking.registerGlobalReceiver(CLIENT_TASK_PACKET) {client,_,buf,_ ->
+            val id = buf.readIdentifier()
+            val enchant = Registries.ENCHANTMENT.get(id) ?: return@registerGlobalReceiver
+            if (enchant !is ScepterAugment) return@registerGlobalReceiver
+            val entityId = buf.readInt()
+            val entity = client.world?.getEntityById ?: return@registerGlobalReceiver
+            if (entity !is PlayerEntity) return@registerGlobalReceiver
+            val context = ProcessContext.readNbt(buf.readNbt())
+            val hand = buf.readEnumConstant(Hand::class.java)
+            client.execute {
+                try {
+                    activateClientTask(enchant, entity, context, hand, buf)
+                } catch(e: Exception) {
+                    println("spell encountered
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
 }
