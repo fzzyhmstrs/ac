@@ -104,8 +104,10 @@ abstract class ScepterAugment(
 
     /**
      * If your scepter has some client side effects/tasks, extend them here. This can be something like adding visual effects, or affecting a GUI, and so on.
+     * 
+     * This method is called by AugmentHelper.activateClientTask.
      */
-    open fun clientTask(world: World, user: LivingEntity, hand: Hand, level: Int){
+    open fun clientTask(context: ProcessContext, world: World, user: LivingEntity, hand: Hand, level: Int, bufData: PacketByteBuf){
     }
 
     open fun <T> onCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
