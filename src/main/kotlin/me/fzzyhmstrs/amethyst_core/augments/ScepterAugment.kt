@@ -23,6 +23,7 @@ import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
@@ -107,7 +108,7 @@ abstract class ScepterAugment(
      * 
      * This method is called by AugmentHelper.activateClientTask.
      */
-    open fun clientTask(context: ProcessContext, world: World, user: PlayerEntity, hand: Hand, level: Int, bufData: PacketByteBuf){
+    open fun clientTask(context: ProcessContext, world: World, user: PlayerEntity, hand: Hand, bufData: PacketByteBuf){
     }
 
     open fun <T> onCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)

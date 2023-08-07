@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.augments.paired
 
+import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.LevelProviding
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
@@ -57,40 +58,55 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         Type.PAIRED
     }
     private val cooldown: PerLvlI by lazy{
-        if (augments.isEmpty()){
-            PerLvlI()
-        } else if (augments.size == 1){
-            augments[0].augmentData.cooldown.copy()
-        } else {
-            augments[1].modifyCooldown(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
+        try {
+            if (augments.isEmpty()){
+                PerLvlI()
+            } else if (augments.size == 1){
+                augments[0].augmentData.cooldown.copy()
+            } else {
+                augments[1].modifyCooldown(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
 
-        }.plus(boost?.cooldownModifier ?: PerLvlI())
+            }.plus(boost?.cooldownModifier ?: PerLvlI())
+        } catch (e: Exception){
+            crashReport("Error encountered initializing cooldown lazily.", e)
+            PerLvlI()
+        }
     }
     private val manaCost: PerLvlI by lazy {
-        if (augments.isEmpty()){
+        try {
+            if (augments.isEmpty()){
+                PerLvlI()
+            } else if (augments.size == 1){
+                PerLvlI(augments[0].augmentData.manaCost)
+            } else{
+                augments[1].modifyManaCost(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
+            }.plus(boost?.manaCostModifier ?: PerLvlI())
+        } catch (e:Exception){
+            crashReport("Error encountered initializing manaCost lazily.", e)
             PerLvlI()
-        } else if (augments.size == 1){
-            PerLvlI(augments[0].augmentData.manaCost)
-        } else{
-            augments[1].modifyManaCost(augments[0].augmentData.cooldown.copy(),augments[0],augments[0].augmentType,this)
-        }.plus(boost?.manaCostModifier ?: PerLvlI())
+        }
     }
     private val augmentEffects: AugmentEffect by lazy {
-        when (type){
-            Type.SINGLE ->{
-                augments[0].baseEffect
+        try {
+            when (type){
+                Type.SINGLE ->{
+                    augments[0].baseEffect
+                }
+                Type.PAIRED ->{
+                    AugmentEffect(
+                        augments[1].modifyDamage(augments[0].baseEffect.damageData.copy(),augments[0],augments[0].augmentType,this),
+                        augments[1].modifyAmplifier(augments[0].baseEffect.amplifierData.copy(),augments[0],augments[0].augmentType,this),
+                        augments[1].modifyDuration(augments[0].baseEffect.durationData.copy(),augments[0],augments[0].augmentType,this),
+                        augments[1].modifyRange(augments[0].baseEffect.rangeData.copy(),augments[0],augments[0].augmentType,this)
+                    )
+                }
+                Type.EMPTY ->{
+                    AugmentEffect()
+                }
             }
-            Type.PAIRED ->{
-                AugmentEffect(
-                    augments[1].modifyDamage(augments[0].baseEffect.damageData.copy(),augments[0],augments[0].augmentType,this),
-                    augments[1].modifyAmplifier(augments[0].baseEffect.amplifierData.copy(),augments[0],augments[0].augmentType,this),
-                    augments[1].modifyDuration(augments[0].baseEffect.durationData.copy(),augments[0],augments[0].augmentType,this),
-                    augments[1].modifyRange(augments[0].baseEffect.rangeData.copy(),augments[0],augments[0].augmentType,this)
-                )
-            }
-            Type.EMPTY ->{
-                AugmentEffect()
-            }
+        } catch (e: Exception){
+            crashReport("Error encountered initializing manaCost lazily.", e)
+            AugmentEffect()
         }
     }
     private val name: MutableText
@@ -150,10 +166,15 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     private val castParticleEffect by lazy{
-        when(type){
-            Type.SINGLE -> augments[0].castParticleType()?:ParticleTypes.CRIT
-            Type.PAIRED -> augments[1].castParticleType()?:augments[0].castParticleType()?:ParticleTypes.CRIT
-            Type.EMPTY -> ParticleTypes.CRIT
+        try {
+            when (type) {
+                Type.SINGLE -> augments[0].castParticleType() ?: ParticleTypes.CRIT
+                Type.PAIRED -> augments[1].castParticleType() ?: augments[0].castParticleType() ?: ParticleTypes.CRIT
+                Type.EMPTY -> ParticleTypes.CRIT
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered initializing castParticleEffect lazily.", e)
+            ParticleTypes.CRIT
         }
     }
 
@@ -162,7 +183,11 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     fun onPaired(player: ServerPlayerEntity){
-        paired()?.onPaired(player, this)
+        try {
+            paired()?.onPaired(player, this)
+        } catch (e: Exception){
+            crashReport("Error encountered while processing onPaired method.", e)
+        }
     }
 
     fun getCastParticleType(): ParticleEffect {
@@ -170,22 +195,37 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
 
     fun getHitParticleType(hit: HitResult): ParticleEffect {
-        return when(type){
-            Type.SINGLE -> augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
-            Type.PAIRED -> augments[1].hitParticleType(hit)?:augments[0].hitParticleType(hit)?:ParticleTypes.CRIT
-            Type.EMPTY -> ParticleTypes.CRIT
+        return try {
+            when (type) {
+                Type.SINGLE -> augments[0].hitParticleType(hit) ?: ParticleTypes.CRIT
+                Type.PAIRED -> augments[1].hitParticleType(hit) ?: augments[0].hitParticleType(hit)
+                ?: ParticleTypes.CRIT
+
+                Type.EMPTY -> ParticleTypes.CRIT
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered returning the hitParticleResult value.", e)
+            ParticleTypes.CRIT
         }
     }
 
     fun castSoundEvents(world: World, blockPos: BlockPos, context: ProcessContext){
-        for (spell in augments){
-            spell.castSoundEvent(world, blockPos, context)
+        try {
+            for (spell in augments) {
+                spell.castSoundEvent(world, blockPos, context)
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered playing castSoundEvents.", e)
         }
     }
 
     fun hitSoundEvents(world: World, blockPos: BlockPos, context: ProcessContext){
-        for (spell in augments){
-            spell.hitSoundEvent(world, blockPos, context)
+        try {
+            for (spell in augments){
+                spell.hitSoundEvent(world, blockPos, context)
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered playing castSoundEvents.", e)
         }
     }
 
@@ -218,22 +258,27 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        var totalResult: SpellActionResult = SpellActionResult.pass()
-        if (type == Type.SINGLE) {
-            val result = augments[0].onCast(context, world, source, user, hand, level, effects, AugmentType.EMPTY, this)
-            totalResult = totalResult.copyTypeAndAddResults(result)
-        } else if (type == Type.PAIRED){
-            val result = augments[1].onCast(context, world,source, user,hand,level, effects,augments[0].augmentType, this)
-            totalResult = totalResult.copyTypeAndAddResults(result)
-            if (result.success()){
-                if (!result.overwrite()){
-                    val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,
-                        AugmentType.EMPTY, this)
-                    totalResult = totalResult.copyTypeAndAddResults(result2)
+        return try {
+            var totalResult: SpellActionResult = SpellActionResult.pass()
+            if (type == Type.SINGLE) {
+                val result = augments[0].onCast(context, world, source, user, hand, level, effects, AugmentType.EMPTY, this)
+                totalResult = totalResult.copyTypeAndAddResults(result)
+            } else if (type == Type.PAIRED){
+                val result = augments[1].onCast(context, world,source, user,hand,level, effects,augments[0].augmentType, this)
+                totalResult = totalResult.copyTypeAndAddResults(result)
+                if (result.success()){
+                    if (!result.overwrite()){
+                        val result2 = augments[0].onCast(context, world,source, user,hand,level, effects,
+                            AugmentType.EMPTY, this)
+                        totalResult = totalResult.copyTypeAndAddResults(result2)
+                    }
                 }
             }
+            totalResult
+        } catch (e: Exception){
+            crashReport("Error processing onCast action.", e)
+            ScepterAugment.FAIL
         }
-        return totalResult
     }
 
     fun <T> processMultipleEntityHits(entityHitResults: List<EntityHitResult>, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -254,22 +299,27 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        var successes = 0
-        val actionList: MutableList<Identifier> = mutableListOf()
-        for (entityHitResult in entityHitResults){
-            if(processEntityHit(entityHitResult,context,world,source,user,hand,level,effects).also { actionList.addAll(it) }.isNotEmpty()) {
-                successes++
-                val entity = entityHitResult.entity
-                if (entity is LivingEntity){
-                    effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+        return try {
+            var successes = 0
+            val actionList: MutableList<Identifier> = mutableListOf()
+            for (entityHitResult in entityHitResults){
+                if(processEntityHit(entityHitResult,context,world,source,user,hand,level,effects).also { actionList.addAll(it) }.isNotEmpty()) {
+                    successes++
+                    val entity = entityHitResult.entity
+                    if (entity is LivingEntity){
+                        effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+                    }
                 }
             }
+            if (successes > 0){
+                EntityHitActionEvent.EVENT.invoker().onAction(world,user,actionList, *entityHitResults.toTypedArray())
+                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+            }
+            actionList
+        } catch (e: Exception){
+            crashReport("Error encountered processing a multipleEntityHit action.", e)
+            mutableListOf()
         }
-        if (successes > 0){
-            EntityHitActionEvent.EVENT.invoker().onAction(world,user,actionList, *entityHitResults.toTypedArray())
-            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
-        }
-        return actionList
     }
     
     fun <T> processSingleEntityHit(entityHitResult: EntityHitResult, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -288,16 +338,21 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val actionList = processEntityHit(entityHitResult,context,world,source, user, hand, level, effects)
-        if (actionList.isNotEmpty()){
-            val entity = entityHitResult.entity
-            if (entity is LivingEntity){
-                effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+        return try {
+            val actionList = processEntityHit(entityHitResult, context, world, source, user, hand, level, effects)
+            if (actionList.isNotEmpty()) {
+                val entity = entityHitResult.entity
+                if (entity is LivingEntity) {
+                    effects.accept(entity, AugmentConsumer.Type.HARMFUL)
+                }
+                EntityHitActionEvent.EVENT.invoker().onAction(world, user, actionList, entityHitResult)
+                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
             }
-            EntityHitActionEvent.EVENT.invoker().onAction(world,user,actionList, entityHitResult)
-            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+            actionList
+        } catch (e: Exception){
+            crashReport("Error encountered processing a singleEntityHit action.", e)
+            mutableListOf()
         }
-        return actionList
     }
     
     private fun <T> processEntityHit(entityHitResult: EntityHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -347,18 +402,23 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        var successes = 0
-        val actionList: MutableList<Identifier> = mutableListOf()
-        for (blockHitResult in blockHitResults){
-            if(processBlockHit(blockHitResult,context,world,source,user,hand,level,effects).also { actionList.addAll(it) }.isNotEmpty()) {
-                successes++
+        return try {
+            var successes = 0
+            val actionList: MutableList<Identifier> = mutableListOf()
+            for (blockHitResult in blockHitResults){
+                if(processBlockHit(blockHitResult,context,world,source,user,hand,level,effects).also { actionList.addAll(it) }.isNotEmpty()) {
+                    successes++
+                }
             }
+            if (successes > 0){
+                BlockHitActionEvent.EVENT.invoker().onAction(world,user,actionList,*blockHitResults.toTypedArray())
+                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+            }
+            actionList
+        } catch (e: Exception){
+            crashReport("Error encountered processing multipleBlockHit action.", e)
+            mutableListOf()
         }
-        if (successes > 0){
-            BlockHitActionEvent.EVENT.invoker().onAction(world,user,actionList,*blockHitResults.toTypedArray())
-            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
-        }
-        return actionList
     }
 
     fun <T> processSingleBlockHit(blockHitResult: BlockHitResult, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -378,12 +438,17 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val actionList = processBlockHit(blockHitResult,context,world,source, user, hand, level, effects)
-        if (actionList.isNotEmpty()){
-            BlockHitActionEvent.EVENT.invoker().onAction(world,user,actionList,blockHitResult)
-            effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+        return try {
+            val actionList = processBlockHit(blockHitResult, context, world, source, user, hand, level, effects)
+            if (actionList.isNotEmpty()) {
+                BlockHitActionEvent.EVENT.invoker().onAction(world, user, actionList, blockHitResult)
+                effects.accept(user, AugmentConsumer.Type.BENEFICIAL)
+            }
+            actionList
+        } catch (e: Exception){
+            crashReport("Error encountered processing singleBlockHit action.", e)
+            mutableListOf()
         }
-        return actionList
     }
     
     private fun <T> processBlockHit(blockHitResult: BlockHitResult, context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect)
@@ -447,16 +512,20 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (type == Type.PAIRED){
-            val result = augments[1].onEntityKill(entityHitResult,context, world, source, user,hand,level, effects,augments[0].augmentType, this)
-            if (result.success() && !result.overwrite()){
-                augments[0].onEntityKill(entityHitResult,context, world,source, user,hand,level, effects,AugmentType.EMPTY, this)
+        try {
+            if (type == Type.PAIRED){
+                val result = augments[1].onEntityKill(entityHitResult,context, world, source, user,hand,level, effects,augments[0].augmentType, this)
+                if (result.success() && !result.overwrite()){
+                    augments[0].onEntityKill(entityHitResult,context, world,source, user,hand,level, effects,AugmentType.EMPTY, this)
+                }
+            } else {
+                for (augment in augments) {
+                    val result = augment.onEntityKill(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
+                    if (!result.success()) break
+                }
             }
-        } else {
-            for (augment in augments) {
-                val result = augment.onEntityKill(entityHitResult,context, world,source, user, hand, level, effects, AugmentType.EMPTY, this)
-                if (!result.success()) break
-            }
+        } catch (e: Exception){
+            crashReport("Error encountered processing onKill action.", e)
         }
     }
     
@@ -528,19 +597,24 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val amount1 = when (type) {
-            Type.PAIRED -> {
-                val mod1 = augments[1].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
-                augments[0].modifyDealtDamage(mod1, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
+        return try {
+            val amount1 = when (type) {
+                Type.PAIRED -> {
+                    val mod1 = augments[1].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, augments[0].augmentType, this)
+                    augments[0].modifyDealtDamage(mod1, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
+                }
+                Type.SINGLE -> {
+                    augments[0].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
+                }
+                else -> {
+                    amount
+                }
             }
-            Type.SINGLE -> {
-                augments[0].modifyDealtDamage(amount, context, entityHitResult, user, world, hand, level, effects, AugmentType.EMPTY, this)
-            }
-            else -> {
-                amount
-            }
+            boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, this) ?: amount1
+        } catch (e: Exception){
+            crashReport("Error encountered during provideDealtDamage action.", e)
+            amount
         }
-        return boost?.modifyDamage(amount1, context, entityHitResult, user, world, hand, this) ?: amount1
     }
     
     fun <T> provideDamageSource(context: ProcessContext, entityHitResult: EntityHitResult, source: Entity?, user: T, world: World, hand: Hand, level: Int, effects: AugmentEffect)
@@ -550,13 +624,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        if (type.empty) return CustomDamageSource(world.registryManager.get(RegistryKeys.DAMAGE_TYPE).entryOf(DamageTypes.MOB_ATTACK),source,user)
-        val builder: DamageSourceBuilder = augments[0].damageSourceBuilder(world,source,user)
-        return if (type == Type.PAIRED){
+        return try  {
+            if (type.empty) return CustomDamageSource(world.registryManager.get(RegistryKeys.DAMAGE_TYPE).entryOf(DamageTypes.MOB_ATTACK),source,user)
+            val builder: DamageSourceBuilder = augments[0].damageSourceBuilder(world,source,user)
+            if (type == Type.PAIRED){
                 val mod = augments[1].modifyDamageSource(builder, context, entityHitResult, source, user, world, hand, level, effects, augments[0].augmentType, this)
                 boost?.modifyDamageSource(mod,context,entityHitResult,source,user,world,hand,this)?.build()?:mod.build()
-        } else {
-            boost?.modifyDamageSource(builder,context,entityHitResult,source,user,world,hand,this)?.build()?:builder.build()
+            } else {
+                boost?.modifyDamageSource(builder,context,entityHitResult,source,user,world,hand,this)?.build()?:builder.build()
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered during provideDamageSource action.", e)
+            user.damageSources.generic()
         }
     }
     
@@ -568,9 +647,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     U: LivingEntity,
     U: SpellCastingEntity
     {
-        return if (type == Type.PAIRED){
-            augments[1].modifySummons(summons,hit, context, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
+        return try {
+            if (type == Type.PAIRED){
+                augments[1].modifySummons(summons,hit, context, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                summons
+            }
+        } catch(e: Exception){
+            crashReport("Error encountered providing summons", e)
             summons
         }
     }
@@ -594,9 +678,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             U: LivingEntity,
             U: SpellCastingEntity
     {
-        return if (type == Type.PAIRED){
+        return try {
+            if (type == Type.PAIRED){
                 augments[1].modifyProjectile(projectile, context, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
+            } else {
+                projectile
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered providing projectiles.", e)
             projectile
         }
     }
@@ -608,9 +697,14 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        return if (type == Type.PAIRED){
-            augments[1].modifyDrops(drops,context, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
+        return try {
+            if (type == Type.PAIRED){
+                augments[1].modifyDrops(drops,context, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                drops
+            }
+        } catch (e: Exception){
+            crashReport("Error encountered providing drops", e)
             drops
         }
     }
@@ -622,12 +716,17 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     T: LivingEntity,
     T: SpellCastingEntity
     {
-        val count = if (type == Type.PAIRED){
-            augments[1].modifyCount(start,context, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
+        return try {
+            val count = if (type == Type.PAIRED){
+                augments[1].modifyCount(start,context, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                start
+            }
+            boost?.modifyCount(count,context, user, world, hand, level, effects, othersType, spells) ?: count
+        } catch (e: Exception){
+            crashReport("Error encountered providing a count.", e)
             start
         }
-        return boost?.modifyCount(count,context, user, world, hand, level, effects, othersType, spells) ?: count
     }
     
     fun provideCastXp(spellType: SpellType): Int{
@@ -668,15 +767,25 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
 
     fun causeExplosion(context: ProcessContext, source: Entity?, user: LivingEntity?, world: World, hand: Hand, level: Int, effects: AugmentEffect)
     {
-        if (type.empty) return
-        val builder = augments[0].explosionBuilder(world,source,user)
-        val explosion = if (type == Type.PAIRED){
-            augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this)
-        } else {
-            builder
+        try {
+            if (type.empty) return
+            val builder = augments[0].explosionBuilder(world,source,user)
+            val explosion = if (type == Type.PAIRED){
+                augments[1].modifyExplosion(builder, context, user, world, hand, level, effects, augments[0].augmentType, this)
+            } else {
+                builder
+            }
+            val explosion2 = boost?.modifyExplosion(explosion,context,user,world,hand, this)?:explosion
+            explosion2.explode(world)
+        } catch (e: Exception){
+            crashReport("Error encountered while causing an explosion.", e)
         }
-        val explosion2 = boost?.modifyExplosion(explosion,context,user,world,hand, this)?:explosion
-        explosion2.explode(world)
+    }
+
+    private fun crashReport(reason: String, e: Exception){
+        AC.LOGGER.error("Paired Spell: $this")
+        AC.LOGGER.error(reason)
+        e.printStackTrace()
     }
 
     private enum class Type(val empty: Boolean){

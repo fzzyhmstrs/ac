@@ -14,6 +14,7 @@ import net.minecraft.item.Item
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.Identifier
+import org.slf4j.LoggerFactory
 import kotlin.random.Random
 
 
@@ -21,6 +22,7 @@ object AC: ModInitializer {
     const val MOD_ID = "amethyst_core"
     val acRandom = Random(System.currentTimeMillis())
     val fallbackId = Identifier("vanishing_curse")
+    val LOGGER = LoggerFactory.getLogger("amethyst_core")
 
     val TIER_1_SPELL_SCEPTERS: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_one_spell_scepters"))
     val TIER_2_SPELL_SCEPTERS: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, Identifier(MOD_ID,"tier_two_spell_scepters"))

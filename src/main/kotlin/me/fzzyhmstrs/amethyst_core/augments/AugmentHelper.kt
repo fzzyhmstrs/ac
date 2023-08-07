@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.augments
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.data.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
+import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.item.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.registry.BoostRegistry
@@ -10,6 +11,9 @@ import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -21,8 +25,11 @@ import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.math.BlockPos
@@ -400,11 +407,12 @@ object AugmentHelper {
         val buf = PacketByteBufs.create()
         buf.writeIdentifier(spell.id)
         buf.writeInt(user.id)
-        buf.writeNbt(context.writeNbt)
-        but.writeEnumConstant(hand)
+        buf.writeNbt(context.writeNbt())
+        buf.writeEnumConstant(hand)
+        return buf
     }
 
-    fun sendClientTask(player: PlayerEntity, buf: PacketByteBuf){
+    fun sendClientTask(player: ServerPlayerEntity, buf: PacketByteBuf){
         ServerPlayNetworking.send(player, CLIENT_TASK_PACKET, buf)
     }
     
@@ -458,20 +466,21 @@ object AugmentHelper {
     }
 
     fun registerClient() {
-        ClientPlayNetworking.registerGlobalReceiver(CLIENT_TASK_PACKET) {client,_,buf,_ ->
+        ClientPlayNetworking.registerGlobalReceiver(CLIENT_TASK_PACKET) { client, _, buf, _ ->
             val id = buf.readIdentifier()
             val enchant = Registries.ENCHANTMENT.get(id) ?: return@registerGlobalReceiver
             if (enchant !is ScepterAugment) return@registerGlobalReceiver
             val entityId = buf.readInt()
-            val entity = client.world?.getEntityById ?: return@registerGlobalReceiver
+            val entity = client.world?.getEntityById(entityId) ?: return@registerGlobalReceiver
             if (entity !is PlayerEntity) return@registerGlobalReceiver
-            val context = ProcessContext.readNbt(buf.readNbt())
+            val context = ProcessContext.readNbt(buf.readNbt() ?: NbtCompound())
             val hand = buf.readEnumConstant(Hand::class.java)
+            val world = client.world ?: return@registerGlobalReceiver
             client.execute {
                 try {
-                    activateClientTask(enchant, entity, context, hand, buf)
+                    activateClientTask(enchant, entity, context, hand, buf, world)
                 } catch(e: Exception) {
-                    println("spell encountered
+                    println("Spell $id encountered an exception while executing a client task")
                     e.printStackTrace()
                 }
             }

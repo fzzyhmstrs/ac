@@ -21,7 +21,6 @@ interface SpellCasting {
     }
     fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack, activeEnchantId: String,
                   testEnchant: ScepterAugment, testLevel: Int): TypedActionResult<ItemStack>{
-        testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
     }
     fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>
