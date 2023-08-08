@@ -18,8 +18,8 @@ class ModifiableEffectInstance(val effect: ModifiableEffect?, private val lifesp
         }
         return (time - firstRunTime).toInt() >= lifespan
     }
-    fun run(entity: Entity, owner: Entity?, context: ProcessContext){
-        effect?.run(entity,owner, context)
+    fun run(entity: Entity, attackerOrOwner: Entity?, context: ProcessContext){
+        effect?.run(entity,attackerOrOwner, context)
     }
 
     fun toNbt(): NbtCompound{

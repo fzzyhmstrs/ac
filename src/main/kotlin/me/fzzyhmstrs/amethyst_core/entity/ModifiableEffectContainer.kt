@@ -2,17 +2,16 @@ package me.fzzyhmstrs.amethyst_core.entity
 
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ModifiableEffectContainer() {
+class ModifiableEffectContainer {
 
     private val effects: ConcurrentHashMap<Identifier, ConcurrentLinkedQueue<ModifiableEffectInstance>> = ConcurrentHashMap()
 
-    fun run(type: Identifier, entity: Entity, owner: Entity?, context: ProcessContext){
+    fun run(type: Identifier, entity: Entity, attackerOrOwner: Entity?, context: ProcessContext){
         val time = entity.world.time
         val queue = effects.computeIfAbsent(type) {ConcurrentLinkedQueue()}
         val iterator = queue.iterator()
@@ -21,7 +20,7 @@ class ModifiableEffectContainer() {
             if (effectInstance.isExpired(time)){
                 iterator.remove()
             } else {
-                effectInstance.run(entity, owner, context)
+                effectInstance.run(entity, attackerOrOwner, context)
             }
         }
     }

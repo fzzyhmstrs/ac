@@ -6,10 +6,8 @@ import me.fzzyhmstrs.amethyst_core.augments.paired.PairedAugments
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * interface for meshing an entity (or any object really) with the Modifier system. The interface provides a base [AugmentEffect] instance for storing and passing effect attributes. See that doc for details on what is stored.
@@ -58,12 +56,12 @@ interface ModifiableEffectEntity{
         processContext = ProcessContext.readNbt(modifiableNbt.getCompound("processContext"))
     }
     
-    fun tickTickEffects(entity: Entity, owner: Entity?, context: ProcessContext = processContext){
-        modifiableEffects.run(TICK,entity,owner,context)
+    fun tickTickEffects(entity: Entity, attackerOrOwner: Entity?, context: ProcessContext = processContext){
+        modifiableEffects.run(TICK,entity,attackerOrOwner,context)
     }
 
-    fun runEffect(type: Identifier, entity: Entity,owner: Entity?, context: ProcessContext = processContext){
-        modifiableEffects.run(type,entity,owner,context)
+    fun runEffect(type: Identifier, entity: Entity, attackerOrOwner: Entity?, context: ProcessContext = processContext){
+        modifiableEffects.run(type,entity,attackerOrOwner,context)
     }
 
     fun addEffect(type: Identifier, effect: ModifiableEffect){

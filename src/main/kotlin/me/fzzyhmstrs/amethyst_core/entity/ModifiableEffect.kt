@@ -4,22 +4,18 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.augments.paired.ProcessContext
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
-import net.minecraft.nbt.NbtString
 import net.minecraft.registry.Registry
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.SimpleRegistry
 import net.minecraft.util.Identifier
-import java.util.function.BiConsumer
-import java.util.function.Consumer
 
 class ModifiableEffect private constructor (private val consumer: EffectConsumer){
 
-    fun run(entity: Entity, owner: Entity?, context: ProcessContext){
-        consumer.run(entity,owner, context)
+    fun run(entity: Entity, attackerOrOwner: Entity?, context: ProcessContext){
+        consumer.run(entity,attackerOrOwner, context)
     }
 
     companion object{
