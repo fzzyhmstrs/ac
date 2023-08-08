@@ -13,11 +13,13 @@ import me.fzzyhmstrs.amethyst_core.modifier.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter.ScepterTier
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.projectile.ExplosiveProjectileEntity
 import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.max
 import kotlin.streams.toList
@@ -87,8 +89,14 @@ abstract class ProjectileAugment(
 
 
         for (projectile in projectiles){
-            val newVel = projectile.velocity.rotateY(angle)
-            projectile.velocity = newVel
+            if (projectile is ExplosiveProjectileEntity){
+                val powVec = Vec3d(projectile.powerX, projectile.powerY,projectile.powerZ)
+                val newVel = powVec.rotateY(angle)
+                projectile.velocity = newVel
+            } else {
+                val newVel = projectile.velocity.rotateY(angle)
+                projectile.velocity = newVel
+            }
             if(world.spawnEntity(projectile)) success++
             angle -= 15f
         }
