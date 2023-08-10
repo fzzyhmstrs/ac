@@ -403,10 +403,14 @@ object AugmentHelper {
         return getEffectiveCooldown(pairedAugments, cooldownModifier, level, user)
     }
 
-    fun createClientEffectPacket(spell: ScepterAugment, user: PlayerEntity, context: ProcessContext, hand: Hand): PacketByteBuf{
+    fun createClientEffectPacket(spell: ScepterAugment, target: Entity?, context: ProcessContext, hand: Hand): PacketByteBuf{
         val buf = PacketByteBufs.create()
         buf.writeIdentifier(spell.id)
-        buf.writeInt(user.id)
+        if (target == null) {
+            buf.writeInt(-1)
+        } else {
+            buf.writeInt(target.id)
+        }
         buf.writeNbt(context.writeNbt())
         buf.writeEnumConstant(hand)
         return buf
@@ -416,8 +420,8 @@ object AugmentHelper {
         ServerPlayNetworking.send(player, CLIENT_TASK_PACKET, buf)
     }
     
-    private fun activateClientTask(spell: ScepterAugment, user: PlayerEntity, context: ProcessContext, hand: Hand, buf: PacketByteBuf, world: World){
-        spell.clientTask(context, world, user, hand, buf)
+    private fun activateClientTask(spell: ScepterAugment, user: PlayerEntity, target: Entity?, context: ProcessContext, hand: Hand, buf: PacketByteBuf, world: World){
+        spell.clientTask(context, world, user, target, hand, buf)
     }
 
     
@@ -470,15 +474,15 @@ object AugmentHelper {
             val id = buf.readIdentifier()
             val enchant = Registries.ENCHANTMENT.get(id) ?: return@registerGlobalReceiver
             if (enchant !is ScepterAugment) return@registerGlobalReceiver
+            val player = client.player ?: return@registerGlobalReceiver
             val entityId = buf.readInt()
-            val entity = client.world?.getEntityById(entityId) ?: return@registerGlobalReceiver
-            if (entity !is PlayerEntity) return@registerGlobalReceiver
+            val entity = if (entityId == -1) null else client.world?.getEntityById(entityId)
             val context = ProcessContext.readNbt(buf.readNbt() ?: NbtCompound())
             val hand = buf.readEnumConstant(Hand::class.java)
             val world = client.world ?: return@registerGlobalReceiver
             client.execute {
                 try {
-                    activateClientTask(enchant, entity, context, hand, buf, world)
+                    activateClientTask(enchant, player, entity, context, hand, buf, world)
                 } catch(e: Exception) {
                     println("Spell $id encountered an exception while executing a client task")
                     e.printStackTrace()
