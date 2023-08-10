@@ -108,7 +108,7 @@ abstract class ScepterAugment(
      * 
      * This method is called by AugmentHelper.activateClientTask.
      */
-    open fun clientTask(context: ProcessContext, world: World, user: PlayerEntity, hand: Hand, bufData: PacketByteBuf){
+    open fun clientTask(context: ProcessContext, world: World, user: PlayerEntity, target: Entity?, hand: Hand, bufData: PacketByteBuf){
     }
 
     open fun <T> onCast(context: ProcessContext, world: World, source: Entity?, user: T, hand: Hand, level: Int, effects: AugmentEffect, othersType: AugmentType, spells: PairedAugments)
