@@ -49,7 +49,7 @@ abstract class ProjectileAugment(
         if (!onCastResults.success()) return  FAIL
         if (onCastResults.overwrite()) return onCastResults
         val type = AugmentType.EMPTY
-        val startCount = startCount(user,effects,type,spells)
+        val startCount = startCount(user,effects,level,type,spells)
         val count = max(1, spells.provideCount(startCount,context, user, world, hand, level, effects, type, spells))
         val projectiles = createProjectileEntities(world, context, user, level, effects, spells, count)
         val projectiles2 = projectiles.stream().map { if (it is ModifiableEffectEntity) spells.provideProjectile(it,user,world, hand, level, effects) else it }.toList()
@@ -89,6 +89,15 @@ abstract class ProjectileAugment(
 
 
         for (projectile in projectiles){
+            if (projectile is ModifiableEffectEntity){
+                if (projectile.processContext.get(ProcessContext.SPELL) != Identifier("")){
+                    projectileContext(projectile.processContext)
+                } else {
+                    val context1 = context.copy()
+                    projectileContext(context1)
+                    projectile.passContext(context1)
+                }
+            }
             if (projectile is ExplosiveProjectileEntity){
                 val powVec = Vec3d(projectile.powerX, projectile.powerY,projectile.powerZ)
                 val newVel = powVec.rotateY(angle)
@@ -173,5 +182,11 @@ abstract class ProjectileAugment(
             return SpellActionResult.success(AugmentHelper.BLOCK_HIT)
         }
         return SUCCESSFUL_PASS
+    }
+
+    companion object{
+        fun projectileContext(context: ProcessContext): ProcessContext{
+            return context.set(ProcessContext.FROM_ENTITY,true)
+        }
     }
 }

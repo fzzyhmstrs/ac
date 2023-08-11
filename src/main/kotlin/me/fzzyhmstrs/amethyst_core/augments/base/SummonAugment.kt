@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.augments.base
 
 import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper.SUMMONED_MOB
 import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
 import me.fzzyhmstrs.amethyst_core.augments.SpellActionResult
 import me.fzzyhmstrs.amethyst_core.augments.paired.AugmentType
@@ -15,6 +16,7 @@ import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
@@ -143,15 +145,22 @@ abstract class SummonAugment<E>(
     U: SpellCastingEntity
     {
         if (othersType.empty){
-            summonContext(context)
-            val startCount = startCount(user,effects, othersType, spells)
+
+            val startCount = startCount(user,effects, level,othersType, spells)
             val count = spells.provideCount(startCount, context, user, world, hand, level, effects, othersType, spells)
-            val startList: List<E> = entitiesToSpawn(world,user,hit,level,effects, spells, count)
+            val startList: List<E> = entitiesToSpawn(world,user,hand,hit,level,effects, spells, count)
             val list = spells.provideSummons(startList,hit, context, user, world, hand, level, effects)
             var successes = 0
             for (entity in list){
+
                 if (entity is ModifiableEffectEntity) {
-                    entity.passContext(context)
+                    if (entity.processContext.get(ProcessContext.SPELL) != Identifier("")){
+                        summonContext(entity.processContext)
+                    } else {
+                        val context1 = context.copy()
+                        summonContext(context1)
+                        entity.passContext(context1)
+                    }
                 }
                 if (world.spawnEntity(entity)) successes++
             }
@@ -164,7 +173,7 @@ abstract class SummonAugment<E>(
         return SUCCESSFUL_PASS
     }
 
-    open fun entitiesToSpawn(world: World, user: LivingEntity, hit: HitResult, level: Int, effects: AugmentEffect,spells: PairedAugments, count: Int)
+    open fun entitiesToSpawn(world: World, user: LivingEntity, hand: Hand, hit: HitResult, level: Int, effects: AugmentEffect,spells: PairedAugments, count: Int)
     :
     List<E>
     {

@@ -88,7 +88,7 @@ abstract class ScepterAugment(
                 }
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
-            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand),bl.results(), this)
+            AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand),bl.results(), this, pairedAugments)
         }
         return bl.success()
     }
@@ -327,7 +327,7 @@ abstract class ScepterAugment(
         return start
     }
 
-    open fun <T> startCount(user: T,effects: AugmentEffect,othersType: AugmentType, spells: PairedAugments)
+    open fun <T> startCount(user: T,effects: AugmentEffect, level: Int, othersType: AugmentType, spells: PairedAugments)
             :
             Int
             where

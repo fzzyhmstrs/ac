@@ -32,7 +32,7 @@ open class PlayerItemEntity: ThrownItemEntity, ModifiableEffectEntity {
     override var level: Int = 0
     override var spells: PairedAugments = PairedAugments()
     override var modifiableEffects = ModifiableEffectContainer()
-    override var processContext: ProcessContext = ProcessContext.EMPTY_CONTEXT
+    override var processContext: ProcessContext = ProcessContext.FROM_ENTITY_CONTEXT
     private val item: Item
 
     override fun tick() {

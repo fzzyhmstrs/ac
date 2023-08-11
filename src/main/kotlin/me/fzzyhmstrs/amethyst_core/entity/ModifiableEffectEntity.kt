@@ -31,6 +31,7 @@ interface ModifiableEffectEntity{
         this.spells = spells
     }
 
+    @Deprecated("Use with caution. Most base spells pass context for you. If needed, remember to copy() the context first.")
     fun passContext(context: ProcessContext){
         this.processContext = context
     }

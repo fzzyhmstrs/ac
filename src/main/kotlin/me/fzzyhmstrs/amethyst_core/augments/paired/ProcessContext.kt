@@ -125,4 +125,13 @@ class ProcessContext(private val data: NbtCompound) {
         }
     }
 
+    object DoubleDataType: DataType<Double> {
+        override fun fromNbt(key: String, nbtCompound: NbtCompound): Double {
+            return nbtCompound.getDouble(key)
+        }
+        override fun toNbt(key: String, nbtCompound: NbtCompound, data: Double) {
+            nbtCompound.putDouble(key, data)
+        }
+    }
+
 }
