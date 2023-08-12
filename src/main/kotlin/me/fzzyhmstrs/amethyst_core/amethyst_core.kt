@@ -1,7 +1,9 @@
 package me.fzzyhmstrs.amethyst_core
 
 import me.fzzyhmstrs.amethyst_core.advancement.FeatureCriteria
+import me.fzzyhmstrs.amethyst_core.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.command.PairedSpellCommand
+import me.fzzyhmstrs.amethyst_core.entity.ModifiableEffect
 import me.fzzyhmstrs.amethyst_core.item.AbstractAugmentBookItem
 import me.fzzyhmstrs.amethyst_core.modifier.GcChecker
 import me.fzzyhmstrs.amethyst_core.registry.*
@@ -38,6 +40,7 @@ object AC: ModInitializer {
         FeatureCriteria.registerServer()
         AbstractAugmentBookItem.registerServer()
         PairedSpellCommand.registerAll()
+        ModifiableEffect.init()
     }
 
     fun identity(path: String): Identifier{
@@ -57,5 +60,6 @@ object ACC: ClientModInitializer {
         RegisterBaseRenderer.registerAll()
         ScepterHelper.registerClient()
         AbstractAugmentBookItem.registerClient()
+        AugmentHelper.registerClient()
     }
 }

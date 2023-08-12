@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.projectile.ExplosiveProjectileEntity
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.entity.projectile.ProjectileUtil
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
@@ -21,7 +21,6 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * basic missile projectile for use with spells or any other projectile-lobbing object.
@@ -35,7 +34,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Similarly, if the effect is provided with a consumer, on hit the missile will apply any of those consumers marked as harmful. An example consumer would be one that applies 10 seconds of blindness to any affected entity. Basically a bucket for applying secondary effects on hit. See [AugmentEffect] for more info.
  */
 
-open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ExplosiveProjectileEntity(entityType,world), ModifiableEffectEntity {
+open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: World): ProjectileEntity(entityType,world), ModifiableEffectEntity {
 
     constructor(world: World, owner: LivingEntity): this(RegisterBaseEntity.MISSILE_ENTITY,world, owner)
 
@@ -79,6 +78,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         if (age > maxAge){
             discard()
         }
+        if (isBurning()) {
+            setOnFireFor(1)
+        }
         tickTickEffects(this, owner, processContext)
         val vec3d = velocity
         val hitResult = ProjectileUtil.getCollision(
@@ -96,7 +98,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         val e = this.y + y2
         val f = this.z + z2
         this.updateRotation()
-        val g = drag.toDouble()
+        val g = getDrag().toDouble()
         if (age % 4 == 0)
             addParticles(x2, y2, z2)
         val gg: Double = if (this.isTouchingWater) {
@@ -114,7 +116,8 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     override fun onCollision(hitResult: HitResult) {
         processContext.beforeRemoval()
         super.onCollision(hitResult)
-        discard()
+        if (hitResult.type != HitResult.Type.MISS)
+            discard()
     }
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
@@ -160,6 +163,9 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         }
     }
 
+    override fun initDataTracker() {
+    }
+
     override fun remove(reason: RemovalReason?) {
         runEffect(ModifiableEffectEntity.ON_REMOVED,this,owner,processContext)
         super.remove(reason)
@@ -169,15 +175,15 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         return false
     }
 
-    override fun isBurning(): Boolean {
+    open fun isBurning(): Boolean {
         return false
     }
 
-    override fun getDrag(): Float {
+    open fun getDrag(): Float {
         return 0.999999f
     }
 
-    override fun getParticleType(): ParticleEffect? {
+    open fun getParticleType(): ParticleEffect? {
         return particle
     }
 
@@ -195,7 +201,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         if (this.isTouchingWater) {
                 particleWorld.spawnParticles(ParticleTypes.BUBBLE,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         } else {
-            particleWorld.spawnParticles(particleType,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
+            particleWorld.spawnParticles(getParticleType(),this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         }
     }
 

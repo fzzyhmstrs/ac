@@ -148,24 +148,16 @@ open class CustomExplosion(
      * @param particles whether this explosion should emit explosion or explosion emitter particles around the source of the explosion
      */
     override fun affectWorld(particles: Boolean) {
-        if (world.isClient) {
-            world.playSound(
-                x,
-                y,
-                z,
-                SoundEvents.ENTITY_GENERIC_EXPLODE,
-                SoundCategory.BLOCKS,
-                4.0f,
-                (1.0f + (world.random.nextFloat() - world.random.nextFloat()) * 0.2f) * 0.7f,
-                false
-            )
-        }
+        world.playSound(null,x,y,z,SoundEvents.ENTITY_GENERIC_EXPLODE,SoundCategory.PLAYERS,4f,(1.0f + (world.random.nextFloat() - world.random.nextFloat()) * 0.2f) * 0.7f)
         val bl = shouldDestroy()
         if (particles) {
+            val serverWorld = world
             if (power < 2.0f || !bl) {
-                world.addParticle(ParticleTypes.EXPLOSION, x, y, z, 1.0, 0.0, 0.0)
+                if (serverWorld is ServerWorld)
+                    serverWorld.spawnParticles(ParticleTypes.EXPLOSION, x, y, z, 1,0.0,0.0,0.0,0.0)
             } else {
-                world.addParticle(ParticleTypes.EXPLOSION_EMITTER, x, y, z, 1.0, 0.0, 0.0)
+                if (serverWorld is ServerWorld)
+                    serverWorld.spawnParticles(ParticleTypes.EXPLOSION_EMITTER, x, y, z, 1,0.0,0.0,0.0,0.0)
             }
         }
         if (bl) {

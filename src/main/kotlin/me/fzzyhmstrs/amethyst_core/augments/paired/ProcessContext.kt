@@ -46,6 +46,10 @@ class ProcessContext(private val data: NbtCompound) {
         return nbtCompound
     }
 
+    override fun toString(): String {
+        return "Process Context with data: $data"
+    }
+
     companion object {
 
         val ENTITY_ID = object : Data<Int>("entity_id_id",IntDataType){}

@@ -1,5 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.scepter
 
+import me.fzzyhmstrs.amethyst_core.augments.ScepterAugment
+import net.minecraft.registry.Registries
+
 /**
  * Enum that defines and stores spells of various tiers. Spells defined in a certain tier will randomly appear in Knowledge Books of the corresponding tier for use in crafting or otherwise.
  *
@@ -16,59 +19,46 @@ package me.fzzyhmstrs.amethyst_core.scepter
 abstract class LoreTier {
 
     companion object{
-        val LOW_TIER = object: LoreTier() {
-            private val bookOfLoreListT1: MutableList<String> =  mutableListOf()
 
-            override fun addToList(string: String) {
-                bookOfLoreListT1.addIfDistinct(string)
-            }
-            override fun list(): List<String> {
-                return bookOfLoreListT1
-            }
-        }
-        val HIGH_TIER = object: LoreTier() {
-            private val bookOfLoreListT2: MutableList<String> =  mutableListOf()
+        private var checked = false
 
-            override fun addToList(string: String) {
-                bookOfLoreListT2.addIfDistinct(string)
-            }
-            override fun list(): List<String> {
-                return bookOfLoreListT2
-            }
-        }
-        val EXTREME_TIER = object: LoreTier() {
-            private val bookOfLoreListT3: MutableList<String> =  mutableListOf()
-
-            override fun addToList(string: String) {
-                bookOfLoreListT3.addIfDistinct(string)
-            }
-            override fun list(): List<String> {
-                return bookOfLoreListT3
-            }
-        }
-        val ANY_TIER = object: LoreTier() {
-            private val bookOfLoreListT12: MutableList<String> =  mutableListOf()
-
-            override fun addToList(string: String) {
-                bookOfLoreListT12.addIfDistinct(string)
-            }
-            override fun list(): List<String> {
-                return bookOfLoreListT12
-            }
-
-        }
-        val NO_TIER = object: LoreTier() {
+        val LOW_TIER = object: LoreTier(){}
+        val HIGH_TIER = object: LoreTier(){}
+        val EXTREME_TIER = object: LoreTier(){}
+        val ANY_TIER = object: LoreTier(){}
+        val NO_TIER = object: LoreTier(){
             override fun addToList(string: String) {
             }
-
-            override fun list(): List<String> {
-                return listOf()
+            override fun list(): Set<String> {
+                return setOf()
+            }
+            override fun availableForAnyTier(): Boolean {
+                return false
             }
         }
     }
 
-    abstract fun addToList(string: String)
-    abstract fun list(): List<String>
+    private val bookSet: MutableSet<String> = mutableSetOf()
+    open fun addToList(string: String){
+        bookSet.add(string)
+    }
+    open fun list(): Set<String>{
+        check()
+        return bookSet
+    }
+    open fun availableForAnyTier(): Boolean{
+        return true
+    }
+    private fun check(){
+        if (checked) return
+        for (enchant in Registries.ENCHANTMENT){
+            if (enchant is ScepterAugment){
+                enchant.augmentData.bookOfLoreTier.addToList(enchant.id.toString())
+                if (enchant.augmentData.bookOfLoreTier.availableForAnyTier())
+                    ANY_TIER.addToList(enchant.id.toString())
+            }
+        }
+    }
 }
 
 fun <T> MutableList<T>.addIfDistinct(element: T) {

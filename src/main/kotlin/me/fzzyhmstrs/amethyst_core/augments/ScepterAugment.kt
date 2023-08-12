@@ -57,6 +57,8 @@ abstract class ScepterAugment(
 
     open val baseEffect = AugmentEffect()
 
+
+
     override fun generateId(): Identifier {
         return augmentData.id
     }

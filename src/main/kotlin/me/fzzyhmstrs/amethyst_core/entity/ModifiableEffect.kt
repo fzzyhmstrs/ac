@@ -19,7 +19,10 @@ class ModifiableEffect private constructor (private val consumer: EffectConsumer
     }
 
     companion object{
-        val REGISTRY : SimpleRegistry<ModifiableEffect> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<ModifiableEffect>(AC.identity("tick_effects"))).buildAndRegister()
+
+        fun init(){}
+
+        val REGISTRY : SimpleRegistry<ModifiableEffect> = FabricRegistryBuilder.createSimple(RegistryKey.ofRegistry<ModifiableEffect>(AC.identity("modifiable_effects"))).buildAndRegister()
 
         fun createAndRegisterConsumer(id: Identifier, consumer: EffectConsumer): ModifiableEffect{
             return Registry.register(REGISTRY,id, ModifiableEffect(consumer))

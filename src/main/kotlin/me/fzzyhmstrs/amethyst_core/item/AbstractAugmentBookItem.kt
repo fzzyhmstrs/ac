@@ -118,7 +118,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             }
             val nbt = stack2.orCreateNbt
             if (!nbt.contains(NbtKeys.LORE_KEY)) {
-                val aug = getRandomBookAugment(loreTier.list(), user, hand)
+                val aug = getRandomBookAugment(loreTier.list().toList(), user, hand)
                 nbt.putString(NbtKeys.LORE_KEY, aug)
                 val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY)).toString()
                 val type = AugmentHelper.getAugmentType(bola)
@@ -130,7 +130,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                     user.inventory.offerOrDrop(stack2)
                 }
             } else if (Identifier(nbt.getString(NbtKeys.LORE_KEY)).namespace == "minecraft") {
-                val aug = getRandomBookAugment(loreTier.list(), user, hand)
+                val aug = getRandomBookAugment(loreTier.list().toList(), user, hand)
                 nbt.putString(NbtKeys.LORE_KEY, aug)
                 val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY)).toString()
                 val type = AugmentHelper.getAugmentType(bola)

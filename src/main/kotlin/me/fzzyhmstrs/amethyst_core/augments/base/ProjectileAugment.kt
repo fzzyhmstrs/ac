@@ -52,7 +52,7 @@ abstract class ProjectileAugment(
         val startCount = startCount(user,effects,level,type,spells)
         val count = max(1, spells.provideCount(startCount,context, user, world, hand, level, effects, type, spells))
         val projectiles = createProjectileEntities(world, context, user, level, effects, spells, count)
-        val projectiles2 = projectiles.stream().map { if (it is ModifiableEffectEntity) spells.provideProjectile(it,user,world, hand, level, effects) else it }.toList()
+        val projectiles2 = projectiles.stream().map { if (it is ModifiableEffectEntity) spells.provideProjectile(it,context,user,world, hand, level, effects) else it }.toList()
         val result = spawnProjectileEntities(world,context, user, projectiles2, mutableListOf(), spells)
         return if (result.success()) {
             result.withResults(onCastResults.results())

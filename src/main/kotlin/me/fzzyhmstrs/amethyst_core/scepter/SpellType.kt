@@ -69,4 +69,15 @@ enum class SpellType {
     abstract fun str(): String
     abstract fun fmt(): Formatting
     abstract fun uv(): Pair<Int,Int>
+
+    companion object{
+        fun fromString(str: String): SpellType{
+            return when(str){
+                "fury" -> FURY
+                "grace" -> GRACE
+                "wit" -> WIT
+                else -> NULL
+            }
+        }
+    }
 }

@@ -137,7 +137,11 @@ object AugmentHelper {
             null
         }
         val boostId = nbt.getString(NbtKeys1.PAIRED_BOOST).takeIf{ it.isNotEmpty() }
-        return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant as ScepterAugment, pairedEnchant as ScepterAugment)
+        return getOrCreatePairedAugments(enchantId, pairedId, boostId, enchant as ScepterAugment, pairedEnchant as? ScepterAugment)
+    }
+
+    fun getPairedAugments(enchant: ScepterAugment, stack: ItemStack): PairedAugments?{
+        return getPairedAugments(enchant.id.toString(),stack)
     }
 
     fun getPairedAugments(activeEnchantId: String, stack: ItemStack): PairedAugments?{
@@ -312,6 +316,18 @@ object AugmentHelper {
         return spell
     }
 
+    fun removePairedAugmentsFromStack(enchant: ScepterAugment, stack: ItemStack){
+        removePairedAugmentsFromStack(enchant.id.toString(),stack)
+    }
+
+    fun removePairedAugmentsFromStack(activeEnchantId: String, stack: ItemStack){
+        val nbt = stack.nbt ?: return
+        if (nbt.contains(NbtKeys1.PAIRED_ENCHANTS)) {
+            val pairedEnchants = nbt.getCompound(NbtKeys1.PAIRED_ENCHANTS)
+            pairedEnchants.remove(activeEnchantId)
+        }
+    }
+
     /**
      * used to check if a registry or other initialization method should consider the provided augment.
      */
@@ -465,7 +481,7 @@ object AugmentHelper {
 
     fun ProjectileEntity.place(caster: Entity, rotation: Vec3d, yOffset: Double, speed: Float, divergence: Float, posOffset: Double = 0.0){
         this.setVelocity(rotation.x,rotation.y,rotation.z,speed,divergence)
-        val pos = caster.pos.add(0.0,caster.eyeY + yOffset,0.0).add(rotation.multiply(posOffset))
+        val pos = caster.pos.add(0.0,caster.standingEyeHeight + yOffset,0.0).add(rotation.multiply(posOffset))
         this.setPosition(pos)
     }
 
@@ -484,7 +500,7 @@ object AugmentHelper {
                 try {
                     activateClientTask(enchant, player, entity, context, hand, buf, world)
                 } catch(e: Exception) {
-                    println("Spell $id encountered an exception while executing a client task")
+                    AC.LOGGER.error("Spell $id encountered an exception while executing a client task")
                     e.printStackTrace()
                 }
             }

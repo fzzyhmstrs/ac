@@ -529,7 +529,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }
     }
     
-    fun provideName(level: Int): Text {
+    fun provideName(level: Int): MutableText {
         val text = name
         if (level != 1 || maxLevel != 1 ) {
             text.append(" ").append(AcText.translatable("enchantment.level.$level"))
@@ -736,7 +736,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
             if (type == Type.PAIRED){
                 getPartialXp(augments[1].augmentData.castXp,0.75f)
             } else {
-                augments[1].augmentData.castXp
+                augments[0].augmentData.castXp
             }
         }
         val secondaryAmount = if(type == Type.PAIRED){
