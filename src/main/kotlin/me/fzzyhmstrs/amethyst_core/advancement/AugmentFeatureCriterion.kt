@@ -23,13 +23,13 @@ class AugmentFeatureCriterion(private val id: Identifier): AbstractCriterion<Aug
             val el = obj.get("feature")
             if (el.isJsonPrimitive){
                 val str = el.asString
-                val feature = Identifier.tryParse(str)?:throw IllegalStateException("Spell $str not found in enchantment registry.")
+                val feature = Identifier.tryParse(str)?:throw IllegalStateException("Augment Feature $str not a valid identifier.")
                 return FeatureConditions(this.id, feature,playerPredicate)
             } else {
-                throw IllegalStateException("Spell Criterion not properly formatted in json object: ${obj.asString}")
+                throw IllegalStateException("Augment Feature Criterion not properly formatted in json object: ${obj.asString}")
             }
         } else {
-            throw IllegalStateException("Spell Criterion not properly formatted in json object: ${obj.asString}")
+            throw IllegalStateException("Augment Feature Criterion not properly formatted in json object: ${obj.asString}")
         }
     }
 
