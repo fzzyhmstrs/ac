@@ -378,7 +378,7 @@ abstract class ScepterAugment(
      */
     fun augmentName(stack: ItemStack, level: Int): Text{
         val enchantId = this.id.toString()
-        val pairedSpells = AugmentHelper.getPairedAugments(enchantId, stack) ?:return getName(level)
+        val pairedSpells = AugmentHelper.getOrCreatePairedAugments(enchantId,this, stack)
         return pairedSpells.provideName(level)
     }
 

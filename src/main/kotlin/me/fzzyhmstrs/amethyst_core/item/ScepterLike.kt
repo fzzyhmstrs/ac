@@ -65,6 +65,7 @@ interface ScepterLike{
                 stack.addEnchantment(enchantToAdd,1)
             }
         }
+        println(defaultAugments())
         defaultAugments().forEach {
             if (EnchantmentHelper.getLevel(it,stack) == 0){
                 stack.addEnchantment(it,1)

@@ -123,18 +123,18 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         }  else if (augments.size == 1){
             enabled = augments[0].augmentData.enabled
             maxLevel = augments[0].maxLevel
-            AcText.translatable(augments[0].translationKey)
+            AcText.translatable(augments[0].translationKey).formatted(Formatting.GRAY)
         } else {
             enabled = augments[0].augmentData.enabled
             maxLevel = augments[0].maxLevel
             if (spellsAreEqual()){
-                augments[0].doubleName()
+                augments[0].doubleName().formatted(Formatting.GRAY,Formatting.ITALIC)
             } else {
                 val specialName = augments[1].specialName(augments[0])
                 if (specialName != AcText.empty()) {
-                    specialName
+                    specialName.formatted(Formatting.GRAY,Formatting.ITALIC)
                 } else {
-                    augments[0].augmentName(augments[1])
+                    augments[0].augmentName(augments[1]).formatted(Formatting.GRAY,Formatting.ITALIC)
                 }
             }
         }
@@ -530,7 +530,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
     }
     
     fun provideName(level: Int): MutableText {
-        val text = name
+        val text = name.copy()
         if (level != 1 || maxLevel != 1 ) {
             text.append(" ").append(AcText.translatable("enchantment.level.$level"))
         }

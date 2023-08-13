@@ -60,6 +60,7 @@ abstract class DefaultAugmentMiningItem(
             }
         }
 
+        tooltip.add(AcText.empty())
         tooltip.add(AcText.translatable("scepter.active_spell").formatted(Formatting.GOLD).append(activeSpell))
         val stats = ScepterHelper.getScepterStats(stack)
         val furyText = AcText.translatable("scepter.fury.lvl").string + stats[0].toString() + AcText.translatable("scepter.xp").string + ScepterHelper.xpToNextLevel(stats[3],stats[0]).toString()

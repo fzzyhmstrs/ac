@@ -55,13 +55,28 @@ object PairedSpellCommand {
                     .then(CommandManager.argument("paired_spell",AllSpellsArgumentType())
                         .then(CommandManager.argument("boost", BoostsArgumentType())
                             .then(CommandManager.literal("description")
-                                .executes {context -> executeDescribed(context) }
+                                .executes {context -> executeDescribed(context, true, true) }
+                            )
+                            .then(CommandManager.literal("onPaired")
+                                .executes {context -> executeOnPaired(context, true, true) }
                             )
                             .executes {context -> executeFull(context)}
+                        )
+                        .then(CommandManager.literal("description")
+                            .executes {context -> executeDescribed(context, true, false) }
+                        )
+                        .then(CommandManager.literal("onPaired")
+                            .executes {context -> executeOnPaired(context, true, false) }
                         )
                         .executes {context -> executePaired(context) }
                     )
                     .then(CommandManager.argument("boost", BoostsArgumentType())
+                        .then(CommandManager.literal("description")
+                            .executes {context -> executeDescribed(context, false, true) }
+                        )
+                        .then(CommandManager.literal("onPaired")
+                            .executes {context -> executeOnPaired(context, false, true) }
+                        )
                         .executes {context -> executeBoost(context) }
                     )
                 )
@@ -73,14 +88,34 @@ object PairedSpellCommand {
         return 0
     }
 
-    private fun executeDescribed(context: CommandContext<ServerCommandSource>): Int{
+    private fun executeOnPaired(context: CommandContext<ServerCommandSource>, pair: Boolean, boost: Boolean): Int{
         val spellId = context.getArgument("current_spell", Identifier::class.java)
         val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
         if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
-        val pairedId = context.getArgument("paired_spell", Identifier::class.java)
+        val pairedId = if(pair) context.getArgument("paired_spell", Identifier::class.java) else null
         val paired = Registries.ENCHANTMENT.get(pairedId)
         val pairedSpell = if (paired is ScepterAugment) paired else null
-        val boostId = context.getArgument("boost", Identifier::class.java)
+        val boostId = if(boost) context.getArgument("boost", Identifier::class.java) else null
+        val player = context.source.player ?: return error(context,"commands.amethyst_core.failed.no_player")
+        val stack1 = player.mainHandStack
+        return if (stack1.isEmpty){
+            context.source.sendError(AcText.translatable("commands.gearifiers.failed.no_stacks"))
+            0
+        } else {
+            val pairedAugments = AugmentHelper.getOrCreatePairedAugments(spellId.toString(), pairedId?.toString(), boostId?.toString(), spell, pairedSpell)
+            pairedAugments.onPaired(player)
+            1
+        }
+    }
+
+    private fun executeDescribed(context: CommandContext<ServerCommandSource>, pair: Boolean, boost: Boolean): Int{
+        val spellId = context.getArgument("current_spell", Identifier::class.java)
+        val spell = Registries.ENCHANTMENT.get(spellId) ?: return error(context,"commands.amethyst_core.failed.not_a_spell")
+        if (spell !is ScepterAugment) return error(context,"commands.amethyst_core.failed.not_a_spell")
+        val pairedId = if(pair) context.getArgument("paired_spell", Identifier::class.java) else null
+        val paired = Registries.ENCHANTMENT.get(pairedId)
+        val pairedSpell = if (paired is ScepterAugment) paired else null
+        val boostId = if(boost) context.getArgument("boost", Identifier::class.java) else null
         val player = context.source.player ?: return error(context,"commands.amethyst_core.failed.no_player")
         val stack1 = player.mainHandStack
         return if (stack1.isEmpty){
@@ -92,7 +127,6 @@ object PairedSpellCommand {
             for(desc in list){
                 player.sendMessage(desc)
             }
-            AugmentHelper.writePairedAugments(stack1,pairedAugments)
             1
         }
     }
