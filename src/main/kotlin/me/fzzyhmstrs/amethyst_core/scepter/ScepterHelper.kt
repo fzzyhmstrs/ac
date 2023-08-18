@@ -302,6 +302,7 @@ object ScepterHelper {
         val nbtTemp = nbtEls[newIndex] as NbtCompound
         val newActiveEnchantId = EnchantmentHelper.getIdFromNbt(nbtTemp)?.toString()?:return
         val newActiveEnchant = Registries.ENCHANTMENT.get(Identifier(newActiveEnchantId))?:return
+        val newActiveEnchantLevel = EnchantmentHelper.getLevelFromNbt(nbtTemp) ?: 1
         if (newActiveEnchant !is ScepterAugment) return
 
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
@@ -317,7 +318,7 @@ object ScepterHelper {
         }
         nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchantId)
         ModifierHelper.gatherActiveModifiers(stack)
-        val name = newActiveEnchant.getName(1) //?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
+        val name = AugmentHelper.getOrCreatePairedAugments(newActiveEnchantId,newActiveEnchant,stack).provideName(newActiveEnchantLevel) //?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
         val message = AcText.translatable("scepter.new_active_spell").append(name)
         user.sendMessage(message,false)
     }
