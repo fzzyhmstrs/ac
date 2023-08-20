@@ -98,7 +98,7 @@ object ScepterHelper {
                 stack,
                 world,
                 max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt()),
-                ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN),
+                ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)),
                 checkEnchant
             )
             return TypedActionResult.success(stack)
@@ -115,11 +115,11 @@ object ScepterHelper {
             stack,
             world,
             level,
-            ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN),
+            ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)),
             checkEnchant
         )
         return if (cooldown != null) {
-            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST))
+            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST)))
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
             if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)

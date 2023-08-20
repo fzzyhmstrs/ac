@@ -12,10 +12,10 @@ object RegisterAttribute {
     val SPELL_LEVEL: EntityAttribute = make("spell_level", 1.0, 0.0, 10.0)
 
     //spell cooldown, acts as a multiplier. A player with -0.1 spell cooldown has 10% increased casting speed (0.9 the normal cooldown)
-    val SPELL_COOLDOWN: EntityAttribute = make("spell_cooldown", 1.0, 0.0, 10.0)
+    val SPELL_COOLDOWN: EntityAttribute = make("spell_cooldown", 1.0, -8.9, 1.99)
 
     //spell mana cost, acts as a multiplier. A player with -0.1 spell mana cost has 10% reduced mana costs
-    val SPELL_MANA_COST: EntityAttribute = make("spell_mana_cost", 1.0, 0.0, 10.0)
+    val SPELL_MANA_COST: EntityAttribute = make("spell_mana_cost", 1.0, -8.9, 1.99)
 
     //spell damage, acts as a multiplier. A player with -10.0 spell damage has 10% reduced damage
     val SPELL_DAMAGE: EntityAttribute = make("spell_damage", 1.0, 0.0, 32.0)
