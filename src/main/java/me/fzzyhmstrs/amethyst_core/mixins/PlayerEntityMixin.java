@@ -60,8 +60,7 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
         }
         return newXp;
     }
-/*
-    @Inject(
+    /*@Inject(
             method = "createPlayerAttributes",
             require = 1, allow = 1, at = @At("RETURN"))
     private static void amethyst_core_addPlayerAttributes(final CallbackInfoReturnable<DefaultAttributeContainer.Builder> info) {
