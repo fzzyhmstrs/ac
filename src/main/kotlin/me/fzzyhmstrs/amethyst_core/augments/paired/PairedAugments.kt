@@ -765,7 +765,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
         return a + c
     }
 
-    fun causeExplosion(context: ProcessContext, source: Entity?, user: LivingEntity?, world: World, hand: Hand, level: Int, effects: AugmentEffect)
+    fun causeExplosion(context: ProcessContext, source: Entity?, user: LivingEntity?, world: World, hand: Hand, level: Int, effects: AugmentEffect, pos: Vec3d? = null)
     {
         try {
             if (type.empty) return
@@ -776,6 +776,7 @@ class PairedAugments private constructor (internal val augments: Array<ScepterAu
                 builder
             }
             val explosion2 = boost?.modifyExplosion(explosion,context,user,world,hand, this)?:explosion
+            if (pos != null) explosion2.withPos(pos)
             explosion2.explode(world)
         } catch (e: Exception){
             crashReport("Error encountered while causing an explosion.", e)
