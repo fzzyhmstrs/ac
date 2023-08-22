@@ -37,6 +37,7 @@ class AugmentType private constructor (private val typeData: Set<Identifier>){
         val BENEFICIAL = AC.identity("beneficial_effects")
         val AOE = AC.identity("area_of_effect")
         val EMPTY_TYPE = AC.identity("empty_type")
+        val HEALS = AC.identity("heals")
 
         val EMPTY = Builder().with(EMPTY_TYPE).build()
         val BOLT = Builder().with(BLOCK).with(ENTITY).with(DAMAGE).with(PROJECTILE).build()
