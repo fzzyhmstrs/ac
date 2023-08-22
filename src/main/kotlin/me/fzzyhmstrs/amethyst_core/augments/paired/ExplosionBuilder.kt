@@ -14,7 +14,7 @@ import net.minecraft.world.explosion.ExplosionBehavior
 import java.util.function.Consumer
 import java.util.function.Function
 
-class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Entity?, val pos: Vec3d){
+class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Entity?, var pos: Vec3d){
 
     private var behavior: ExplosionBehavior = if(source != null) EntityExplosionBehavior(source) else ExplosionBehavior()
     private var damageSource: DamageSourceBuilder = damageSourceBuilder
@@ -22,7 +22,10 @@ class ExplosionBuilder(damageSourceBuilder: DamageSourceBuilder, val source: Ent
     private var createFire: Boolean = false
     private var type: World.ExplosionSourceType = World.ExplosionSourceType.NONE
     private var customBehavior: CustomExplosion.CustomExplosionBehavior = CustomExplosion.CustomExplosionBehavior()
-    
+    fun withPos(pos:Vec3d): ExplosionBuilder{
+        this.pos = pos
+        return this
+    }
     fun withBehavior(behavior: ExplosionBehavior): ExplosionBuilder {
         this.behavior = behavior
         return this
