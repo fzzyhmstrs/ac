@@ -1,4 +1,4 @@
-package me.fzzyhmstrs.amethyst_core.modifier_util
+package me.fzzyhmstrs.amethyst_core.compat.gear_core
 
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.entity.LivingEntity

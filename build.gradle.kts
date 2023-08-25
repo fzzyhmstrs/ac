@@ -21,6 +21,13 @@ repositories {
         url = uri("https://maven.terraformersmc.com/")
     }
     maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+        content {
+            includeGroup("maven.modrinth")
+        }
+    }
+    maven {
         name = "Ladysnake Libs"
         url = uri("https://ladysnake.jfrog.io/artifactory/mods")
     }
@@ -76,6 +83,11 @@ dependencies {
     include(modImplementation("eu.pb4:common-protection-api:$cpaVersion"){
         exclude("net.fabricmc.fabric-api")
     })
+
+    val spVersion: String by project
+    modImplementation("maven.modrinth:spell-power:$spVersion-fabric"){
+        exclude("net.fabricmc.fabric-api")
+    }
 
 }
 tasks {

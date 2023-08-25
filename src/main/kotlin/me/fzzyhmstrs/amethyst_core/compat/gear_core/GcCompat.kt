@@ -1,17 +1,16 @@
-package me.fzzyhmstrs.amethyst_core.modifier_util
+package me.fzzyhmstrs.amethyst_core.compat.gear_core
 
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierDefaults
+import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketUtil
 import me.fzzyhmstrs.gear_core.interfaces.ModifierTracking
-import me.fzzyhmstrs.gear_core.modifier_util.EquipmentModifierHelper
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
 import java.util.*
-import kotlin.collections.ArrayList
 
 object GcCompat {
 
@@ -23,7 +22,7 @@ object GcCompat {
 
     fun registerAugmentModifierProcessor(){
         ModifyModifiersEvent.EVENT.register{ _, user, _, modifiers ->
-            val newMods = augmentMap[user.uuid]?:processEquipmentAugmentModifiers(user)
+            val newMods = augmentMap[user.uuid]?: processEquipmentAugmentModifiers(user)
             return@register modifiers.combineWith(newMods, AugmentModifier())
         }
     }
@@ -35,25 +34,25 @@ object GcCompat {
             for (stack1 in stacks) {
                 val chk = stack1.item
                 if (chk is ModifierTracking) {
-                    list.addAll(chk.getModifiers(stack1,ModifierHelper.getType()))
+                    list.addAll(chk.getModifiers(stack1, ModifierHelper.getType()))
                 }
             }
         }
         for(armor in entity.armorItems) {
             val chk = armor.item
             if (chk is ModifierTracking){
-                list.addAll(chk.getModifiers(armor,ModifierHelper.getType()))
+                list.addAll(chk.getModifiers(armor, ModifierHelper.getType()))
             }
         }
         val mainHand = entity.mainHandStack
         val chkMain = mainHand.item
         if (chkMain is ModifierTracking){
-            list.addAll(chkMain.getModifiers(mainHand,ModifierHelper.getType()))
+            list.addAll(chkMain.getModifiers(mainHand, ModifierHelper.getType()))
         }
         val offHand = entity.offHandStack
         val chkOff = offHand.item
         if (chkOff is ModifierTracking){
-            list.addAll(chkOff.getModifiers(offHand,ModifierHelper.getType()))
+            list.addAll(chkOff.getModifiers(offHand, ModifierHelper.getType()))
         }
         if (list.isNotEmpty()){
             val list2: MutableList<AugmentModifier> = mutableListOf()

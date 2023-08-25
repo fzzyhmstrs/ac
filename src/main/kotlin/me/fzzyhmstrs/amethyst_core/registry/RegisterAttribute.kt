@@ -1,11 +1,18 @@
 package me.fzzyhmstrs.amethyst_core.registry
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
+import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
+import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
+import net.minecraft.registry.tag.DamageTypeTags
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.random.Random
 
 object RegisterAttribute {
 
@@ -47,26 +54,29 @@ object RegisterAttribute {
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_level"), SPELL_LEVEL)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_cooldown"), SPELL_COOLDOWN)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_mana_cost"), SPELL_MANA_COST)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_damage"), SPELL_DAMAGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_amplifier"), SPELL_AMPLIFIER)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_duration"), SPELL_DURATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_range"), SPELL_RANGE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "spell_experience"), SPELL_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "damage_multiplication"), DAMAGE_MULTIPLICATION)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "player_experience"), PLAYER_EXPERIENCE)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "shielding"), SHIELDING)
-        Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, "magic_resistance"), MAGIC_RESISTANCE)
+
+        if (SpChecker.spellPowerLoaded){
+            ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
+                val multiplier = SpChecker.getModFromPower(user,spell)
+                effects.addDamage(0f,0f,multiplier.toFloat())
+                effects.addAmplifier(0,0, multiplier.toInt())
+                effects.addDuration(0,0,multiplier.toInt())
+                effects.addRange(0.0,0.0,multiplier)
+            }
+        }
+    }
+
+    fun damageIsBlocked(random: Random, entity: LivingEntity, damageSource: DamageSource): Boolean{
+        if (damageSource.isIn(DamageTypeTags.BYPASSES_INVULNERABILITY)
+            || damageSource.isIn(DamageTypeTags.BYPASSES_EFFECTS)
+            || damageSource.isIn(DamageTypeTags.IS_FALL)
+            ) return false
+        val chance = entity.getAttributeValue(SHIELDING)
+        return random.nextFloat() < chance
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
-        return ClampedEntityAttribute(
-            "attribute.name.generic." + AC.MOD_ID + "." + name,
-            base,
-            min,
-            max
-        ).setTracked(true)
+        return Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, name),
+        ClampedEntityAttribute("attribute.name.generic." + AC.MOD_ID + "." + name, base, min, max).setTracked(true))
     }
 }

@@ -165,6 +165,11 @@ abstract class ScepterAugment(
         return AugmentHelper.getAugmentPvpMode(id.toString())
     }
 
+    fun isIn(tag: TagKey<Enchantment>): Boolean{
+        val entry = Registries.ENCHANTMENT.getEntry(this)
+        return entry.isIn(tag)
+    }
+
     companion object{
 
         const val augmentVersion = "_v2"

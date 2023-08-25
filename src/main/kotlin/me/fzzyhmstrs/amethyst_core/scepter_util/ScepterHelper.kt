@@ -1,13 +1,14 @@
-@file:Suppress("REDUNDANT_ELSE_IN_WHEN")
-
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
@@ -15,12 +16,14 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.advancement.criterion.TickCriterion
 import net.minecraft.enchantment.EnchantmentHelper
@@ -99,7 +102,7 @@ object ScepterHelper {
                 stack,
                 world,
                 max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt()),
-                ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)),
+                createCooldownMod(modifiers, user, stack),
                 checkEnchant
             )
             return TypedActionResult.success(stack)
@@ -116,7 +119,7 @@ object ScepterHelper {
             stack,
             world,
             level,
-            ((modifiers.compiledData.cooldownModifier + 100.0)/100.0) * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)),
+            createCooldownMod(modifiers, user, stack),
             checkEnchant
         )
         return if (cooldown != null) {
@@ -146,6 +149,13 @@ object ScepterHelper {
         } else {
             spellCaster.resetCooldown(stack,world,user,activeEnchantId)
         }
+    }
+
+    private fun createCooldownMod(modifiers: AbstractModifier.CompiledModifiers<AugmentModifier>, user: LivingEntity, stack: ItemStack): Double{
+        val a = ((modifiers.compiledData.cooldownModifier + 100.0)/100.0)
+        val b = (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_COOLDOWN)) // base value 1, greater than 1 is faster,
+        val c = SpChecker.getHaste(user, stack) // value will be greater than 1, so will use as a divisor
+        return a * b / c
     }
 
     fun sendScepterUpdateFromClient(up: Boolean) {

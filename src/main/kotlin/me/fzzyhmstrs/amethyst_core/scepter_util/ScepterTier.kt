@@ -1,8 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
-import me.fzzyhmstrs.amethyst_core.AC.TIER_1_SPELL_SCEPTERS
-import me.fzzyhmstrs.amethyst_core.AC.TIER_2_SPELL_SCEPTERS
-import me.fzzyhmstrs.amethyst_core.AC.TIER_3_SPELL_SCEPTERS
+import me.fzzyhmstrs.amethyst_core.registry.RegisterTag.TIER_1_SPELL_SCEPTERS
+import me.fzzyhmstrs.amethyst_core.registry.RegisterTag.TIER_2_SPELL_SCEPTERS
+import me.fzzyhmstrs.amethyst_core.registry.RegisterTag.TIER_3_SPELL_SCEPTERS
 import net.minecraft.item.Item
 import net.minecraft.registry.tag.TagKey
 

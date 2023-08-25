@@ -13,8 +13,16 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.particle.ParticleEffect
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
+import net.minecraft.world.RaycastContext
+import net.minecraft.world.RaycastContext.FluidHandling
 import net.minecraft.world.World
 
 /**
@@ -59,13 +67,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
             discard()
         }
         val vec3d = velocity
-        val hitResult = ProjectileUtil.getCollision(
-            this
-        ) { entity: Entity ->
-            canHit(
-                entity
-            )
-        }
+        val hitResult = getMissileCollision()
         onCollision(hitResult)
         val x2 = vec3d.x
         val y2 = vec3d.y
@@ -86,6 +88,38 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
             velocity = velocity.add(0.0, -0.0, 0.0)
         }
         this.setPosition(d, e, f)
+    }
+
+    private fun getMissileCollision(): HitResult{
+        var vec3d = pos.add(velocity)
+        var hitResult: HitResult = world.raycast(
+            RaycastContext(
+                pos,
+                vec3d,
+                RaycastContext.ShapeType.COLLIDER,
+                fluidHandling(),
+                this
+            )
+        )
+        if (hitResult.type != HitResult.Type.MISS) {
+            vec3d = hitResult.pos
+        }
+        val hitResult2 = ProjectileUtil.getEntityCollision(
+            world,
+            this,
+            pos,
+            vec3d,
+            this.boundingBox.stretch(velocity).expand(1.0)
+        ) { target -> canHit(target) }
+        if (hitResult2 != null) {
+            hitResult = hitResult2
+        }
+        return hitResult
+
+    }
+
+    open fun fluidHandling(): FluidHandling{
+        return FluidHandling.NONE
     }
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
@@ -121,6 +155,8 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
     }
 
     open fun onMissileBlockHit(blockHitResult: BlockHitResult){
+        splashParticles(pos,world)
+        playHitSound(world,blockPos)
     }
 
     override fun writeCustomDataToNbt(nbt: NbtCompound) {
@@ -143,10 +179,6 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         return 0.999999f
     }
 
-    override fun getParticleType(): ParticleEffect? {
-        return ParticleTypes.CRIT
-    }
-
     override fun onSpawnPacket(packet: EntitySpawnS2CPacket) {
         super.onSpawnPacket(packet)
         val d = packet.velocityX
@@ -155,31 +187,31 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
         this.setVelocity(d, e, f)
     }
 
+    override fun getParticleType(): ParticleEffect? {
+        return ParticleTypes.CRIT
+    }
+
+    open fun hitParticleType(): ParticleEffect?{
+        return particleType
+    }
+
+    open fun playHitSound(world: World,pos: BlockPos){
+        world.playSound(null,pos,SoundEvents.ENTITY_DRAGON_FIREBALL_EXPLODE,SoundCategory.PLAYERS,0.3f,1.0f)
+    }
+
+    open fun splashParticles(pos: Vec3d, world: World){
+        if (world is ServerWorld){
+            world.spawnParticles(hitParticleType(),pos.x,pos.y,pos.z,20,.25,.25,.25,0.2)
+        }
+    }
+
     open fun addParticles(x2: Double, y2: Double, z2: Double){
+        val particleWorld = world
+        if (particleWorld !is ServerWorld) return
         if (this.isTouchingWater) {
-            for (i in 0..2) {
-                world.addParticle(
-                    ParticleTypes.BUBBLE,
-                    this.x + x2 * (world.random.nextFloat()-0.5f),
-                    this.y + y2 * (world.random.nextFloat()-0.5f),
-                    this.z + z2 * (world.random.nextFloat()-0.5f),
-                    0.0,
-                    0.0,
-                    0.0
-                )
-            }
+            particleWorld.spawnParticles(ParticleTypes.BUBBLE,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         } else {
-            for (i in 0..2) {
-                world.addParticle(
-                    particleType,
-                    this.x + x2 * (world.random.nextFloat()-0.5f),
-                    this.y + y2 * (world.random.nextFloat()-0.5f),
-                    this.z + z2 * (world.random.nextFloat()-0.5f),
-                    0.0,
-                    0.0,
-                    0.0
-                )
-            }
+            particleWorld.spawnParticles(particleType,this.x,this.y,this.z,3,1.0,1.0,1.0,0.0)
         }
     }
 
