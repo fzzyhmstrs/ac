@@ -7,6 +7,9 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.PlaceItemAugment
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.registry.Registries
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.Identifier
 import kotlin.random.Random
 
@@ -24,6 +27,11 @@ object AC: ModInitializer {
         GcChecker.registerProcessor()
         ScepterHelper.registerServer()
         AbstractAugmentBookItem.registerServer()
+    }
+
+    fun Enchantment.isIn(tag: TagKey<Enchantment>): Boolean{
+        val entry = Registries.ENCHANTMENT.getEntry(this)
+        return entry.isIn(tag)
     }
 }
 

@@ -6,9 +6,6 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.*
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.coding_util.*
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.gson
-import me.fzzyhmstrs.fzzy_core.coding_util.SyncedConfigHelper.readOrCreateUpdated
-import me.fzzyhmstrs.fzzy_core.registry.SyncedConfigRegistry
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
@@ -17,7 +14,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.network.PacketByteBuf
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.sound.SoundEvent
@@ -26,39 +22,45 @@ import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
+import java.lang.IllegalStateException
 
 /**
  * the base scepter augment. Any Augment-type scepter will be able to successfully cast an augment made with this class or one of the templates.
  */
 
-abstract class ScepterAugment(
-    private val tier: ScepterTier,
-    private val maxLvl: Int)
+abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl: Int)
     :
     Enchantment(Rarity.VERY_RARE,EnchantmentTarget.WEAPON, arrayOf(EquipmentSlot.MAINHAND))
 {
-    
+    constructor(tier: ScepterTier): this(tier,1)
+    /**
+     * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
+     */
+    open val augmentData: me.fzzyhmstrs.amethyst_core.scepter_util.data.AugmentDatapoint by lazy {
+        me.fzzyhmstrs.amethyst_core.scepter_util.data.AugmentDatapoint.fromOldDatapoint(
+            Registries.ENCHANTMENT.getId(this)?: throw IllegalStateException("Enchantment datapoint instantiated before registration"),
+            maxLvl,
+            augmentStat(1)
+        )
+    }
     open val baseEffect = AugmentEffect()
-    val id: Identifier? by lazy {
-        Registries.ENCHANTMENT.getId(this)
+
+    val id: Identifier by lazy {
+        augmentData.id
     }
     val augmentSpecificModifier: AugmentModifier by lazy {
         generateUniqueModifier()
     }
+
+    abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
 
     /**
      * The only mandatory method for extending in order to apply your spell effects. Other open functions below are available for use, but this method is where the basic effect implementation goes.
      */
     abstract fun applyTasks(world: World, user: LivingEntity, hand: Hand, level: Int, effects: AugmentEffect): Boolean
 
-    /**
-     * define the augment characteristics here, such as mana cost, cooldown, etc. See [AugmentDatapoint] for more info.
-     */
-    abstract fun augmentStat(imbueLevel: Int = 1): AugmentDatapoint
-
     open fun generateUniqueModifier(): AugmentModifier{
-        val augId = id?: return AugmentModifier(Identifier(AC.MOD_ID,"spell_boost"),2,-25.0,-15.0,false)
-        return UniqueAugmentModifier(augId,2,-25.0,-15.0)
+        return UniqueAugmentModifier(augmentData.id,2,-25.0,-15.0)
     }
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean{
@@ -132,7 +134,7 @@ abstract class ScepterAugment(
     }
 
     open fun getAugmentMaxLevel(): Int{
-        return maxLvl
+        return augmentData.maxLvl
     }
 
     override fun isTreasure(): Boolean {
@@ -161,8 +163,7 @@ abstract class ScepterAugment(
     }
 
     fun getPvpMode(): Boolean{
-        val id = Registries.ENCHANTMENT.getId(this)?:return false
-        return AugmentHelper.getAugmentPvpMode(id.toString())
+        return augmentData.pvpMode
     }
 
     fun isIn(tag: TagKey<Enchantment>): Boolean{
@@ -170,7 +171,7 @@ abstract class ScepterAugment(
         return entry.isIn(tag)
     }
 
-    companion object{
+    /*companion object{
 
         const val augmentVersion = "_v2"
         private const val oldAugmentVersion = "_v1"
@@ -266,5 +267,5 @@ abstract class ScepterAugment(
             val config = AugmentConfig(file,configuredStats)
             return configuredStats
         }
-    }
+    }*/
 }

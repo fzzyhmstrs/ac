@@ -47,6 +47,10 @@ repositories {
         dirs("E:\\Documents\\Mod Libraries\\gc\\build\\libs")
     }
 
+    flatDir {
+        dirs("E:\\Documents\\Mod Libraries\\fzzy_config\\build\\libs")
+    }
+
 }
 dependencies {
     val minecraftVersion: String by project
@@ -88,6 +92,12 @@ dependencies {
     modImplementation("maven.modrinth:spell-power:$spVersion-fabric"){
         exclude("net.fabricmc.fabric-api")
     }
+
+    val fzzyConfigVersion: String by project
+    include(modImplementation(":fzzy_config-$fzzyConfigVersion"){
+        exclude("net.fabricmc.fabric-api")
+    }
+    )
 
 }
 tasks {

@@ -130,7 +130,7 @@ abstract class AugmentSwordItem(
         if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
-        val testLevel = ScepterHelper.getTestLevel(nbt,activeEnchantId, testEnchant)
+        val testLevel = ScepterHelper.getTestLevel(nbt, testEnchant)
 
         val stack2 = if (hand == Hand.MAIN_HAND) {
             user.offHandStack

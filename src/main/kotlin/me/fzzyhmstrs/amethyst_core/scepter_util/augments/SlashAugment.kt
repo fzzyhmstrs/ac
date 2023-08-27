@@ -32,7 +32,8 @@ import java.util.*
  */
 
 @Suppress("SameParameterValue")
-abstract class SlashAugment(tier: ScepterTier, maxLvl: Int): MiscAugment(tier, maxLvl){
+abstract class SlashAugment(tier: ScepterTier, maxLxl: Int): MiscAugment(tier, maxLxl){
+    constructor(tier: ScepterTier): this(tier,1)
 
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(2.5,0.25,0.0)

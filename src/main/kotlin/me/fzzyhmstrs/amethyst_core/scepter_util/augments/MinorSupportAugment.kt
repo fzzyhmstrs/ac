@@ -19,6 +19,7 @@ import net.minecraft.world.World
  */
 
 abstract class MinorSupportAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+    constructor(tier: ScepterTier): this(tier,1)
 
     override val baseEffect: AugmentEffect
         get() = super.baseEffect.withRange(6.0,0.0, 0.0)

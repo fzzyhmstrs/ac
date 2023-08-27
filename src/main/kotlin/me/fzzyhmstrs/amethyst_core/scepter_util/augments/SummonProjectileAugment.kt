@@ -20,6 +20,7 @@ import net.minecraft.world.World
  * see [MissileEntity] for an open class you can use to develop your own projectiles.
  */
 abstract class SummonProjectileAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+    constructor(tier: ScepterTier): this(tier,1)
 
     override fun applyTasks(
         world: World,

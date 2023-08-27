@@ -22,6 +22,7 @@ import net.minecraft.world.World
  */
 
 abstract class MiscAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+    constructor(tier: ScepterTier): this(tier,1)
 
     override fun applyTasks(
         world: World,

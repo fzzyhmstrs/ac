@@ -22,6 +22,7 @@ import net.minecraft.world.World
  * [placeEntity] is the primary method to override for this template. Ensure you have a super call so the sound event and Modifier Consumers can be applied.
  */
 abstract class SummonEntityAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
+    constructor(tier: ScepterTier): this(tier,1)
 
     override val baseEffect: AugmentEffect
         get() = AugmentEffect().withRange(3.0,0.0,0.0)

@@ -4,10 +4,8 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifySpellEvent
-import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.item_util.SpellCasting
-import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.modifier_util.XpModifiers
@@ -23,7 +21,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.advancement.criterion.TickCriterion
 import net.minecraft.enchantment.EnchantmentHelper
@@ -66,7 +63,7 @@ object ScepterHelper {
             }
         }
         //cooldown modifier is a percentage modifier, so 20% will boost cooldown by 20%. -20% will take away 20% cooldown
-        val cooldown = (AugmentHelper.getAugmentCooldown(activeEnchantId).value(level).times(cdMod)).toInt()
+        val cooldown = (AugmentHelper.getAugmentCooldown(activeEnchant).value(level).times(cdMod)).toInt()
         val time = world.time
 
         val lastUsedList = Nbt.getOrCreateSubCompound(scepterNbt, NbtKeys.LAST_USED_LIST.str())
@@ -123,7 +120,7 @@ object ScepterHelper {
             checkEnchant
         )
         return if (cooldown != null) {
-            val manaCost = AugmentHelper.getAugmentManaCost(activeEnchantId,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST)))
+            val manaCost = AugmentHelper.getAugmentManaCost(spell,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST)))
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
             if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
@@ -131,7 +128,7 @@ object ScepterHelper {
                     incrementScepterStats(
                         stack.orCreateNbt,
                         stack,
-                        activeEnchantId,
+                        spell,
                         user,
                         modifiers.compiledData.getXpModifiers()
                     )
@@ -246,9 +243,9 @@ object ScepterHelper {
         val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
         val timeSinceLast = currentTime - lastUsed
         val modifiers = ModifierHelper.getActiveModifiers(stack)
-        val testLevel = getTestLevel(nbt,newActiveEnchantId, newActiveEnchant)
+        val testLevel = getTestLevel(nbt, newActiveEnchant)
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
-        val cooldown = AugmentHelper.getAugmentCooldown(newActiveEnchantId).value(level)
+        val cooldown = AugmentHelper.getAugmentCooldown(newActiveEnchant).value(level)
         if(timeSinceLast >= cooldown){
             user.itemCooldownManager.remove(stack.item)
         } else{
@@ -281,9 +278,9 @@ object ScepterHelper {
     
 
 
-    fun getTestLevel(nbt: NbtCompound, activeEnchantId: String, testEnchant: ScepterAugment): Int{
-        val level = getScepterStat(nbt,activeEnchantId).first
-        val minLvl = AugmentHelper.getAugmentMinLvl(activeEnchantId)
+    fun getTestLevel(nbt: NbtCompound, testEnchant: ScepterAugment): Int{
+        val level = getScepterStat(nbt,testEnchant).first
+        val minLvl = AugmentHelper.getAugmentMinLvl(testEnchant)
         val maxLevel = (testEnchant.getAugmentMaxLevel()) + minLvl - 1
         var testLevel = 1
         if (level >= minLvl){
@@ -294,12 +291,12 @@ object ScepterHelper {
         return testLevel
     }
 
-    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, activeEnchantId: String, user: LivingEntity, xpMods: XpModifiers? = null){
-        val spellKey = AugmentHelper.getAugmentType(activeEnchantId).name
+    fun incrementScepterStats(scepterNbt: NbtCompound, scepter: ItemStack, augment: ScepterAugment, user: LivingEntity, xpMods: XpModifiers? = null){
+        val spellKey = AugmentHelper.getAugmentType(augment).name
         if(spellKey == SpellType.NULL.name) return
         val statLvl = scepterNbt.getInt(spellKey + "_lvl")
         val statMod = xpMods?.getMod(spellKey) ?: 0
-        val statMod2 = AugmentHelper.getAugmentCastXp(activeEnchantId)
+        val statMod2 = AugmentHelper.getAugmentCastXp(augment)
         val statXp = (scepterNbt.getInt(spellKey + "_xp") + ((statMod + statMod2) * user.getAttributeValue(RegisterAttribute.SPELL_EXPERIENCE))).toInt()
         scepterNbt.putInt(spellKey + "_xp",statXp)
         val lvlUp = checkXpForLevelUp(statXp,statLvl)
@@ -335,17 +332,16 @@ object ScepterHelper {
                 val l = e.value
                 val maxL = aug.getAugmentMaxLevel()
                 if (l >= maxL) continue
-                val augId = Registries.ENCHANTMENT.getId(aug)?:continue
-                val scepterL = getScepterStat(scepterNbt,augId.toString()).first
-                val newAugL = AugmentHelper.getAugmentCurrentLevel(scepterL,augId, aug)
+                val scepterL = getScepterStat(scepterNbt,aug).first
+                val newAugL = AugmentHelper.getAugmentCurrentLevel(scepterL, aug)
                 enchantMap[aug] = newAugL
             }
         }
         EnchantmentHelper.set(enchantMap,scepter)
     }
 
-    fun getScepterStat(scepterNbt: NbtCompound, activeEnchantId: String): Pair<Int,Int>{
-        val spellKey = AugmentHelper.getAugmentType(activeEnchantId).name
+    fun getScepterStat(scepterNbt: NbtCompound, augment: ScepterAugment): Pair<Int,Int>{
+        val spellKey = AugmentHelper.getAugmentType(augment).name
         if (!scepterNbt.contains(spellKey + "_lvl")) getStatsHelper(scepterNbt)
         val statLvl = scepterNbt.getInt(spellKey + "_lvl")
         val statXp = scepterNbt.getInt(spellKey + "_xp")
@@ -368,10 +364,8 @@ object ScepterHelper {
         if (!item.canAcceptAugment(augment)) return false
         val nbt = stack.orCreateNbt
         if (player.abilities.creativeMode) return true
-        val activeEnchantId = Registries.ENCHANTMENT.getId(augment)?.toString() ?: ""
-        if (!AugmentHelper.checkAugmentStat(activeEnchantId)) return false
-        val minLvl = AugmentHelper.getAugmentMinLvl(activeEnchantId)
-        val curLvl = getScepterStat(nbt,activeEnchantId).first
+        val minLvl = AugmentHelper.getAugmentMinLvl(augment)
+        val curLvl = getScepterStat(nbt,augment).first
         return (curLvl >= minLvl)
 
     }
@@ -382,9 +376,9 @@ object ScepterHelper {
         if (testEnchant !is ScepterAugment) return
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
         val modifiers = ModifierHelper.getActiveModifiers(stack)
-        val testLevel = if (givenLevel == 0) getTestLevel(nbt,activeEnchantId, testEnchant) else givenLevel
+        val testLevel = if (givenLevel == 0) getTestLevel(nbt, testEnchant) else givenLevel
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
-        val cd = AugmentHelper.getAugmentCooldown(activeEnchantId).value(level)
+        val cd = AugmentHelper.getAugmentCooldown(testEnchant).value(level)
         val currentLastUsed = checkLastUsed(lastUsedList,activeEnchantId, world.time)
         updateLastUsed(lastUsedList,activeEnchantId,currentLastUsed - cd - 2)
     }

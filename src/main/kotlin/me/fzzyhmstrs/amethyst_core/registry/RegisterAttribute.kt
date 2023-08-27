@@ -58,10 +58,12 @@ object RegisterAttribute {
         if (SpChecker.spellPowerLoaded){
             ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
                 val multiplier = SpChecker.getModFromPower(user,spell)
-                effects.addDamage(0f,0f,multiplier.toFloat())
-                effects.addAmplifier(0,0, multiplier.toInt())
-                effects.addDuration(0,0,multiplier.toInt())
-                effects.addRange(0.0,0.0,multiplier)
+                if (multiplier != 0.0) {
+                    effects.addDamage(0f, 0f, multiplier.toFloat())
+                    effects.addAmplifier(0, 0, multiplier.toInt())
+                    effects.addDuration(0, 0, multiplier.toInt())
+                    effects.addRange(0.0, 0.0, multiplier)
+                }
             }
         }
     }
