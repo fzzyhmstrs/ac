@@ -17,13 +17,10 @@ import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.block.Block
-import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
@@ -38,7 +35,6 @@ import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.*
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 

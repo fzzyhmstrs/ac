@@ -1,12 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
-import me.fzzyhmstrs.amethyst_core.AC
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.damage.DamageTypes
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.util.Identifier
 import net.minecraft.world.World
 
 object CustomDamageSources {

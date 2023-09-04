@@ -9,7 +9,6 @@ import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.util.Identifier
-import java.util.function.Consumer
 
 /**
  * Data class defines the characteristics of a [ScepterAugment].

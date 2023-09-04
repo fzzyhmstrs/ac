@@ -4,8 +4,8 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "EnchantmentMixin",
-    "PlayerEntityMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "PlayerEntityMixin"
   ],
   "client": [
     "PlayerInventoryMixin"

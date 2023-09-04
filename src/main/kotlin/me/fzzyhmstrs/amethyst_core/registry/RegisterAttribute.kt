@@ -3,7 +3,6 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute

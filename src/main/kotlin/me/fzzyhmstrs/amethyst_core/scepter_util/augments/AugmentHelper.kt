@@ -4,7 +4,6 @@ import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
-import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.loot.function.LootFunction

@@ -3,9 +3,7 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
-import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.Hand

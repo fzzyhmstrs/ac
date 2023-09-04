@@ -1,11 +1,16 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
-import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
-import me.fzzyhmstrs.amethyst_core.modifier_util.*
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
+import me.fzzyhmstrs.amethyst_core.modifier_util.UniqueAugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
-import me.fzzyhmstrs.fzzy_core.coding_util.*
+import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
+import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
@@ -22,7 +27,6 @@ import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.World
-import java.lang.IllegalStateException
 
 /**
  * the base scepter augment. Any Augment-type scepter will be able to successfully cast an augment made with this class or one of the templates.
