@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
+import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
@@ -83,6 +84,7 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
         )
         effectModifiers.plus(modifierData?.getEffectModifier()?: AugmentEffect())
         effectModifiers.plus(baseEffect)
+        ModifyAugmentEffectsEvent.EVENT.invoker().modifyEffects(world,user,user.getStackInHand(hand),effectModifiers,this)
         val bl = applyTasks(world,user,hand,level,effectModifiers)
         if (bl) {
             modifiers.forEach {
