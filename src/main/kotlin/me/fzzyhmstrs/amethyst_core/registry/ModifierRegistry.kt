@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.registry
 
 import me.fzzyhmstrs.amethyst_core.AC
+import me.fzzyhmstrs.amethyst_core.event.ModifyModifiersEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
@@ -101,7 +102,7 @@ object ModifierRegistry {
         ModifierRegistry.register(MODIFIER_DEBUG)
         ModifierRegistry.register(MODIFIER_DEBUG_2)
         ModifierRegistry.register(MODIFIER_DEBUG_3)
-        ModifyModifiersEvent.EVENT.register{ _,user,_,modifiers ->
+        ModifyModifiersEvent.EVENT.register{ _, user, _, modifiers ->
             modifiers.combineWith(ModifierHelper.getActiveModifiers(user), AugmentModifier())
         }
     }
