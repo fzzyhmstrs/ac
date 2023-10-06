@@ -38,9 +38,11 @@ data class AugmentEffect(
         amplifierData = amplifierData.plus(other.amplifierData)
         durationData = durationData.plus(other.durationData)
         rangeData = rangeData.plus(other.rangeData)
-        for (key in other.consumers.keys()){
+        consumers.putAll(other.consumers)
+        /*for (key in other.consumers.keySet()){
+            println("adding an augment effect consumer of type $key")
             consumers.putAll(key,other.consumers.get(key))
-        }
+        }*/
         return this
     }
     fun damage(level: Int = 0): Float{
@@ -55,14 +57,8 @@ data class AugmentEffect(
     fun range(level: Int = 0): Double{
         return max(1.0, rangeData.value(level))
     }
-    fun consumers(): MutableList<AugmentConsumer>{
-        val list = mutableListOf<AugmentConsumer>()
-        for (key in consumers.keys()){
-            consumers[key].forEach {
-                list.add(it)
-            }
-        }
-        return list
+    fun consumers(): Multimap<AugmentConsumer.Type,AugmentConsumer>{
+        return consumers
     }
     fun accept(list: List<LivingEntity>, type: AugmentConsumer.Type? = null){
         consumers[type].forEach {

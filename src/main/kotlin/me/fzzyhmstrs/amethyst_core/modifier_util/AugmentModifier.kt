@@ -73,19 +73,19 @@ open class AugmentModifier(
     }
 
     fun withDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentModifier {
-        effects.plus(ModifierDefaults.BLANK_EFFECT.withDamage(damage, damagePerLevel, damagePercent))
+        effects.plus(AugmentEffect().withDamage(damage, damagePerLevel, damagePercent))
         return this
     }
     fun withAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentModifier {
-        effects.plus(ModifierDefaults.BLANK_EFFECT.withAmplifier(amplifier, amplifierPerLevel, amplifierPercent))
+        effects.plus(AugmentEffect().withAmplifier(amplifier, amplifierPerLevel, amplifierPercent))
         return this
     }
     fun withDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentModifier {
-        effects.plus(ModifierDefaults.BLANK_EFFECT.withDuration(duration, durationPerLevel, durationPercent))
+        effects.plus(AugmentEffect().withDuration(duration, durationPerLevel, durationPercent))
         return this
     }
     fun withRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentModifier {
-        effects.plus(ModifierDefaults.BLANK_EFFECT.withRange(range, rangePerLevel, rangePercent))
+        effects.plus(AugmentEffect().withRange(range, rangePerLevel, rangePercent))
         return this
     }
     fun withSecondaryEffect(effect: AugmentEffect): AugmentModifier {

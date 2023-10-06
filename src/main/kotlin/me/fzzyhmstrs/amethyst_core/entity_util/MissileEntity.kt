@@ -62,6 +62,8 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
 
     override fun tick() {
         super.tick()
+        if (isRemoved)
+            return
         if (age > maxAge){
             discard()
         }
@@ -138,6 +140,7 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
                 )
             }
             if (bl) {
+                entityEffects.accept(entity, AugmentConsumer.Type.BENEFICIAL)
                 applyDamageEffects(entity, entity2)
                 if (entity2 is LivingEntity) {
                     entityEffects.accept(entity2, AugmentConsumer.Type.HARMFUL)

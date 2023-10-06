@@ -144,6 +144,20 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         tooltip.add(modifierText)
     }
 
+    fun gatherActiveModifiers(stack: ItemStack, activeEnchant: Identifier){
+        val nbt = stack.nbt
+        if (nbt != null) {
+            val id = Nbt.getItemStackId(nbt)
+            //println(getModifiers(stack))
+            val compiled = gatherActiveAbstractModifiers(stack, activeEnchant, ModifierDefaults.BLANK_AUG_MOD.compiler())
+            //println(compiled.modifiers)
+            setModifiersById(
+                id,
+                compiled
+            )
+        }
+    }
+
     override fun gatherActiveModifiers(stack: ItemStack){
         val nbt = stack.nbt
         if (nbt != null) {
