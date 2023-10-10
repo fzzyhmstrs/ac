@@ -100,7 +100,7 @@ abstract class AugmentMiningItem(
         return defaultAugments
     }
     
-    override fun defaultModifiers(type: ModifierHelperType): MutableList<Identifier> {
+    override fun defaultModifiers(type: ModifierHelperType<*>): MutableList<Identifier> {
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
@@ -224,7 +224,7 @@ abstract class AugmentMiningItem(
     override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
         writeDefaultNbt(stack, scepterNbt)
         ManaHelper.initializeManaItem(stack)
-        ModifierHelper.gatherActiveModifiers(stack)
+        //ModifierHelper.gatherActiveModifiers(stack)
     }
     
     override fun writeDefaultNbt(stack: ItemStack, scepterNbt: NbtCompound) {
@@ -241,7 +241,7 @@ abstract class AugmentMiningItem(
         }
     }
     
-    override fun canBeModifiedBy(type: ModifierHelperType): Boolean {
+    override fun canBeModifiedBy(type: ModifierHelperType<*>): Boolean {
         return (type == ModifierRegistry.MODIFIER_TYPE)
     }
     
