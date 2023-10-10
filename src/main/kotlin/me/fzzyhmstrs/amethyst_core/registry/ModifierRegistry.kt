@@ -103,9 +103,9 @@ object ModifierRegistry {
         ModifierRegistry.register(MODIFIER_DEBUG)
         ModifierRegistry.register(MODIFIER_DEBUG_2)
         ModifierRegistry.register(MODIFIER_DEBUG_3)
-        ModifyModifiersEvent.EVENT.register{ _, user, _, modifiers ->
+        /*ModifyModifiersEvent.EVENT.register{ _, user, _, modifiers ->
             modifiers.combineWith(ModifierHelper.getActiveModifiers(user), AugmentModifier())
-        }
+        } no longer needed now that modifiers are player-based */ 
     }
 
 }
