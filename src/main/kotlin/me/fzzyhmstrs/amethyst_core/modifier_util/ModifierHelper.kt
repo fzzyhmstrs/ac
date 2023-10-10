@@ -37,7 +37,6 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     fun addModifierForREI(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
-        Nbt.makeItemStackId(stack)
         addModifierToNbt(modifier, nbt)
     }
 
@@ -80,7 +79,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     fun removeRolledModifiers(stack: ItemStack, mods: List<Identifier>){
         for (mod in mods){
-            removeModifier(stack,mod,stack.orCreateNbt)
+            removeModifier(stack,mod)
         }
     }
 
@@ -158,7 +157,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         }
     }
 
-    override fun gatherActiveModifiers(stack: ItemStack){
+    /*override fun gatherActiveModifiers(stack: ItemStack){
         val nbt = stack.nbt
         if (nbt != null) {
             val id = Nbt.getItemStackId(nbt)
@@ -171,6 +170,10 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
                 compiled
             )
         }
+    }*/
+
+    override fun compiler(): AbstractModifier<AugmentModifier>.Compiler{
+        return ModifierDefaults.BLANK_AUG_MOD.compiler()
     }
 
     override fun getTranslationKeyFromIdentifier(id: Identifier): String {
@@ -185,7 +188,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         return me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry.getByType<AugmentModifier>(id)
     }
 
-    override fun getType(): ModifierHelperType {
+    override fun getType(): ModifierHelperType<AugmentModifier> {
         return ModifierRegistry.MODIFIER_TYPE
     }
 }

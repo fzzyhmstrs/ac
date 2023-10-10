@@ -89,7 +89,7 @@ object ScepterHelper {
         incrementStats: Boolean = true,
         checkEnchant: Boolean = true): TypedActionResult<ItemStack>{
         // Modify Modifiers event fires here //
-        val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(stack))
+        val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(user))
         // Modify Spell Event fires here //
         val result = ModifySpellEvent.EVENT.invoker().modifySpell(spell,world,user,hand,modifiers)
         if (result == ActionResult.CONSUME) {
@@ -242,7 +242,7 @@ object ScepterHelper {
         val currentTime = user.world.time
         val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
         val timeSinceLast = currentTime - lastUsed
-        val modifiers = ModifierHelper.getActiveModifiers(stack)
+        val modifiers = ModifierHelper.getActiveModifiers(user)
         val testLevel = getTestLevel(nbt, newActiveEnchant)
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
         val cooldown = AugmentHelper.getAugmentCooldown(newActiveEnchant).value(level)
@@ -252,7 +252,7 @@ object ScepterHelper {
             user.itemCooldownManager.set(stack.item, (cooldown - timeSinceLast).toInt())
         }
         nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchantId)
-        ModifierHelper.gatherActiveModifiers(stack)
+        //ModifierHelper.gatherActiveModifiers(stack)
         val name = newActiveEnchant.getName(1) //?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
         val message = AcText.translatable("scepter.new_active_spell").append(name)
         user.sendMessage(message,false)
@@ -375,7 +375,7 @@ object ScepterHelper {
         val testEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
         if (testEnchant !is ScepterAugment) return
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
-        val modifiers = ModifierHelper.getActiveModifiers(stack)
+        val modifiers = ModifierHelper.getActiveModifiers(user)
         val testLevel = if (givenLevel == 0) getTestLevel(nbt, testEnchant) else givenLevel
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
         val cd = AugmentHelper.getAugmentCooldown(testEnchant).value(level)
