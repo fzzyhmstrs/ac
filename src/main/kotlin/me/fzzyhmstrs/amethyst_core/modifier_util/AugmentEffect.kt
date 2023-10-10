@@ -26,18 +26,47 @@ import kotlin.math.max
  * [consumers]: advanced effects go here. Spells will pass a list of LivingEntity to the [accept] method and all compiled consumers will apply to that list. See the [ModifierRegistry][me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry] for example consumers.
  */
 data class AugmentEffect(
-    private var damageData: PerLvlF = PerLvlF(),
-    private var amplifierData: PerLvlI = PerLvlI(),
-    private var durationData: PerLvlI = PerLvlI(),
-    private var rangeData: PerLvlD = PerLvlD()
+    private var damageData: PerLvlF? = null,
+    private var amplifierData: PerLvlI? = null,
+    private var durationData: PerLvlI? = null,
+    private var rangeData: PerLvlD? = null
 ): Addable<AugmentEffect>{
     private var consumers: Multimap<AugmentConsumer.Type,AugmentConsumer> = ArrayListMultimap.create()
 
+    private fun damageData(): PerLvlF{
+        return if (damageData == null)
+            PerLvlF().also { damageData = it }
+        else
+            return damageData as PerLvlF
+    }
+    private fun amplifierData(): PerLvlI{
+        return if (amplifierData == null)
+            PerLvlI().also { amplifierData = it }
+        else
+            return amplifierData as PerLvlI
+    }
+    private fun durationData(): PerLvlI{
+        return if (durationData == null)
+            PerLvlI().also { durationData = it }
+        else
+            return durationData as PerLvlI
+    }
+    private fun rangeData(): PerLvlD{
+        return if (rangeData == null)
+            PerLvlD().also { rangeData = it }
+        else
+            return rangeData as PerLvlD
+    }
+
     override fun plus(other: AugmentEffect): AugmentEffect {
-        damageData = damageData.plus(other.damageData)
-        amplifierData = amplifierData.plus(other.amplifierData)
-        durationData = durationData.plus(other.durationData)
-        rangeData = rangeData.plus(other.rangeData)
+        if (other.damageData != null)
+            damageData().plus(other.damageData())
+        if (other.amplifierData != null)
+            amplifierData().plus(other.amplifierData())
+        if (other.durationData != null)
+            durationData().plus(other.durationData())
+        if (other.rangeData != null)
+            rangeData().plus(other.rangeData())
         consumers.putAll(other.consumers)
         /*for (key in other.consumers.keySet()){
             println("adding an augment effect consumer of type $key")
@@ -46,16 +75,16 @@ data class AugmentEffect(
         return this
     }
     fun damage(level: Int = 0): Float{
-        return max(0.0F, damageData.value(level))
+        return max(0.0F, damageData?.value(level) ?: 0f)
     }
     fun amplifier(level: Int = 0): Int{
-        return max(0, amplifierData.value(level))
+        return max(0, amplifierData?.value(level) ?: 0)
     }
     fun duration(level: Int = 0): Int{
-        return max(0, durationData.value(level))
+        return max(0, durationData?.value(level) ?: 0)
     }
     fun range(level: Int = 0): Double{
-        return max(1.0, rangeData.value(level))
+        return max(1.0, rangeData?.value(level) ?: 1.0)
     }
     fun consumers(): Multimap<AugmentConsumer.Type,AugmentConsumer>{
         return consumers
@@ -70,52 +99,56 @@ data class AugmentEffect(
     }
 
     fun withDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentEffect {
-        return this.copy(damageData = PerLvlF(damage, damagePerLevel, damagePercent))
+        damageData().set(damage, damagePerLevel, damagePercent)
+        return this
     }
     fun addDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F){
-        damageData = damageData.plus(damage, damagePerLevel, damagePercent)
+        damageData().plus(damage, damagePerLevel, damagePercent)
     }
     fun addDamage(ae: AugmentEffect){
-        damageData = damageData.plus(ae.damageData)
+        damageData().plus(ae.damageData())
     }
     fun setDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F){
-        damageData = PerLvlF(damage, damagePerLevel, damagePercent)
+        damageData().set(damage, damagePerLevel, damagePercent)
     }
     fun withAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentEffect {
-        return this.copy(amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent))
+        amplifierData().set(amplifier, amplifierPerLevel, amplifierPercent)
+        return this
     }
     fun addAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0){
-        amplifierData = amplifierData.plus(amplifier, amplifierPerLevel, amplifierPercent)
+        amplifierData().plus(amplifier, amplifierPerLevel, amplifierPercent)
     }
     fun addAmplifier(ae: AugmentEffect){
-        amplifierData = amplifierData.plus(ae.amplifierData)
+        amplifierData().plus(ae.amplifierData())
     }
     fun setAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0){
-        amplifierData = PerLvlI(amplifier, amplifierPerLevel, amplifierPercent)
+        amplifierData().set(amplifier, amplifierPerLevel, amplifierPercent)
     }
     fun withDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentEffect {
-        return this.copy(durationData = PerLvlI(duration, durationPerLevel, durationPercent))
+        durationData().set(duration, durationPerLevel, durationPercent)
+        return this
     }
     fun addDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0){
-        durationData = durationData.plus(duration, durationPerLevel, durationPercent)
+        durationData().plus(duration, durationPerLevel, durationPercent)
     }
     fun addDuration(ae: AugmentEffect){
-        durationData = durationData.plus(ae.durationData)
+        durationData().plus(ae.durationData())
     }
     fun setDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0){
-        durationData = PerLvlI(duration, durationPerLevel, durationPercent)
+        durationData().set(duration, durationPerLevel, durationPercent)
     }
     fun withRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentEffect {
-        return this.copy(rangeData = PerLvlD(range, rangePerLevel, rangePercent))
+        rangeData().plus(PerLvlD(range, rangePerLevel, rangePercent))
+        return this
     }
     fun addRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0){
-        rangeData = rangeData.plus(PerLvlD(range, rangePerLevel, rangePercent))
+        rangeData().plus(PerLvlD(range, rangePerLevel, rangePercent))
     }
     fun addRange(ae: AugmentEffect){
-        rangeData = rangeData.plus(ae.rangeData)
+        rangeData().plus(ae.rangeData())
     }
     fun setRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0){
-        rangeData = PerLvlD(range, rangePerLevel, rangePercent)
+        rangeData().set(range, rangePerLevel, rangePercent)
     }
     fun withConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentEffect {
         addConsumer(consumer, type)

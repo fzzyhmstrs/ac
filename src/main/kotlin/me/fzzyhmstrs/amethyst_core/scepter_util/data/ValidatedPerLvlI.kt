@@ -16,9 +16,9 @@ class ValidatedPerLvlI(
         PerLvlI(base.get(),perLevel.get(),percent.get())
     }
 
-    var base = ValidatedInt(value.base,max.base,min.base)
-    var perLevel = ValidatedInt(value.perLevel,max.perLevel,min.perLevel)
-    var percent = ValidatedInt(value.percent,max.percent, min.percent)
+    var base = ValidatedInt(value.base(),max.base(),min.base())
+    var perLevel = ValidatedInt(value.perLevel(),max.perLevel(),min.perLevel())
+    var percent = ValidatedInt(value.percent(),max.percent(), min.percent())
 
     fun get(): PerLvlI{
         return storedPerLvlI

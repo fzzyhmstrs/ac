@@ -31,25 +31,34 @@ open class AugmentModifier(
     modifierId: Identifier = ModifierDefaults.BLANK_ID,
     open var levelModifier: Int = 0,
     open var cooldownModifier: Double = 0.0,
-    open var manaCostModifier: Double = 0.0,
-    internal val availableForRoll: Boolean = true,
-    internal val rollToll: Int = 5)
+    open var manaCostModifier: Double = 0.0)
     :
     AbstractModifier<AugmentModifier>(modifierId)
 {
 
-    protected val effects: AugmentEffect = AugmentEffect()
-    protected val xpModifier: XpModifiers = XpModifiers()
-    private var secondaryEffect: ScepterAugment? = null
-
-    private var hasSecondEffect: Boolean = false
+    private var effects: AugmentEffect? = null
+    protected fun getModEffects(): AugmentEffect{
+        return if (effects == null)
+            AugmentEffect().also { effects = it }
+        else
+            effects as AugmentEffect
+    }
+    private var xpModifier: XpModifiers? = null
+    protected fun getModXpModifier(): XpModifiers{
+        return if (xpModifier == null)
+            XpModifiers().also { xpModifier = it }
+        else
+            xpModifier as XpModifiers
+    }
 
     override fun plus(other: AugmentModifier): AugmentModifier {
         levelModifier += other.levelModifier
         cooldownModifier += other.cooldownModifier
         manaCostModifier += other.manaCostModifier
-        xpModifier.plus(other.getXpModifiers())
-        effects.plus(other.getEffectModifier())
+        if (other.xpModifier != null)
+            getModXpModifier().plus(other.getModXpModifier())
+        if (other.effects != null)
+            getModEffects().plus(other.getModEffects())
         return this
     }
 
@@ -59,37 +68,37 @@ open class AugmentModifier(
     fun checkSpellsToAffect(id: Identifier): Boolean{
         return checkObjectsToAffect(id)
     }
-    fun hasSecondaryEffect(): Boolean{
-        return hasSecondEffect
+    open fun hasSecondaryEffect(): Boolean{
+        return false
     }
-    fun getSecondaryEffect(): ScepterAugment?{
-        return secondaryEffect
+    open fun getSecondaryEffect(): ScepterAugment?{
+        return null
     }
-    fun getEffectModifier(): AugmentEffect {
+    fun getEffectModifier(): AugmentEffect? {
         return effects
     }
-    fun getXpModifiers(): XpModifiers {
+    fun getXpModifiers(): XpModifiers? {
         return xpModifier
     }
 
     fun withDamage(damage: Float = 0.0F, damagePerLevel: Float = 0.0F, damagePercent: Float = 0.0F): AugmentModifier {
-        effects.plus(AugmentEffect().withDamage(damage, damagePerLevel, damagePercent))
+        getModEffects().addDamage(damage, damagePerLevel, damagePercent)
         return this
     }
     fun withAmplifier(amplifier: Int = 0, amplifierPerLevel: Int = 0, amplifierPercent: Int = 0): AugmentModifier {
-        effects.plus(AugmentEffect().withAmplifier(amplifier, amplifierPerLevel, amplifierPercent))
+        getModEffects().addAmplifier(amplifier, amplifierPerLevel, amplifierPercent)
         return this
     }
     fun withDuration(duration: Int = 0, durationPerLevel: Int = 0, durationPercent: Int = 0): AugmentModifier {
-        effects.plus(AugmentEffect().withDuration(duration, durationPerLevel, durationPercent))
+        getModEffects().addDuration(duration, durationPerLevel, durationPercent)
         return this
     }
     fun withRange(range: Double = 0.0, rangePerLevel: Double = 0.0, rangePercent: Double = 0.0): AugmentModifier {
-        effects.plus(AugmentEffect().withRange(range, rangePerLevel, rangePercent))
+        getModEffects().addRange(range, rangePerLevel, rangePercent)
         return this
     }
     fun withSecondaryEffect(effect: AugmentEffect): AugmentModifier {
-        effects.plus(effect)
+        getModEffects().plus(effect)
         return this
     }
     fun withXpMod(type: SpellType, xpMod: Int): AugmentModifier {
@@ -102,24 +111,19 @@ open class AugmentModifier(
                     ModifierDefaults.BLANK_XP_MOD.withGraceMod(xpMod)}
                 else -> return this
             }
-        xpModifier.plus(xpMods)
+        getModXpModifier().plus(xpMods)
         return this
     }
     fun withSpellToAffect(predicate: Predicate<Identifier>): AugmentModifier {
         addObjectToAffect(predicate)
         return this
     }
-    fun withSecondaryEffect(augment: ScepterAugment): AugmentModifier {
-        secondaryEffect = augment
-        hasSecondEffect = true
-        return this
-    }
     fun withConsumer(consumer: Consumer<List<LivingEntity>>, type: AugmentConsumer.Type): AugmentModifier {
-        effects.withConsumer(consumer,type)
+        getModEffects().withConsumer(consumer,type)
         return this
     }
     fun withConsumer(augmentConsumer: AugmentConsumer): AugmentModifier {
-        effects.withConsumer(augmentConsumer.consumer,augmentConsumer.type)
+        getModEffects().withConsumer(augmentConsumer.consumer,augmentConsumer.type)
         return this
     }
     fun withDescendant(modifier: AugmentModifier): AugmentModifier {

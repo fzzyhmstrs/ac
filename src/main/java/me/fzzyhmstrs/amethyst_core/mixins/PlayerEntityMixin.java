@@ -1,10 +1,14 @@
 package me.fzzyhmstrs.amethyst_core.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity;
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding;
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -49,6 +53,11 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
             newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
         }
         return newXp;
+    }
+
+    @WrapOperation(method = "applyDamage", at = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.applyArmorToDamage (Lnet/minecraft/entity/damage/DamageSource;F)F"))
+    private float amethyst_core_applyMultiplicationAttributeToDamage(PlayerEntity instance, DamageSource source, float amount, Operation<Float> operation){
+        return operation.call(instance,source,amount * ((float)instance.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()))) ;
     }
     /*@Inject(
             method = "createPlayerAttributes",

@@ -12,7 +12,7 @@ class UniqueAugmentModifier(
     cooldownModifier: Double = 0.0,
     manaCostModifier: Double = 0.0)
     :
-    AugmentModifier(
+    ComplexAugmentModifier(
         Identifier("$augmentId/modifier"),
         levelModifier,
         cooldownModifier,

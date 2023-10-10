@@ -69,8 +69,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             tooltip.add(AcText.translatable("lore_book.xp_level", xpLevels.toString()).formatted(Formatting.WHITE))
             //tooltip.add(AcText.translatable("lore_book.xp_level").formatted(Formatting.WHITE).append(xpLevels.toString()))
             val cooldown = AugmentHelper.getAugmentCooldown(bole)
-            val cooldownBase = cooldown.base / 20f
-            val cooldownPerLvl = cooldown.perLevel / 20f
+            val cooldownBase = cooldown.base() / 20f
+            val cooldownPerLvl = cooldown.perLevel() / 20f
             val cooldownKey = if(cooldownPerLvl < 0){
                 "lore_book.cooldown.minus"
             } else if (cooldownPerLvl == 0f){
