@@ -73,17 +73,14 @@ object ModifierRegistry {
     val MODIFIER_DEBUG_2 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_2"), levelModifier = 1).withDuration(10, durationPercent = 15).withAmplifier(1)
     val MODIFIER_DEBUG_3 = AugmentModifier(Identifier(AC.MOD_ID,"modifier_debug_3")).withConsumer(DEBUG_HEALING_CONSUMER).withConsumer(DEBUG_NECROTIC_CONSUMER)
 
-    val MODIFIER_TYPE = Registry.register(ModifierHelperType.REGISTRY,ModifierType.id,ModifierType)
+    val MODIFIER_TYPE = ModifierHelperType.register(ModifierType)
 
-    object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper")){
+    object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper"), ModifierHelper){
         override fun getModifierIdKey(): String {
             return "modifier_id"
         }
         override fun getModifiersKey(): String {
             return "modifiers"
-        }
-        override fun getModifierInitializer(): ModifierInitializer {
-            return ModifierHelper
         }
     }
 
