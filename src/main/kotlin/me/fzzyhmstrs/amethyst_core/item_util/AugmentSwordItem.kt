@@ -101,6 +101,11 @@ abstract class AugmentSwordItem(
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
+    override fun modifierObjectPredicate(stack: ItemStack): Identifier{
+        val activeEnchantId: String = getActiveEnchant(stack)
+        return Identifier(activeEnchantId)
+    }
+
     /**
      * when called during building, won't add the fallback augment when initializing a scepter. If no default augments are provided, this will result in an empty scepter (requires manually adding spells to function at all)
      */
