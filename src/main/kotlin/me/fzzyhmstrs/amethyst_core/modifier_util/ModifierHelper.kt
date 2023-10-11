@@ -10,6 +10,7 @@ import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
+import me.fzzyhmstrs.gear_core.modifier_util.EquipmentModifierHelper.removeModifier
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
@@ -37,7 +38,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     fun addModifierForREI(modifier: Identifier, stack: ItemStack){
         val nbt = stack.orCreateNbt
-        addModifierToNbt(modifier, nbt)
+        addModifierToNbt(stack, modifier, nbt)
     }
 
     fun isInTag(id: Identifier,tag: TagKey<Enchantment>): Boolean{
@@ -143,7 +144,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         tooltip.add(modifierText)
     }
 
-    fun gatherActiveModifiers(stack: ItemStack, activeEnchant: Identifier){
+    /*fun gatherActiveModifiers(stack: ItemStack, activeEnchant: Identifier){
         val nbt = stack.nbt
         if (nbt != null) {
             val id = Nbt.getItemStackId(nbt)
@@ -155,7 +156,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
                 compiled
             )
         }
-    }
+    }*/
 
     /*override fun gatherActiveModifiers(stack: ItemStack){
         val nbt = stack.nbt

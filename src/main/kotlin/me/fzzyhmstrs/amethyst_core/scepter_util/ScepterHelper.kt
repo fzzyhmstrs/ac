@@ -89,7 +89,7 @@ object ScepterHelper {
         incrementStats: Boolean = true,
         checkEnchant: Boolean = true): TypedActionResult<ItemStack>{
         // Modify Modifiers event fires here //
-        val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getActiveModifiers(user))
+        val modifiers = ModifyModifiersEvent.EVENT.invoker().modifyModifiers(world, user, stack, ModifierHelper.getSpecialActiveModifiers(user,spell.id))
         // Modify Spell Event fires here //
         val result = ModifySpellEvent.EVENT.invoker().modifySpell(spell,world,user,hand,modifiers)
         if (result == ActionResult.CONSUME) {
@@ -242,7 +242,7 @@ object ScepterHelper {
         val currentTime = user.world.time
         val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
         val timeSinceLast = currentTime - lastUsed
-        val modifiers = ModifierHelper.getActiveModifiers(user)
+        val modifiers = ModifierHelper.getSpecialActiveModifiers(user,newActiveEnchant.id)
         val testLevel = getTestLevel(nbt, newActiveEnchant)
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
         val cooldown = AugmentHelper.getAugmentCooldown(newActiveEnchant).value(level)
@@ -375,7 +375,7 @@ object ScepterHelper {
         val testEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
         if (testEnchant !is ScepterAugment) return
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
-        val modifiers = ModifierHelper.getActiveModifiers(user)
+        val modifiers = ModifierHelper.getSpecialActiveModifiers(user,testEnchant.id)
         val testLevel = if (givenLevel == 0) getTestLevel(nbt, testEnchant) else givenLevel
         val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
         val cd = AugmentHelper.getAugmentCooldown(testEnchant).value(level)

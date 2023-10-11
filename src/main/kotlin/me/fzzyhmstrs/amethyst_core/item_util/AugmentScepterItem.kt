@@ -85,7 +85,7 @@ abstract class AugmentScepterItem(
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
-    override fun modifierObjectPredicate(stack: ItemStack): Identifier{
+    override fun modifierObjectPredicate(livingEntity: LivingEntity, stack: ItemStack): Identifier{
         val activeEnchantId: String = getActiveEnchant(stack)
         return Identifier(activeEnchantId)
     }

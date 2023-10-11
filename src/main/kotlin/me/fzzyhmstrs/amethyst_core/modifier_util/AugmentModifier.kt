@@ -143,7 +143,7 @@ open class AugmentModifier(
         return AcText.translatable(getTranslationKey())
     }
 
-    override fun getModifierHelper(): AbstractModifierHelper<T> {
+    override fun getModifierHelper(): AbstractModifierHelper<AugmentModifier> {
         return ModifierHelper
     }
 

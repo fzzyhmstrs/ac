@@ -75,7 +75,7 @@ object ModifierRegistry {
 
     val MODIFIER_TYPE = ModifierHelperType.register(ModifierType)
 
-    object ModifierType: ModifierHelperType(Identifier(AC.MOD_ID,"amethyst_core_helper"), ModifierHelper){
+    object ModifierType: ModifierHelperType<AugmentModifier>(Identifier(AC.MOD_ID,"amethyst_core_helper"), ModifierHelper){
         override fun getModifierIdKey(): String {
             return "modifier_id"
         }

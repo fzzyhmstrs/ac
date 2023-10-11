@@ -2,14 +2,13 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
-import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
+import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
@@ -54,24 +53,20 @@ abstract class AugmentMiningItem(
     settings: Settings)
     :
     MiningToolItem(damage,attackSpeed,material,effectiveBlocks, settings),
-    SpellCasting, ScepterLike, Modifiable, ManaItem, Flavorful<AugmentMiningItem>
+    SpellCasting, ScepterLike, Modifiable, ManaItem
 {
 
     var defaultAugments: List<ScepterAugment> = listOf()
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
     override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
-        
-    override var glint: Boolean = false
-    override var flavor: String = ""
-    override var flavorDesc: String = ""
-    
+
     private val flavorText: MutableText by lazy{
-        makeFlavorText()
+        FlavorHelper.makeFlavorText(this)
     }
-    
+
     private val flavorTextDesc: MutableText by lazy{
-        makeFlavorTextDesc()
+        FlavorHelper.makeFlavorTextDesc(this)
     }
     
     override fun getTier(): Int{
@@ -104,7 +99,7 @@ abstract class AugmentMiningItem(
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
 
-    override fun modifierObjectPredicate(stack: ItemStack): Identifier{
+    override fun modifierObjectPredicate(livingEntity: LivingEntity, stack: ItemStack): Identifier{
         val activeEnchantId: String = getActiveEnchant(stack)
         return Identifier(activeEnchantId)
     }
@@ -278,43 +273,8 @@ abstract class AugmentMiningItem(
         }
     }
 
-    private fun makeFlavorText(): MutableText{
-        val id = Registries.ITEM.getId(this)
-        val key = "item.${id.namespace}.${id.path}.flavor"
-        val text = AcText.translatable(key).formatted(Formatting.WHITE, Formatting.ITALIC)
-        if (text.string == key) return AcText.empty()
-        return text
-    }
-
-    private fun makeFlavorTextDesc(): MutableText{
-        val id = Registries.ITEM.getId(this)
-        val key = "item.${id.namespace}.${id.path}.flavor.desc"
-        val text = AcText.translatable(key).formatted(Formatting.WHITE)
-        if (text.string == key) return AcText.empty()
-        return text
-    }
-
     override fun appendTooltip(stack: ItemStack, world: World?, tooltip: MutableList<Text>, context: TooltipContext) {
         super.appendTooltip(stack, world, tooltip, context)
-        addFlavorText(tooltip, context)
-    }
-
-    override fun hasGlint(stack: ItemStack): Boolean {
-        return if (glint) {
-            true
-        } else {
-            super.hasGlint(stack)
-        }
-    }
-    
-    override fun flavorText(): MutableText{
-        return flavorText
-    }
-    override fun flavorDescText(): MutableText{
-        return flavorTextDesc
-    }
-
-    override fun getFlavorItem(): AugmentMiningItem {
-        return this
+            FlavorHelper.addFlavorText(tooltip, context, flavorText, flavorTextDesc)
     }
 }
