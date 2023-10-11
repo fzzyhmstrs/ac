@@ -53,6 +53,10 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         return TagKey.of(RegistryKeys.ENCHANTMENT, Identifier(AC.MOD_ID,path))
     }
 
+    fun getRandomRollableModifier(): Identifier{
+        return ModifierRegistry.modifierRollList.random().modifierId
+    }
+
     fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
         val list = ModifierRegistry.modifierRollList
         val parameters = LootContextParameterSet.Builder(world).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
