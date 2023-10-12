@@ -34,7 +34,7 @@ open class ComplexAugmentModifier(
     internal val availableForRoll: Boolean = true,
     internal val rollToll: Int = 5)
     :
-    AugmentModifier(modifierId)
+    AugmentModifier(modifierId, levelModifier, cooldownModifier, manaCostModifier)
 {
 
     private var secondaryEffect: ScepterAugment? = null
