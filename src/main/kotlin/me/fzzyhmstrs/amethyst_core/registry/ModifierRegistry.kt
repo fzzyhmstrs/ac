@@ -82,6 +82,10 @@ object ModifierRegistry {
         override fun getModifiersKey(): String {
             return "modifiers"
         }
+
+        override fun getModifierInitKey(): String {
+            return "ac_"
+        }
     }
 
     internal fun registerAll(){
