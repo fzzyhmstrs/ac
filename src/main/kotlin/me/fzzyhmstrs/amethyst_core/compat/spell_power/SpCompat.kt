@@ -81,4 +81,18 @@ object SpCompat {
         }
     }
 
+    fun getAttributeFromEnum(attr: SpChecker.Power): EntityAttribute?{
+        return when(attr){
+            CRITICAL_CHANCE -> EntityAttributes_SpellPower.CRITICAL_CHANCE
+            CRITICAL_DAMAGE -> EntityAttributes_SpellPower.CRITICAL_DAMAGE
+            HASTE -> EntityAttributes_SpellPower.HASTE
+            ARCANE -> EntityAttributes_SpellPower.POWER[MagicSchool.ARCANE]
+            FIRE -> EntityAttributes_SpellPower.POWER[MagicSchool.FIRE]
+            FROST -> EntityAttributes_SpellPower.POWER[MagicSchool.FROST]
+            HEALING -> EntityAttributes_SpellPower.POWER[MagicSchool.HEALING]
+            LIGHTNING -> EntityAttributes_SpellPower.POWER[MagicSchool.LIGHTNING]
+            SOUL -> EntityAttributes_SpellPower.POWER[MagicSchool.SOUL]
+        }
+    }
+
 }
