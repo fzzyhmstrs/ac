@@ -59,7 +59,14 @@ object RegisterAttribute {
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-
+        ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, _ ->
+                val crit = AC.acRandom().nextFloat() < user.getAttributeValue(SPELL_CRITICAL_CHANCE)
+                if (crit){
+                    user.world.playSound(null,user.blockPos, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.5f,1.0f)
+                    val multiplier = user.getAttributeValue(SPELL_CRITICAL_MULTIPLIER)
+                    effects.addDamage(0f,0f,((multiplier - 1.0) * 100f).toFloat())
+                }
+            }
         if (SpChecker.spellPowerLoaded){
             ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
                 val multiplier = SpChecker.getModFromSpell(user,spell)
