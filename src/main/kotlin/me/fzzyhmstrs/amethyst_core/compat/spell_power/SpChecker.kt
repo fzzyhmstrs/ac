@@ -30,4 +30,12 @@ object SpChecker {
             return SpCompat.getModFromTags(user, *tagKeys)
         return 0.0
     }
+
+    fun addSpellPowerAttribute(power: String, uuid: String, amount: Double, operation: EntityAttributeModifier.Operation, map: Multimap<EntityAttribute, EntityAttributeModifier>){
+        if (spellPowerLoaded){
+            val attribute = Registries.ATTRIBUTE.get(Identifier(power)) ?: return
+            val uUID =  UUID.fromString(uuid)
+            map.put(attribute, EntityAttributeModifier(uUID, power, amount, operation))
+        }
+    }
 }
