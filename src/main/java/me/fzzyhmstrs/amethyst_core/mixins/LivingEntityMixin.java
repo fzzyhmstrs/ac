@@ -45,6 +45,8 @@ abstract class LivingEntityMixin extends Entity {
                 .add(RegisterAttribute.INSTANCE.getSPELL_DURATION())
                 .add(RegisterAttribute.INSTANCE.getSPELL_RANGE())
                 .add(RegisterAttribute.INSTANCE.getSPELL_EXPERIENCE())
+                .add(RegisterAttribute.INSTANCE.getSPELL_CRITICAL_CHANCE())
+                .add(RegisterAttribute.INSTANCE.getSPELL_CRITICAL_MULTIPLIER())
                 .add(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION())
                 .add(RegisterAttribute.INSTANCE.getSHIELDING())
                 .add(RegisterAttribute.INSTANCE.getMAGIC_RESISTANCE())
