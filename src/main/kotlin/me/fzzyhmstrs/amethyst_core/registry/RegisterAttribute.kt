@@ -43,8 +43,8 @@ object RegisterAttribute {
     //spell critical chance, a float chance. 0.0 is no chance, 1.0 is every hit
     val SPELL_CRITICAL_CHANCE: EntityAttribute = make("spell_critical_chance", 0.0, 0.0, 1.0)
 
-    //spell critical multiplier, acts as a multiplier. 2.0 is 2x normal damage, 1.0 is no extra damage
-    val SPELL_CRITICAL_MULTIPLIER: EntityAttribute = make("spell_critical_multiplier", 2.0, 1.0, 10.0)
+    //spell critical multiplier, acts as a multiplier. 1.5 is 1.5x normal damage, 1.0 is no extra damage
+    val SPELL_CRITICAL_MULTIPLIER: EntityAttribute = make("spell_critical_multiplier", 1.5, 1.0, 10.0)
 
     //damage multiplication, acts as a multiplier. Value of 0.1 will add 10% to the damage inflicted on the affected entity Max value will be a 3200x
     val DAMAGE_MULTIPLICATION: EntityAttribute = make("damage_multiplication", 1.0, 0.0, 32.0)
