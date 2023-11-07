@@ -31,11 +31,23 @@ object SpChecker {
         return 0.0
     }
 
-    fun addSpellPowerAttribute(power: String, uuid: String, amount: Double, operation: EntityAttributeModifier.Operation, map: Multimap<EntityAttribute, EntityAttributeModifier>){
+    fun addSpellPowerAttribute(power: Power, uuid: String, amount: Double, operation: EntityAttributeModifier.Operation, map: Multimap<EntityAttribute, EntityAttributeModifier>){
         if (spellPowerLoaded){
-            val attribute = Registries.ATTRIBUTE.get(Identifier(power)) ?: return
+            val attribute = SpCompat.getAttributeFromEnum(power) ?: return
             val uUID =  UUID.fromString(uuid)
             map.put(attribute, EntityAttributeModifier(uUID, power, amount, operation))
         }
+    }
+    
+    enum class Power{
+        CRITICAL_CHANCE,
+        CRITICAL_DAMAGE,
+        HASTE,
+        ARCANE,
+        FIRE,
+        FROST,
+        HEALING,
+        LIGHTNING,
+        SOUL
     }
 }
