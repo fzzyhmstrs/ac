@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
+import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute.SHIELDING
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute
@@ -10,6 +11,8 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.DamageTypeTags
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.random.Random
 
@@ -59,25 +62,24 @@ object RegisterAttribute {
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
     fun registerAll(){
-        ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, _ ->
-                val crit = AC.acRandom().nextFloat() < user.getAttributeValue(SPELL_CRITICAL_CHANCE)
+        ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
+                val crit = AC.acRandom.nextFloat() < user.getAttributeValue(SPELL_CRITICAL_CHANCE)
                 if (crit){
                     user.world.playSound(null,user.blockPos, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.5f,1.0f)
                     val multiplier = user.getAttributeValue(SPELL_CRITICAL_MULTIPLIER)
                     effects.addDamage(0f,0f,((multiplier - 1.0) * 100f).toFloat())
                 }
-            }
-        if (SpChecker.spellPowerLoaded){
-            ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
-                val multiplier = SpChecker.getModFromSpell(user,spell)
-                if (multiplier != 0.0) {
-                    effects.addDamage(0f, 0f, multiplier.toFloat())
-                    effects.addAmplifier(0, 0, multiplier.toInt())
-                    effects.addDuration(0, 0, multiplier.toInt())
-                    effects.addRange(0.0, 0.0, multiplier)
+                if (SpChecker.spellPowerLoaded){
+                    val multiplier = SpChecker.getModFromSpell(user,spell)
+                    if (multiplier != 0.0) {
+                        effects.addDamage(0f, 0f, multiplier.toFloat())
+                        effects.addAmplifier(0, 0, multiplier.toInt())
+                        effects.addDuration(0, 0, multiplier.toInt())
+                        effects.addRange(0.0, 0.0, multiplier)
+                    }
                 }
+
             }
-        }
     }
 
     fun damageIsBlocked(random: Random, entity: LivingEntity, damageSource: DamageSource): Boolean{

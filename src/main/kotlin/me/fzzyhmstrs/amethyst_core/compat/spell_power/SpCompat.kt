@@ -4,10 +4,12 @@ import me.fzzyhmstrs.amethyst_core.registry.RegisterTag
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.tag.TagKey
 import net.spell_power.api.MagicSchool
 import net.spell_power.api.SpellPower
+import net.spell_power.api.attributes.EntityAttributes_SpellPower
 import kotlin.math.log10
 
 object SpCompat {
@@ -83,15 +85,15 @@ object SpCompat {
 
     fun getAttributeFromEnum(attr: SpChecker.Power): EntityAttribute?{
         return when(attr){
-            CRITICAL_CHANCE -> EntityAttributes_SpellPower.CRITICAL_CHANCE
-            CRITICAL_DAMAGE -> EntityAttributes_SpellPower.CRITICAL_DAMAGE
-            HASTE -> EntityAttributes_SpellPower.HASTE
-            ARCANE -> EntityAttributes_SpellPower.POWER[MagicSchool.ARCANE]
-            FIRE -> EntityAttributes_SpellPower.POWER[MagicSchool.FIRE]
-            FROST -> EntityAttributes_SpellPower.POWER[MagicSchool.FROST]
-            HEALING -> EntityAttributes_SpellPower.POWER[MagicSchool.HEALING]
-            LIGHTNING -> EntityAttributes_SpellPower.POWER[MagicSchool.LIGHTNING]
-            SOUL -> EntityAttributes_SpellPower.POWER[MagicSchool.SOUL]
+            SpChecker.Power.CRITICAL_CHANCE -> EntityAttributes_SpellPower.CRITICAL_CHANCE
+            SpChecker.Power.CRITICAL_DAMAGE -> EntityAttributes_SpellPower.CRITICAL_DAMAGE
+            SpChecker.Power.HASTE -> EntityAttributes_SpellPower.HASTE
+            SpChecker.Power.ARCANE -> EntityAttributes_SpellPower.POWER[MagicSchool.ARCANE]
+            SpChecker.Power.FIRE -> EntityAttributes_SpellPower.POWER[MagicSchool.FIRE]
+            SpChecker.Power.FROST -> EntityAttributes_SpellPower.POWER[MagicSchool.FROST]
+            SpChecker.Power.HEALING -> EntityAttributes_SpellPower.POWER[MagicSchool.HEALING]
+            SpChecker.Power.LIGHTNING -> EntityAttributes_SpellPower.POWER[MagicSchool.LIGHTNING]
+            SpChecker.Power.SOUL -> EntityAttributes_SpellPower.POWER[MagicSchool.SOUL]
         }
     }
 
