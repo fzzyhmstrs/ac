@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
+import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
@@ -94,6 +95,7 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
             }
             effectModifiers.accept(user,AugmentConsumer.Type.AUTOMATIC)
             AfterSpellEvent.EVENT.invoker().afterCast(world,user,user.getStackInHand(hand), this)
+            SpChecker.fireOnSpellPowerCast(world,user,user.getStackInHand(hand), this)
         }
         return bl
     }

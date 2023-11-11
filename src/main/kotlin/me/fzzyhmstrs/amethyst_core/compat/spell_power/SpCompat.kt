@@ -2,17 +2,39 @@ package me.fzzyhmstrs.amethyst_core.compat.spell_power
 
 import me.fzzyhmstrs.amethyst_core.registry.RegisterTag
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import net.fabricmc.fabric.api.event.Event
+import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.tag.TagKey
+import net.minecraft.world.World
 import net.spell_power.api.MagicSchool
 import net.spell_power.api.SpellPower
 import net.spell_power.api.attributes.EntityAttributes_SpellPower
 import kotlin.math.log10
 
 object SpCompat {
+
+    val AFTER_CAST: Event<SpellPowerCast> = EventFactory.createArrayBacked(SpellPowerCast::class.java){ listeners ->
+        SpellPowerCast { world, user, stack, spell, schools ->
+            for (listener in listeners){
+                listener.onSpellPowerCast(world, user, stack, spell, schools)
+            }
+        }
+    }
+
+    @FunctionalInterface
+    fun interface SpellPowerCast{
+        fun onSpellPowerCast(world: World, user: LivingEntity, stack: ItemStack, spell: ScepterAugment, schools: Set<MagicSchool>)
+    }
+
+    fun fireOnSpellPowerCast(world: World, user: LivingEntity, stack: ItemStack, spell: ScepterAugment){
+        val schools = getSchoolsForSpell(spell)
+        AFTER_CAST.invoker().onSpellPowerCast(world, user, stack, spell, schools)
+        //println("Spell cast for SPA: $spell, with schools:$schools")
+    }
 
     fun getHaste(user: LivingEntity, stack: ItemStack): Double{
         return SpellPower.getHaste(user,stack)
