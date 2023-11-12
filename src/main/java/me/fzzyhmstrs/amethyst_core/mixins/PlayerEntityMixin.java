@@ -47,13 +47,22 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
         int newXp = original;
         if (original < 0){
             double bonus = ((PlayerEntity)(Object) this).getAttributeValue(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE()) * -1.0;
-            while (bonus >= 1.0){
+            while (bonus <= -1.0){
                 newXp -= 1;
                 bonus += 1.0;
             }
             if (bonus < 0.0){
                 newXp -= ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < (bonus * -1.0) ? 1 : 0;
+            } else {
+                while (bonus >= 1.0){
+                    newXp += 1;
+                    bonus -= 1.0;
+                }
+                if (bonus > 0.0){
+                    newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
+                }
             }
+            return newXp;
         }
         double bonus = ((PlayerEntity)(Object) this).getAttributeValue(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
         while (bonus >= 1.0){
@@ -62,6 +71,14 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
         }
         if (bonus > 0.0){
             newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
+        } else {
+            while (bonus <= -1.0){
+                newXp -= 1;
+                bonus += 1.0;
+            }
+            if (bonus < 0.0){
+                newXp -= ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < (bonus * -1.0) ? 1 : 0;
+            }
         }
         return newXp;
     }
