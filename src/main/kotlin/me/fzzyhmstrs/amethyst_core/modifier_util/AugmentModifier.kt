@@ -131,6 +131,14 @@ open class AugmentModifier(
         return this
     }
 
+    override fun isAcceptableItem(stack: ItemStack): Boolean {
+        val nbt = stack.nbt ?: return super.isAcceptableItem(stack)
+        val mods = getModifierHelper().getModifiersFromNbt(nbt)
+        val furthestDescendant = getModLineage().last()
+        if (mods.contains(furthestDescendant)) return false
+        return super.isAcceptableItem(stack)
+    }
+
     override fun acceptableItemStacks(): MutableList<ItemStack>{
         return ModifierHelper.scepterAcceptableItemStacks(1)
     }

@@ -5,6 +5,7 @@ import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.config.FcConfig
+import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
@@ -19,6 +20,7 @@ import net.minecraft.loot.context.LootContextParameterSet
 import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.loot.provider.number.BinomialLootNumberProvider
 import net.minecraft.loot.provider.number.LootNumberProvider
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.tag.TagKey
@@ -146,6 +148,49 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
             }
         }
         tooltip.add(modifierText)
+    }
+
+    override fun initializeModifiers(stack: ItemStack): List<Identifier> {
+        val item = stack.item
+        val list = if(item is Modifiable){
+            item.defaultModifiers(getType())
+        } else {
+            listOf()
+        }
+        val nbt = stack.orCreateNbt
+        if (list.isNotEmpty()){
+            if (!nbt.contains(getType().getModifierInitKey() + stack.translationKey)){
+                for (mod in list) {
+                    val mods = getModifiersFromNbt(nbt)
+                    val realMod = getModifierByType(mod) ?: continue
+                    var descendant: AbstractModifier<AugmentModifier> = realMod
+                    var highestDescendant: AbstractModifier<AugmentModifier>? = null
+                    do {
+                        if (mods.contains(descendant.modifierId))
+                            highestDescendant = descendant
+                        descendant = descendant.getDescendant() ?: continue
+                    }  while (descendant.hasDescendant())
+                    if (mods.contains(descendant.modifierId))
+                        highestDescendant = descendant
+                    if (highestDescendant == null){
+                        highestDescendant = realMod
+                    }
+                    if (!highestDescendant.hasDescendant() && mods.contains(highestDescendant.modifierId)) {
+                        continue
+                    }else{
+                        if (highestDescendant.hasDescendant() && mods.contains(highestDescendant.modifierId)) {
+                            removeModifierWithoutCheck(stack, highestDescendant.modifierId, nbt)
+                            val newDescendant = highestDescendant.getDescendant() ?: continue
+                            addModifierToNbt(stack, newDescendant.modifierId, nbt)
+                        } else {
+                            addModifierToNbt(stack, highestDescendant.modifierId, nbt)
+                        }
+                    }
+                }
+                nbt.putBoolean(getType().getModifierInitKey() + stack.translationKey,true)
+            }
+        }
+        return getModifiersFromNbt(stack)
     }
 
     /*fun gatherActiveModifiers(stack: ItemStack, activeEnchant: Identifier){
