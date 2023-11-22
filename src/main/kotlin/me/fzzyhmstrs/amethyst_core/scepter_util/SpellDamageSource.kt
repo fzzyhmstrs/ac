@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
+import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.damage.DamageTypes
@@ -10,10 +11,10 @@ import net.minecraft.world.World
 class SpellDamageSource(source: DamageSource, private val spell: ScepterAugment)
 : 
 DamageSource(
-  source.getTypeRegistryEntry(),
-  source.getSource(),
-  source.getAttacker(),
-  source.getStoredPosition())
+  source.typeRegistryEntry,
+  source.source,
+  source.attacker
+)
 {
     fun getSpell(): ScepterAugment {
         return this.spell

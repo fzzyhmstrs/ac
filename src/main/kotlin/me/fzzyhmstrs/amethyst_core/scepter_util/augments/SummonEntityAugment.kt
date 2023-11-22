@@ -10,8 +10,11 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.Hand
+import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 
 /**
@@ -38,7 +41,7 @@ abstract class SummonEntityAugment(tier: ScepterTier, maxLvl: Int): ScepterAugme
             user,
             includeFluids = true
         ) ?: return false
-        if (hit.type != HitResult.Type.BLOCK) return false
+        if (hit.type != HitResult.Type.BLOCK) return placeEntity(world, user, BlockHitResult(user.pos,Direction.UP,user.blockPos,user.isInsideWall), level, effects)
         return placeEntity(world, user, hit, level, effects)
     }
 
