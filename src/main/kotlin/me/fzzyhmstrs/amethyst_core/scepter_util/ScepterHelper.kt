@@ -212,7 +212,7 @@ object ScepterHelper {
         val augIndexes: MutableList<Int> = mutableListOf()
         for (i in 0..nbtEls.lastIndex){
             val identifier = EnchantmentHelper.getIdFromNbt(nbtEls[i] as NbtCompound)
-            val enchantCheck = Registries.ENCHANTMENT.get(identifier)?: Enchantments.VANISHING_CURSE
+            val enchantCheck = Registries.ENCHANTMENT.get(identifier)?: continue
             if(enchantCheck is ScepterAugment) {
                 augIndexes.add(i)
             }
@@ -238,6 +238,28 @@ object ScepterHelper {
         val newActiveEnchantId = EnchantmentHelper.getIdFromNbt(nbtTemp)?.toString()?:return
         val newActiveEnchant = Registries.ENCHANTMENT.get(Identifier(newActiveEnchantId))?:return
         if (newActiveEnchant !is ScepterAugment) return
+        updateActiveAugment(stack, nbt, user, newActiveEnchantId, newActiveEnchant)
+        /*val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
+        val currentTime = user.world.time
+        val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
+        val timeSinceLast = currentTime - lastUsed
+        val modifiers = ModifierHelper.getSpecialActiveModifiers(user,newActiveEnchant.id)
+        val testLevel = getTestLevel(nbt, newActiveEnchant)
+        val level = max(1,((testLevel + modifiers.compiledData.levelModifier) * user.getAttributeValue(RegisterAttribute.SPELL_LEVEL)).toInt())
+        val cooldown = AugmentHelper.getAugmentCooldown(newActiveEnchant).value(level)
+        if(timeSinceLast >= cooldown){
+            user.itemCooldownManager.remove(stack.item)
+        } else{
+            user.itemCooldownManager.set(stack.item, (cooldown - timeSinceLast).toInt())
+        }
+        nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchantId)
+        //ModifierHelper.gatherActiveModifiers(stack)
+        val name = newActiveEnchant.getName(1) //?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
+        val message = AcText.translatable("scepter.new_active_spell").append(name)
+        user.sendMessage(message,false)*/
+    }
+
+    fun updateActiveAugment(stack: ItemStack,nbt: NbtCompound, user: PlayerEntity, newActiveEnchantId: String, newActiveEnchant: ScepterAugment){
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
         val currentTime = user.world.time
         val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
