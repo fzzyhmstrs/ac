@@ -260,6 +260,10 @@ object ScepterHelper {
     }
 
     fun updateActiveAugment(stack: ItemStack,nbt: NbtCompound, user: PlayerEntity, newActiveEnchantId: String, newActiveEnchant: ScepterAugment){
+        updateActiveAugment(stack, nbt, user, newActiveEnchantId, newActiveEnchant,true)
+    }
+
+    fun updateActiveAugment(stack: ItemStack,nbt: NbtCompound, user: PlayerEntity, newActiveEnchantId: String, newActiveEnchant: ScepterAugment, showMessage: Boolean){
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
         val currentTime = user.world.time
         val lastUsed: Long = checkLastUsed(lastUsedList,newActiveEnchantId,currentTime-1000000L)
@@ -275,9 +279,8 @@ object ScepterHelper {
         }
         nbt.putString(NbtKeys.ACTIVE_ENCHANT.str(),newActiveEnchantId)
         //ModifierHelper.gatherActiveModifiers(stack)
-        val name = newActiveEnchant.getName(1) //?: AcText.translatable("enchantment.${Identifier(newActiveEnchant).namespace}.${Identifier(newActiveEnchant).path}")
-        val message = AcText.translatable("scepter.new_active_spell").append(name)
-        user.sendMessage(message,false)
+        if (showMessage)
+            user.sendMessage(AcText.translatable("scepter.new_active_spell").append(newActiveEnchant.getName(1)),false)
     }
 
     private fun fixActiveEnchantWhenMissing(stack: ItemStack) {

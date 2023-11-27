@@ -19,6 +19,10 @@ object ModifierRegistry {
 
     internal val modifierRollList: ArrayList<ComplexAugmentModifier> = ArrayList(150)
 
+    fun getModifierRollList():List<ComplexAugmentModifier>{
+        return modifierRollList
+    }
+
     fun registerWithRolling(modifier: ComplexAugmentModifier, weight: Int = 5){
         if (modifier.availableForRoll){
             for (i in 1..weight) {
