@@ -181,6 +181,34 @@ abstract class AugmentMiningItem(
         return checkCanUse(stack,world,user, cost)
     }
 
+    override fun checkCanUse(
+        stack: ItemStack,
+        world: World,
+        entity: LivingEntity,
+        amount: Int,
+        message: Text
+    ): Boolean {
+        val damage = stack.damage
+        val maxDamage = stack.maxDamage
+        val damageLeft = maxDamage - damage
+        return if (damageLeft >= amount && damageLeft > 1) {
+            true
+        } else {
+            if (message.string != "") {
+                world.playSound(
+                    null,
+                    entity.blockPos,
+                    SoundEvents.BLOCK_BEACON_DEACTIVATE,
+                    SoundCategory.NEUTRAL,
+                    1.0F,
+                    1.0F
+                )
+                entity.sendMessage(message)
+            }
+            false
+        }
+    }
+
     override fun applyManaCost(cost: Int, stack: ItemStack, world: World, user: LivingEntity){
         manaDamage(stack, world, user, cost)
     }

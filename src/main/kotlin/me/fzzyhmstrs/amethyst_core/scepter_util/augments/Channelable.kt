@@ -1,6 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.entity.Entity
@@ -19,6 +20,6 @@ import net.minecraft.world.World
 
 interface Channelable {
 
-    fun getMaxChannelTime(effects: AugmentEffects, level: Int): Int
+    fun getMaxChannelTime(effects: AugmentEffect, level: Int): Int
     fun onChannelEnd(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean
 }

@@ -121,7 +121,6 @@ object ScepterHelper {
         )
         return if (cooldown != null) {
             val manaCost = AugmentHelper.getAugmentManaCost(spell,((modifiers.compiledData.manaCostModifier + 100.0)/100.0)  * (2.0 - user.getAttributeValue(RegisterAttribute.SPELL_MANA_COST)))
-            println("mana cost is $manaCost")
             if (!spellCaster.checkManaCost(manaCost,stack, world, user)) return spellCaster.resetCooldown(stack,world,user,activeEnchantId)
             if (spell.applyModifiableTasks(world, user, hand, level, modifiers.modifiers, modifiers.compiledData)) {
                 spellCaster.applyManaCost(manaCost,stack, world, user)
