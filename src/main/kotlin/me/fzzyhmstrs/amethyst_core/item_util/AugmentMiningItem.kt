@@ -120,8 +120,8 @@ abstract class AugmentMiningItem(
             initializeScepter(stack, nbt)
         }
         val activeEnchantId: String = getActiveEnchant(stack)
-        val testEnchant: Enchantment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?: return resetCooldown(stack,world,user,activeEnchantId)
-        if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
+        val testEnchant: ScepterAugment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId)) as? ScepterAugment ?: return resetCooldown(stack,world,user,activeEnchantId)
+        //if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
         val testLevel = ScepterHelper.getTestLevel(nbt, testEnchant)
