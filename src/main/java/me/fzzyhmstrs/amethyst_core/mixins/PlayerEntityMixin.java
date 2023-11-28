@@ -3,13 +3,17 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
+import me.fzzyhmstrs.amethyst_core.AC;
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity;
 import me.fzzyhmstrs.amethyst_core.interfaces.SyncedRandomProviding;
 import me.fzzyhmstrs.amethyst_core.item_util.AbstractAugmentBookItem;
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute;
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper;
+import me.fzzyhmstrs.fzzy_core.registry.EventRegistry;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -19,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(PlayerEntity.class)
 public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEntity {
@@ -52,14 +58,14 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
                 bonus += 1.0;
             }
             if (bonus < 0.0){
-                newXp -= ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < (bonus * -1.0) ? 1 : 0;
+                newXp -= AC.INSTANCE.getAcRandom().nextDouble() < (bonus * -1.0) ? 1 : 0;
             } else {
                 while (bonus >= 1.0){
                     newXp += 1;
                     bonus -= 1.0;
                 }
                 if (bonus > 0.0){
-                    newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
+                    newXp += AC.INSTANCE.getAcRandom().nextDouble() < bonus ? 1 : 0;
                 }
             }
             return newXp;
@@ -70,14 +76,14 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
             bonus -= 1.0;
         }
         if (bonus > 0.0){
-            newXp += ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < bonus ? 1 : 0;
+            newXp += AC.INSTANCE.getAcRandom().nextDouble() < bonus ? 1 : 0;
         } else {
             while (bonus <= -1.0){
                 newXp -= 1;
                 bonus += 1.0;
             }
             if (bonus < 0.0){
-                newXp -= ((PlayerEntity)(Object) this).getWorld().random.nextDouble() < (bonus * -1.0) ? 1 : 0;
+                newXp -= AC.INSTANCE.getAcRandom().nextDouble() < (bonus * -1.0) ? 1 : 0;
             }
         }
         return newXp;
@@ -87,11 +93,25 @@ public class PlayerEntityMixin implements SyncedRandomProviding, SpellCastingEnt
     private float amethyst_core_applyMultiplicationAttributeToDamage(PlayerEntity instance, DamageSource source, float amount, Operation<Float> operation){
         return operation.call(instance,source,amount * ((float)instance.getAttributeValue(RegisterAttribute.INSTANCE.getDAMAGE_MULTIPLICATION()))) ;
     }
-    /*@Inject(
-            method = "createPlayerAttributes",
-            require = 1, allow = 1, at = @At("RETURN"))
-    private static void amethyst_core_addPlayerAttributes(final CallbackInfoReturnable<DefaultAttributeContainer.Builder> info) {
-        info.getReturnValue()
-                .add(RegisterAttribute.INSTANCE.getPLAYER_EXPERIENCE());
-    }*/
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void tickManaRegen(CallbackInfo ci){
+        if (EventRegistry.INSTANCE.getTicker_20().isReady()){
+            double manaRegen = ((LivingEntity)(Object)this).getAttributeValue(RegisterAttribute.INSTANCE.getMANA_REGENERATION());
+            if (manaRegen > 0.0){
+                int newXp = 0;
+                while (manaRegen >= 1.0){
+                    newXp += 1;
+                    manaRegen -= 1.0;
+                }
+                if (manaRegen > 0.0) {
+                    newXp += AC.INSTANCE.getAcRandom().nextDouble() < manaRegen ? 1 : 0;
+                }
+                if (newXp > 0){
+                    List<ItemStack> stacks = ManaHelper.INSTANCE.getManaItems((PlayerEntity) (Object) this);
+                    ManaHelper.INSTANCE.manaHealItems(stacks,((LivingEntity)(Object)this).getWorld(),newXp);
+                }
+            }
+        }
+    }
 }

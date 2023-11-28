@@ -4,10 +4,16 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute.SHIELDING
+import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
+import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
+import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
+import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketUtil
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.DamageTypeTags
@@ -15,6 +21,9 @@ import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.random.Random
+import net.minecraft.world.World
+import kotlin.math.max
+import kotlin.math.min
 
 object RegisterAttribute {
 
@@ -61,6 +70,9 @@ object RegisterAttribute {
     //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
 
+    //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection
+    val MANA_REGENERATION: EntityAttribute = make("mana_regeneration", 0.0, 0.0, 1000.0)
+
     fun registerAll(){
         ModifyAugmentEffectsEvent.EVENT.register{ _, user, _, effects, spell ->
                 val crit = AC.acRandom.nextFloat() < user.getAttributeValue(SPELL_CRITICAL_CHANCE)
@@ -78,8 +90,21 @@ object RegisterAttribute {
                         effects.addRange(0.0, 0.0, multiplier)
                     }
                 }
-
             }
+    }
+
+    private fun manaHealItems(list: MutableList<ItemStack>, world: World, healLeft: Int): Int{
+        var hl = healLeft
+        if (hl <= 0 || list.isEmpty()) return max(0,hl)
+        val rnd = world.random.nextInt(list.size)
+        val stack = list[rnd]
+        val healAmount = min(5,hl)
+        val healedAmount = (stack.item as ManaItem).healDamage(healAmount,stack)
+        hl -= min(healAmount,healedAmount)
+        if (!stack.isDamaged){
+            list.remove(stack)
+        }
+        return manaHealItems(list,world,hl)
     }
 
     fun damageIsBlocked(random: Random, entity: LivingEntity, damageSource: DamageSource): Boolean{

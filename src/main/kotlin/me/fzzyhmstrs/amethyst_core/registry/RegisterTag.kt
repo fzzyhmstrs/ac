@@ -29,20 +29,20 @@ object RegisterTag {
     fun registerAll(){}
 
     fun getStyleFromSpell(spell: ScepterAugment): TagStyle{
-        return if (spell.isIn(BUILDER_AUGMENTS)){
-            TagStyle.BUILDER
-        } else if (spell.isIn(TRAVELER_AUGMENTS)){
-            TagStyle.TRAVELER
+        return if (spell.isIn(LIGHTNING_AUGMENTS)){
+            TagStyle.LIGHTNING
+        } else if (spell.isIn(ICE_AUGMENTS)){
+            TagStyle.ICE
         } else if (spell.isIn(FIRE_AUGMENTS)){
             TagStyle.FIRE
         } else if (spell.isIn(HEALER_AUGMENTS)){
             TagStyle.HEALER
-        } else if (spell.isIn(ICE_AUGMENTS)){
-            TagStyle.ICE
+        } else if (spell.isIn(TRAVELER_AUGMENTS)){
+            TagStyle.TRAVELER
         } else if (spell.isIn(ARCANE_AUGMENTS)){
             TagStyle.ARCANE
-        } else if (spell.isIn(LIGHTNING_AUGMENTS)){
-            TagStyle.LIGHTNING
+        } else if (spell.isIn(BUILDER_AUGMENTS)){
+            TagStyle.BUILDER
         } else if (spell.isIn(SOUL_AUGMENTS)){
             TagStyle.SOUL
         } else {

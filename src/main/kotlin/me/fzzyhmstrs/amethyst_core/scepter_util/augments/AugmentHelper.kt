@@ -82,7 +82,7 @@ object AugmentHelper {
 
     fun getAugmentManaCost(augment: ScepterAugment, reduction: Double = 1.0): Int{
         val cost = (augment.augmentData.manaCost * reduction).toInt()
-        return max(0,cost)
+        return max(1,cost)
     }
     @Deprecated("Use the direct Augment overload when possible")
     fun getAugmentManaCost(id: String, reduction: Double = 1.0): Int{

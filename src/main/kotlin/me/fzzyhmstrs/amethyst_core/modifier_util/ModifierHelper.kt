@@ -62,7 +62,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
         val list = ModifierRegistry.modifierRollList
         val parameters = LootContextParameterSet.Builder(world).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
-        val contextBuilder = LootContext.Builder(parameters).random(world.seed)
+        val contextBuilder = LootContext.Builder(parameters).random(AC.acRandom.nextLong())
         val context = contextBuilder.build(null)
         val result: MutableList<Identifier> = mutableListOf()
         do{
