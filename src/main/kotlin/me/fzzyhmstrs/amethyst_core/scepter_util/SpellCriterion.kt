@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
+import me.fzzyhmstrs.amethyst_core.AC
 import com.google.gson.JsonObject
 import net.minecraft.advancement.criterion.AbstractCriterion
 import net.minecraft.advancement.criterion.AbstractCriterionConditions
@@ -10,6 +11,10 @@ import net.minecraft.util.Identifier
 
 class SpellCriterion(private val id: Identifier): AbstractCriterion<SpellCriterion.SpellConditions>() {
 
+    companion object{
+        private val anySpell = Identifier(AC.MOD_ID,"any")
+    }
+    
     override fun getId(): Identifier {
         return id
     }
@@ -39,6 +44,7 @@ class SpellCriterion(private val id: Identifier): AbstractCriterion<SpellCriteri
 
     class SpellConditions(id: Identifier, private val spell: Identifier, predicate: LootContextPredicate): AbstractCriterionConditions(id, predicate){
         fun test(spell: Identifier): Boolean{
+            if (this.spell == anySpell) return true 
             return spell == this.spell
         }
     }
