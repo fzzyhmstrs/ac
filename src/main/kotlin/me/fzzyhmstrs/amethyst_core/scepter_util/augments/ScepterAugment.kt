@@ -157,8 +157,10 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
         return false
     }
 
-
     override fun isAcceptableItem(stack: ItemStack): Boolean {
+        val item = stack.item
+        if (item is ScepterLike)
+            if (!item.canAcceptAugment(this)) return false
         return stack.isIn(tier.tag)
     }
 
