@@ -65,7 +65,7 @@ object RegisterAttribute {
     val PLAYER_EXPERIENCE: EntityAttribute = make("player_experience", 0.0, 0.0, 10.0)
 
     //shielding represents a fractional chance that damage is entirely blocked
-    val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 1.0)
+    val SHIELDING: EntityAttribute = make("shielding", 0.0, 0.0, 0.8)
 
     //magic resistance provides protection from magic damage based on the fraction of 1 resistance present. 1 resistance is total protection
     val MAGIC_RESISTANCE: EntityAttribute = make("magic_resistance", 0.0, 0.0, 1.0)
