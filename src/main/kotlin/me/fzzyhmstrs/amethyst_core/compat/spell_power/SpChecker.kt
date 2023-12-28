@@ -37,10 +37,10 @@ object SpChecker {
         return 1.0
     }
 
-    fun getModFromSpell(user: LivingEntity, spell: ScepterAugment): Double{
+    fun getModFromSpell(user: LivingEntity, spell: ScepterAugment): Pair<Double,Double>{
         if (spellPowerLoaded)
             return SpCompat.getModFromSpell(user, spell)
-        return 0.0
+        return Pair(1.0,0.0)
     }
 
     fun getModFromTags(user: LivingEntity, vararg tagKeys: TagKey<Enchantment>): Double{

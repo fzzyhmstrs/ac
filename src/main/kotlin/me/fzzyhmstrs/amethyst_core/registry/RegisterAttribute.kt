@@ -82,8 +82,12 @@ object RegisterAttribute {
                     effects.addDamage(0f,0f,((multiplier - 1.0) * 100f).toFloat())
                 }
                 if (SpChecker.spellPowerLoaded){
-                    val multiplier = SpChecker.getModFromSpell(user,spell)
+                    val result = SpChecker.getModFromSpell(user,spell)
+                    val multiplier = result.second
                     if (multiplier != 0.0) {
+                        if (result.first > 1.0){
+                            effects.addDamage(0f,0f,((result.first - 1.0) * 100f).toFloat())
+                        }
                         effects.addDamage(0f, 0f, multiplier.toFloat())
                         effects.addAmplifier(0, 0, multiplier.toInt())
                         effects.addDuration(0, 0, multiplier.toInt())

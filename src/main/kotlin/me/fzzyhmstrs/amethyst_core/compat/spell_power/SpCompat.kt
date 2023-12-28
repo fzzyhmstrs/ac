@@ -40,19 +40,24 @@ object SpCompat {
         return SpellPower.getHaste(user,stack)
     }
 
-    fun getModFromSpell(user: LivingEntity, spell: ScepterAugment): Double{
+    fun getModFromSpell(user: LivingEntity, spell: ScepterAugment): Pair<Double,Double>{
         val schools = getSchoolsForSpell(spell)
         var value = 0.0
+        var valueCheck = 0.0
         for (school in schools) {
             val power = SpellPower.getSpellPower(school, user)
             value += power.randomValue()
+            valueCheck += power.nonCriticalValue()
         }
         //spell power is like 10, 30, 50, 100 depending on the power scaling of that mod.
         // add 10 stops negative numbers. SP 0 -> multiplier 0
         // divide 10 will park "vanilla" numbers into a smaller boost range
         // Want small powers to give 10, 20, 30% boost. Big multipliers 50, 70, 100% boost.
         // log10 puts the multiplier from 0.2 to 1.0 SP 5 -> 100
-        return  log10((12.0 + value) / 12.0) * 100.0
+        return if(valueCheck == value)
+            Pair(1.0,log10((12.0 + valueCheck) / 12.0) * 100.0)
+        else
+            Pair(value/valueCheck,log10((12.0 + valueCheck) / 12.0) * 100.0)
     }
 
     fun getModFromTags(user: LivingEntity, vararg tagKeys: TagKey<Enchantment>): Double{
