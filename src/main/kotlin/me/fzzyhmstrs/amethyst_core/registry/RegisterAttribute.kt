@@ -4,6 +4,7 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute.SHIELDING
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
 import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
@@ -121,7 +122,7 @@ object RegisterAttribute {
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
-        return Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, name),
+        return FzzyPort.ATTRIBUTE.register(Identifier(AC.MOD_ID, name),
         ClampedEntityAttribute("attribute.name.generic." + AC.MOD_ID + "." + name, base, min, max).setTracked(true))
     }
 }
