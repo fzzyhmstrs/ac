@@ -4,26 +4,19 @@ import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.item_util.ScepterLike
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.config.FcConfig
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifierHelper
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
-import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
-import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
-import me.fzzyhmstrs.gear_core.modifier_util.EquipmentModifierHelper.removeModifier
 import net.minecraft.client.item.TooltipContext
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.context.LootContext
 import net.minecraft.loot.context.LootContextParameterSet
 import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.loot.provider.number.BinomialLootNumberProvider
 import net.minecraft.loot.provider.number.LootNumberProvider
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.registry.Registries
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.MutableText
@@ -31,6 +24,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 
+@Suppress("unused")
 object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
 
     override val fallbackData: AbstractModifier.CompiledModifiers<AugmentModifier> = ModifierDefaults.BLANK_COMPILED_DATA
@@ -43,23 +37,11 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         addModifierToNbt(stack, modifier, nbt)
     }
 
-    fun isInTag(id: Identifier,tag: TagKey<Enchantment>): Boolean{
-        val augment = Registries.ENCHANTMENT.get(id)?:return false
-        val opt = Registries.ENCHANTMENT.getEntry(Registries.ENCHANTMENT.getRawId(augment))
-        var bl = false
-        opt.ifPresent { entry -> bl = entry.isIn(tag) }
-        return bl
-    }
-
-    fun createAugmentTag(path: String): TagKey<Enchantment> {
-        return TagKey.of(RegistryKeys.ENCHANTMENT, Identifier(AC.MOD_ID,path))
-    }
-
     fun getRandomRollableModifier(): Identifier{
         return ModifierRegistry.modifierRollList.random().modifierId
     }
 
-    fun rollScepterModifiers(stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
+    fun rollScepterModifiers(@Suppress("UNUSED_PARAMETER") stack: ItemStack, playerEntity: ServerPlayerEntity, world: ServerWorld, toll: LootNumberProvider = DEFAULT_MODIFIER_TOLL): List<Identifier>{
         val list = ModifierRegistry.modifierRollList
         val parameters = LootContextParameterSet.Builder(world).luck(playerEntity.luck).build(LootContextTypes.EMPTY)
         val contextBuilder = LootContext.Builder(parameters).random(AC.acRandom.nextLong())
@@ -91,13 +73,11 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     }
 
     fun scepterAcceptableItemStacks(tier:Int): MutableList<ItemStack>{
-        if (scepterAcceptableMap.containsKey(tier)){
-            return scepterAcceptableMap[tier] ?: mutableListOf()
+        return if (scepterAcceptableMap.containsKey(tier)){
+            scepterAcceptableMap[tier] ?: mutableListOf()
         } else {
-            val entries = Registries.ITEM.indexedEntries
             val list: MutableList<ItemStack> = mutableListOf()
-            for (entry in entries){
-                val item = entry.value()
+            for (item in FzzyPort.ITEM){
                 if (item is ScepterLike){
                     if (item.getTier() >= tier){
                         list.add(ItemStack(item,1))
@@ -105,7 +85,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
                 }
             }
             scepterAcceptableMap[tier] = list
-            return list
+            list
         }
     }
 

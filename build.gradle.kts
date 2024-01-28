@@ -115,8 +115,25 @@ tasks {
     }
     jar { from("LICENSE") { rename { "${base.archivesName.get()}_${it}" } } }
     processResources {
+        val loaderVersion: String by project
+        val fabricKotlinVersion: String by project
+        val fcVersion: String by project
+        val gcVersion: String by project
         inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
+        inputs.property("id", base.archivesName.get())
+        inputs.property("loaderVersion", loaderVersion)
+        inputs.property("fabricKotlinVersion", fabricKotlinVersion)
+        inputs.property("fcVersion", fcVersion)
+        inputs.property("gcVersion", gcVersion)
+        filesMatching("fabric.mod.json") {
+            expand(mutableMapOf(
+                "version" to project.version,
+                "id" to base.archivesName.get(),
+                "loaderVersion" to loaderVersion,
+                "fabricKotlinVersion" to fabricKotlinVersion,
+                "fcVersion" to fcVersion,
+                "gcVersion" to gcVersion))
+        }
     }
     java {
         toolchain { languageVersion.set(JavaLanguageVersion.of(javaVersion.toString())) }

@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -22,6 +21,7 @@ import net.minecraft.world.World
  *
  * [placeEntity] is the primary method to override for this template. Ensure you have a super call so the sound event and Modifier Consumers can be applied.
  */
+@Suppress("unused")
 abstract class SummonEntityAugment(tier: ScepterTier, maxLvl: Int): ScepterAugment(tier,maxLvl) {
     constructor(tier: ScepterTier): this(tier,1)
 

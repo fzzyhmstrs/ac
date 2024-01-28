@@ -3,6 +3,7 @@ package me.fzzyhmstrs.amethyst_core.entity_util
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentEffect
 import me.fzzyhmstrs.amethyst_core.registry.RegisterBaseEntity
+import me.fzzyhmstrs.fzzy_core.coding_util.compat.FzzyDamage
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
@@ -130,12 +131,12 @@ open class MissileEntity(entityType: EntityType<out MissileEntity?>, world: Worl
             val entity2 = entityHitResult.entity
             val bl: Boolean = if(pierce){
                 entity2.damage(
-                    entity.damageSources.indirectMagic(this, entity),
+                    FzzyDamage.indirectMagic(this,this, entity),
                     entityEffects.damage(0)
                 )
             } else {
                 entity2.damage(
-                    entity.damageSources.mobProjectile(this, entity),
+                    FzzyDamage.mobProjectile(this,this, entity),
                     entityEffects.damage(0)
                 )
             }

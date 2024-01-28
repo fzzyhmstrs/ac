@@ -3,8 +3,8 @@ package me.fzzyhmstrs.amethyst_core.mixins;
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper;
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment;
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText;
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -26,8 +26,9 @@ public abstract class EnchantmentMixin{
     private void amethyst_core_disabledAugmentName(int level, CallbackInfoReturnable<Text> cir){
         Enchantment enchant = (Enchantment)(Object)this;
         if (enchant instanceof ScepterAugment) {
-            Identifier id = Registries.ENCHANTMENT.getId(enchant);
+            Identifier id = FzzyPort.INSTANCE.getENCHANTMENT().getId(enchant);
             if (id != null){
+                //noinspection deprecation
                 if(!AugmentHelper.INSTANCE.getAugmentEnabled(id.toString())){
                     MutableText mutableText = AcText.INSTANCE.translatable(getOrCreateTranslationKey());
                     if (level != 1 || this.getMaxLevel() != 1) {

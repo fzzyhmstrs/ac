@@ -1,7 +1,7 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
-import me.fzzyhmstrs.amethyst_core.AC
 import com.google.gson.JsonObject
+import me.fzzyhmstrs.amethyst_core.AC
 import net.minecraft.advancement.criterion.AbstractCriterion
 import net.minecraft.advancement.criterion.AbstractCriterionConditions
 import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer

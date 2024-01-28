@@ -3,19 +3,13 @@ package me.fzzyhmstrs.amethyst_core.registry
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpChecker
 import me.fzzyhmstrs.amethyst_core.event.ModifyAugmentEffectsEvent
-import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute.SHIELDING
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
-import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
-import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketChecker
-import me.fzzyhmstrs.fzzy_core.trinket_util.TrinketUtil
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.ClampedEntityAttribute
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.DamageTypeTags
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
@@ -97,6 +91,7 @@ object RegisterAttribute {
             }
     }
 
+    @Suppress("unused")
     private fun manaHealItems(list: MutableList<ItemStack>, world: World, healLeft: Int): Int{
         var hl = healLeft
         if (hl <= 0 || list.isEmpty()) return max(0,hl)
@@ -121,7 +116,7 @@ object RegisterAttribute {
     }
 
     private fun make(name: String, base: Double, min: Double, max: Double): EntityAttribute {
-        return Registry.register(Registries.ATTRIBUTE, Identifier(AC.MOD_ID, name),
+        return FzzyPort.ATTRIBUTE.register(Identifier(AC.MOD_ID, name),
         ClampedEntityAttribute("attribute.name.generic." + AC.MOD_ID + "." + name, base, min, max).setTracked(true))
     }
 }

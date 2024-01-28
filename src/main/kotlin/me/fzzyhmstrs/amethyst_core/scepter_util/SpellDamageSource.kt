@@ -1,10 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.damage.DamageTypes
-import net.minecraft.world.World
+
 /**
 * Simple wrapper of a damage source that pairs a source with the spell that the damage is coming from.
 */
@@ -16,6 +14,7 @@ DamageSource(
   source.attacker
 )
 {
+    @Suppress("unused")
     fun getSpell(): ScepterAugment {
         return this.spell
     }

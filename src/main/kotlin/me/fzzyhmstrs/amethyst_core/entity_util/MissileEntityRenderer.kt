@@ -1,5 +1,6 @@
 package me.fzzyhmstrs.amethyst_core.entity_util
 
+import me.fzzyhmstrs.fzzy_core.coding_util.compat.FzzyRotation
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.VertexConsumerProvider
@@ -12,8 +13,6 @@ import net.minecraft.entity.projectile.ShulkerBulletEntity
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.RotationAxis
-
 /**
  * A prebuilt renderer for a missile-type entity. This can be used as a simple way to provide a rendered shape for your missile.
  *
@@ -42,9 +41,9 @@ class MissileEntityRenderer(context: EntityRendererFactory.Context, val r: Float
         matrixStack.push()
         val k = missileEntity.age.toFloat() + h
         matrixStack.translate(0.0, 0.15, 0.0)
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MathHelper.sin(k * 0.1f) * 180.0f))
-        matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(MathHelper.cos(k * 0.1f) * 180.0f))
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(k * 0.15f) * 360.0f))
+        matrixStack.multiply(FzzyRotation.POSITIVE_Y.degrees(MathHelper.sin(k * 0.1f) * 180.0f))
+        matrixStack.multiply(FzzyRotation.POSITIVE_X.degrees(MathHelper.cos(k * 0.1f) * 180.0f))
+        matrixStack.multiply(FzzyRotation.POSITIVE_Z.degrees(MathHelper.sin(k * 0.15f) * 360.0f))
         matrixStack.scale(-downScale, -downScale, downScale)
         val vertexConsumer = vertexConsumerProvider.getBuffer(model.getLayer(TEXTURE))
         model.render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, r, g, b, 1.0f)

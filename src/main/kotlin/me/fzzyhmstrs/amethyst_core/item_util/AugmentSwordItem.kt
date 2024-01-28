@@ -2,16 +2,13 @@ package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.interfaces.SpellCastingEntity
 import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
-import me.fzzyhmstrs.amethyst_core.modifier_util.ModifierHelper
 import me.fzzyhmstrs.amethyst_core.registry.ModifierRegistry
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterToolMaterial
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.interfaces.Modifiable
 import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper
-import me.fzzyhmstrs.fzzy_core.item_util.FlavorHelper.addFlavorText
-import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaHelper
 import me.fzzyhmstrs.fzzy_core.mana_util.ManaItem
 import me.fzzyhmstrs.fzzy_core.modifier_util.ModifierHelperType
@@ -20,7 +17,6 @@ import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import me.fzzyhmstrs.fzzy_core.raycaster_util.RaycasterUtil
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -28,12 +24,14 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.SwordItem
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.registry.Registries
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
-import net.minecraft.util.*
+import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
+import net.minecraft.util.TypedActionResult
+import net.minecraft.util.UseAction
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
@@ -124,7 +122,7 @@ abstract class AugmentSwordItem(
             initializeScepter(stack, nbt)
         }
         val activeEnchantId: String = getActiveEnchant(stack)
-        val testEnchant: ScepterAugment = Registries.ENCHANTMENT.get(Identifier(activeEnchantId)) as? ScepterAugment ?: return resetCooldown(stack,world,user,activeEnchantId)
+        val testEnchant: ScepterAugment = FzzyPort.ENCHANTMENT.get(Identifier(activeEnchantId)) as? ScepterAugment ?: return resetCooldown(stack,world,user,activeEnchantId)
         //if (testEnchant !is ScepterAugment) return resetCooldown(stack,world,user,activeEnchantId)
 
         //determine the level at which to apply the active augment, from 1 to the maximum level the augment can operate
@@ -171,8 +169,7 @@ abstract class AugmentSwordItem(
     TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
         return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
     }
-    
-    @Suppress("UNUSED_PARAMETER")
+
     override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
         activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int)
     : 
@@ -230,24 +227,7 @@ abstract class AugmentSwordItem(
         }
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
-    
-    /*override fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
-        if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
-        val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
-        if (enchantToAdd != null && hasFallback()){
-            if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
-                stack.addEnchantment(enchantToAdd,1)
-            }
-        }
-        defaultAugments().forEach {
-            if (EnchantmentHelper.getLevel(it,stack) == 0){
-                stack.addEnchantment(it,1)
-            }
-        }
-        scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey,true)
-    }*/
 
-    
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
         return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
     }

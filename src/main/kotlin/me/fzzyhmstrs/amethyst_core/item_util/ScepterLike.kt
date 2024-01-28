@@ -1,11 +1,11 @@
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
 interface ScepterLike{
@@ -58,7 +58,7 @@ interface ScepterLike{
 
     fun addDefaultEnchantments(stack: ItemStack, scepterNbt: NbtCompound){
         if (scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.ENCHANT_INIT.str() + stack.translationKey)) return
-        val enchantToAdd = Registries.ENCHANTMENT.get(this.fallbackId)
+        val enchantToAdd = FzzyPort.ENCHANTMENT.get(this.fallbackId)
         if (enchantToAdd != null && hasFallback() && !scepterNbt.contains(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.FALLBACK_INIT.str())){
             scepterNbt.putBoolean(me.fzzyhmstrs.amethyst_core.nbt_util.NbtKeys.FALLBACK_INIT.str(),true)
             if (EnchantmentHelper.getLevel(enchantToAdd,stack) == 0){
@@ -78,7 +78,6 @@ interface ScepterLike{
         return if (nbt.contains(NbtKeys.ACTIVE_ENCHANT.str())){
             nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         } else {
-            val item = stack.item
             initializeScepter(stack,nbt)
             nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
         }

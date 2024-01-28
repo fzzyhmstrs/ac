@@ -1,7 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.compat.spell_power
 
+import me.fzzyhmstrs.amethyst_core.compat.spell_power.SpCompat.SpellPowerCast
 import me.fzzyhmstrs.amethyst_core.registry.RegisterTag
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.enchantment.Enchantment
@@ -75,29 +77,6 @@ object SpCompat {
         return  log10((12.0 + value) / 12.0) * 100.0
     }
 
-    private fun getSchoolsForSpell(spell: ScepterAugment): Set<MagicSchool>{
-        val set = mutableSetOf<MagicSchool>()
-        if (spell.isIn(RegisterTag.FIRE_AUGMENTS)){
-            set.add(MagicSchool.FIRE)
-        }
-        if (spell.isIn(RegisterTag.LIGHTNING_AUGMENTS)){
-            set.add(MagicSchool.LIGHTNING)
-        }
-        if (spell.isIn(RegisterTag.ICE_AUGMENTS)){
-            set.add(MagicSchool.FROST)
-        }
-        if (spell.isIn(RegisterTag.SOUL_AUGMENTS)){
-            set.add(MagicSchool.SOUL)
-        }
-        if (spell.isIn(RegisterTag.HEALER_AUGMENTS)){
-            set.add(MagicSchool.HEALING)
-        }
-        if (spell.isIn(RegisterTag.ARCANE_AUGMENTS)){
-            set.add(MagicSchool.ARCANE)
-        }
-        return set
-    }
-
     private fun getSchoolFromTag(tagKey: TagKey<Enchantment>): MagicSchool?{
         return when (tagKey) {
             RegisterTag.FIRE_AUGMENTS -> MagicSchool.FIRE
@@ -108,6 +87,29 @@ object SpCompat {
             RegisterTag.ARCANE_AUGMENTS -> MagicSchool.ARCANE
             else -> null
         }
+    }
+
+    private fun getSchoolsForSpell(spell: ScepterAugment): Set<MagicSchool>{
+        val set = mutableSetOf<MagicSchool>()
+        if (FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.FIRE_AUGMENTS)){
+            set.add(MagicSchool.FIRE)
+        }
+        if ( FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.LIGHTNING_AUGMENTS)){
+            set.add(MagicSchool.LIGHTNING)
+        }
+        if ( FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.ICE_AUGMENTS)){
+            set.add(MagicSchool.FROST)
+        }
+        if ( FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.SOUL_AUGMENTS)){
+            set.add(MagicSchool.SOUL)
+        }
+        if ( FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.HEALER_AUGMENTS)){
+            set.add(MagicSchool.HEALING)
+        }
+        if ( FzzyPort.ENCHANTMENT.isInTag(spell,RegisterTag.ARCANE_AUGMENTS)){
+            set.add(MagicSchool.ARCANE)
+        }
+        return set
     }
 
     fun getAttributeFromEnum(attr: SpChecker.Power): EntityAttribute?{

@@ -1,9 +1,12 @@
+@file:Suppress("DEPRECATION")
+
 package me.fzzyhmstrs.amethyst_core.item_util
 
 import com.google.common.collect.Multimap
 import dev.emi.trinkets.api.SlotReference
 import dev.emi.trinkets.api.TrinketItem
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.item_util.interfaces.Flavorful
 import me.fzzyhmstrs.fzzy_core.registry.EventRegistry
 import me.fzzyhmstrs.fzzy_core.trinket_util.AugmentTasks
@@ -12,7 +15,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.item.ItemStack
-import net.minecraft.registry.Registries
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -28,6 +30,7 @@ import java.util.*
  *
  * Notably absent from this default item is an implementation for activated abilities (abilities that might be turned on/off with use)
  */
+@Suppress("unused")
 open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings), AugmentTasks, Flavorful<AbstractAugmentJewelryItem> {
 
     override var glint: Boolean = false
@@ -43,7 +46,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
     }
 
     private fun makeFlavorText(): MutableText{
-        val id = Registries.ITEM.getId(this)
+        val id = FzzyPort.ITEM.getId(this)
         val key = "item.${id.namespace}.${id.path}.flavor"
         val text = AcText.translatable(key).formatted(Formatting.WHITE, Formatting.ITALIC)
         if (text.string == key) return AcText.empty()
@@ -51,7 +54,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
     }
 
     private fun makeFlavorTextDesc(): MutableText{
-        val id = Registries.ITEM.getId(this)
+        val id = FzzyPort.ITEM.getId(this)
         val key = "item.${id.namespace}.${id.path}.flavor.desc"
         val text = AcText.translatable(key).formatted(Formatting.WHITE)
         if (text.string == key) return AcText.empty()
@@ -66,7 +69,7 @@ open class AbstractAugmentJewelryItem(settings: Settings): TrinketItem(settings)
     override fun getFlavorItem(): AbstractAugmentJewelryItem {
         return this
     }
-    
+
     override fun flavorText(): MutableText{
         return flavorText
     }

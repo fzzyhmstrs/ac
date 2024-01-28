@@ -10,20 +10,14 @@ import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentModifier
 import me.fzzyhmstrs.amethyst_core.modifier_util.UniqueAugmentModifier
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.ScepterTier
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlD
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlF
-import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
+import me.fzzyhmstrs.fzzy_core.coding_util.*
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.registry.Registries
-import net.minecraft.registry.tag.TagKey
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Hand
@@ -45,7 +39,7 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
      */
     open val augmentData: me.fzzyhmstrs.amethyst_core.scepter_util.data.AugmentDatapoint by lazy {
         me.fzzyhmstrs.amethyst_core.scepter_util.data.AugmentDatapoint.fromOldDatapoint(
-            Registries.ENCHANTMENT.getId(this)?: throw IllegalStateException("Enchantment datapoint instantiated before registration"),
+            FzzyPort.ENCHANTMENT.getId(this)?: throw IllegalStateException("Enchantment datapoint instantiated before registration"),
             maxLvl,
             augmentStat(1)
         )
@@ -71,7 +65,8 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
     }
 
     fun applyModifiableTasks(world: World, user: LivingEntity, hand: Hand, level: Int, modifiers: List<AugmentModifier> = listOf(), modifierData: AugmentModifier? = null): Boolean{
-        val aug = Registries.ENCHANTMENT.getId(this) ?: return false
+        val aug = FzzyPort.ENCHANTMENT.getId(this) ?: return false
+        @Suppress("DEPRECATION")
         if (!AugmentHelper.getAugmentEnabled(aug.toString())) {
             if (user is PlayerEntity){
                 user.sendMessage(AcText.translatable("scepter.augment.disabled_message", this.getName(1)), false)
@@ -169,17 +164,8 @@ abstract class ScepterAugment(private val tier: ScepterTier, private val maxLvl:
         return tier.tier
     }
 
-    fun getTag(): TagKey<Item>{
-        return tier.tag
-    }
-
     fun getPvpMode(): Boolean{
         return augmentData.pvpMode
-    }
-
-    fun isIn(tag: TagKey<Enchantment>): Boolean{
-        val entry = Registries.ENCHANTMENT.getEntry(this)
-        return entry.isIn(tag)
     }
 
     /*companion object{

@@ -1,12 +1,9 @@
 package me.fzzyhmstrs.amethyst_core.event
 
-import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.world.World
 
 /**
  * Event runs after a successful spell-cast

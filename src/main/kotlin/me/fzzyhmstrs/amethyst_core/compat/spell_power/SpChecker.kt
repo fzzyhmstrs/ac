@@ -1,11 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.compat.spell_power
 
 import com.google.common.collect.Multimap
-import me.fzzyhmstrs.amethyst_core.event.AfterSpellEvent
 import me.fzzyhmstrs.amethyst_core.registry.RegisterAttribute
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import net.fabricmc.fabric.api.event.Event
-import net.fabricmc.fabric.api.event.EventFactory
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.LivingEntity
@@ -16,10 +13,10 @@ import net.minecraft.item.ItemStack
 import net.minecraft.registry.tag.TagKey
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
-import net.spell_power.api.MagicSchool
 import net.spell_power.api.attributes.EntityAttributes_SpellPower
-import java.util.UUID
+import java.util.*
 
+@Suppress("unused")
 object SpChecker {
 
     val spellPowerLoaded: Boolean by lazy{
@@ -49,7 +46,7 @@ object SpChecker {
         return 0.0
     }
 
-    fun addSpellPowerAttribute(power: Power, uuid: String, amount: Double, operation: EntityAttributeModifier.Operation, map: Multimap<EntityAttribute, EntityAttributeModifier>){
+    fun addSpellPowerAttribute(power: Power, uuid: String, amount: Double, operation: Operation, map: Multimap<EntityAttribute, EntityAttributeModifier>){
         if (spellPowerLoaded){
             val attribute = SpCompat.getAttributeFromEnum(power) ?: return
             val uUID =  UUID.fromString(uuid)

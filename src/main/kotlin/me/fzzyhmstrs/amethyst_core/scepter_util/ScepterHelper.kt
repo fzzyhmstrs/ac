@@ -14,6 +14,7 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentDatapoint
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import me.fzzyhmstrs.fzzy_core.nbt_util.Nbt
 import me.fzzyhmstrs.fzzy_core.nbt_util.NbtKeys
@@ -24,13 +25,11 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.advancement.criterion.TickCriterion
 import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
@@ -194,7 +193,7 @@ object ScepterHelper {
 
         val activeEnchantCheckId = nbt.getString(NbtKeys.ACTIVE_ENCHANT.str())
 
-        val activeEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantCheckId))
+        val activeEnchant = FzzyPort.ENCHANTMENT.get(Identifier(activeEnchantCheckId))
         val activeEnchantId = if (activeEnchant != null) {
             if (EnchantmentHelper.getLevel(activeEnchant, stack) == 0) {
                 fixActiveEnchantWhenMissing(stack)
@@ -212,7 +211,7 @@ object ScepterHelper {
         val augIndexes: MutableList<Int> = mutableListOf()
         for (i in 0..nbtEls.lastIndex){
             val identifier = EnchantmentHelper.getIdFromNbt(nbtEls[i] as NbtCompound)
-            val enchantCheck = Registries.ENCHANTMENT.get(identifier)?: continue
+            val enchantCheck = FzzyPort.ENCHANTMENT.get(identifier)?: continue
             if(enchantCheck is ScepterAugment) {
                 augIndexes.add(i)
             }
@@ -236,7 +235,7 @@ object ScepterHelper {
         }
         val nbtTemp = nbtEls[newIndex] as NbtCompound
         val newActiveEnchantId = EnchantmentHelper.getIdFromNbt(nbtTemp)?.toString()?:return
-        val newActiveEnchant = Registries.ENCHANTMENT.get(Identifier(newActiveEnchantId))?:return
+        val newActiveEnchant = FzzyPort.ENCHANTMENT.get(Identifier(newActiveEnchantId))?:return
         if (newActiveEnchant !is ScepterAugment) return
         updateActiveAugment(stack, nbt, user, newActiveEnchantId, newActiveEnchant)
         /*val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
@@ -289,7 +288,7 @@ object ScepterHelper {
         if (item is ScepterLike) {
             val newEnchant = EnchantmentHelper.get(stack).keys.firstOrNull()
             val identifier = if (newEnchant != null) {
-                Registries.ENCHANTMENT.getId(newEnchant)
+                FzzyPort.ENCHANTMENT.getId(newEnchant)
             } else {
                 item.addDefaultEnchantments(stack, nbt)
                 item.fallbackId
@@ -383,6 +382,7 @@ object ScepterHelper {
      *
      * @see AugmentDatapoint needs to be defined in the augment class
      */
+    @Suppress("unused")
     fun isAcceptableScepterItem(augment: ScepterAugment, stack: ItemStack, player: PlayerEntity): Boolean {
         val item = stack.item
         if (item !is ScepterLike) return false
@@ -397,7 +397,7 @@ object ScepterHelper {
 
     fun resetCooldown(world: World, stack: ItemStack, user:LivingEntity, activeEnchantId: String, givenLevel: Int = 0){
         val nbt = stack.nbt?: return
-        val testEnchant = Registries.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
+        val testEnchant = FzzyPort.ENCHANTMENT.get(Identifier(activeEnchantId))?:return
         if (testEnchant !is ScepterAugment) return
         val lastUsedList = Nbt.getOrCreateSubCompound(nbt, NbtKeys.LAST_USED_LIST.str())
         val modifiers = ModifierHelper.getSpecialActiveModifiers(user,testEnchant.id)

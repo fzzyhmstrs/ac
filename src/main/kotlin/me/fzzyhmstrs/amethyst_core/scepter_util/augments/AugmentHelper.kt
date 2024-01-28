@@ -3,13 +3,13 @@ package me.fzzyhmstrs.amethyst_core.scepter_util.augments
 import me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem
 import me.fzzyhmstrs.amethyst_core.scepter_util.LoreTier
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.coding_util.PerLvlI
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.loot.function.LootFunction
 import net.minecraft.loot.function.SetEnchantmentsLootFunction
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
-import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 import kotlin.math.max
 
@@ -17,12 +17,12 @@ import kotlin.math.max
  * helper object for dealing with Scepter Augments. Includes registration methods and data retrieval methods.
  */
 
-@Suppress("DeprecatedCallableAddReplaceWith")
+@Suppress("DeprecatedCallableAddReplaceWith", "unused", "MemberVisibilityCanBePrivate")
 object AugmentHelper {
 
     @Deprecated("No longer serves it's original purpose, but does still make sure the spell is registered.")
     fun checkAugmentStat(id: String): Boolean{
-        return Registries.ENCHANTMENT.containsId(Identifier(id))
+        return FzzyPort.ENCHANTMENT.containsId(Identifier(id))
     }
 
     @Deprecated("This system is internally removed. The imbue level from the AugmentDatapoint will be plucked out and put into the new data.")
@@ -36,12 +36,12 @@ object AugmentHelper {
     /**
      * used to check if a registry or other initialization method should consider the provided augment.
      */
-    fun checkIfAugmentEnabled(augment: ScepterAugment, id: Identifier): Boolean{
+    fun checkIfAugmentEnabled(augment: ScepterAugment, @Suppress("UNUSED_PARAMETER") id: Identifier): Boolean{
         return getAugmentEnabled(augment)
     }
 
     fun getAugment(id: String): ScepterAugment?{
-        return Registries.ENCHANTMENT.get(Identifier(id)) as? ScepterAugment
+        return FzzyPort.ENCHANTMENT.get(Identifier(id)) as? ScepterAugment
     }
 
     fun getAugmentType(augment: ScepterAugment): SpellType {

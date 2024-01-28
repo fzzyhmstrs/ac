@@ -9,6 +9,7 @@ import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.AugmentHelper
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
 import me.fzzyhmstrs.fzzy_core.coding_util.AcText
+import me.fzzyhmstrs.fzzy_core.coding_util.FzzyPort
 import me.fzzyhmstrs.fzzy_core.item_util.CustomFlavorItem
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
@@ -18,7 +19,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.registry.Registries
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
@@ -49,7 +49,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
         val nbt = stack.orCreateNbt
         if (nbt.contains(NbtKeys.LORE_KEY.str())){
             val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
-            val bole = Registries.ENCHANTMENT.get(Identifier(bola)) as? ScepterAugment ?: return
+            val bole = FzzyPort.ENCHANTMENT.get(Identifier(bola)) as? ScepterAugment ?: return
             tooltip.add(AcText.translatable("lore_book.augment",AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}")).formatted(Formatting.GOLD))
             //tooltip.add(AcText.translatable("lore_book.augment").formatted(Formatting.GOLD).append(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}").formatted(Formatting.GOLD)))
             tooltip.add(AcText.translatable("enchantment.${Identifier(bola).namespace}.${Identifier(bola).path}.desc").formatted(Formatting.WHITE))
@@ -124,6 +124,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
                 nbt.putString(NbtKeys.LORE_KEY.str(), aug)
                 val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+                @Suppress("DEPRECATION")
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
                     nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
@@ -136,6 +137,7 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
                 val aug = getRandomBookAugment(loreTier.list(), user, hand)
                 nbt.putString(NbtKeys.LORE_KEY.str(), aug)
                 val bola = Identifier(nbt.getString(NbtKeys.LORE_KEY.str())).toString()
+                @Suppress("DEPRECATION")
                 val type = AugmentHelper.getAugmentType(bola)
                 if (type != SpellType.NULL) {
                     nbt.putString(NbtKeys.LORE_TYPE.str(), type.str())
@@ -186,7 +188,8 @@ abstract class AbstractAugmentBookItem(settings: Settings) : CustomFlavorItem(se
             }
         }
 
-        fun addLoreKeyForREI(stack: ItemStack,augment: String){
+        @Suppress("unused")
+        fun addLoreKeyForREI(stack: ItemStack, augment: String){
             val nbt = stack.orCreateNbt
             if(!nbt.contains(NbtKeys.LORE_KEY.str())) {
                 nbt.putString(NbtKeys.LORE_KEY.str(),augment)

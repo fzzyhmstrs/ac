@@ -1,15 +1,8 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
-import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment
-import me.fzzyhmstrs.fzzy_core.coding_util.AcText
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import java.util.function.Consumer
-import java.util.function.Predicate
 
 /**
  * An [AbstractModifier] implementation purpose-built to work with the [ScepterAugment][me.fzzyhmstrs.amethyst_core.scepter_util.augments.ScepterAugment] and [AugmentScepterItem][me.fzzyhmstrs.amethyst_core.item_util.AugmentScepterItem] system.
@@ -45,6 +38,7 @@ open class ComplexAugmentModifier(
     override fun getSecondaryEffect(): ScepterAugment?{
         return secondaryEffect
     }
+    @Suppress("unused")
     fun withSecondaryEffect(augment: ScepterAugment): ComplexAugmentModifier {
         secondaryEffect = augment
         return this
