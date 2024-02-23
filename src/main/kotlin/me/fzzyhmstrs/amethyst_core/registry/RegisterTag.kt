@@ -26,37 +26,69 @@ object RegisterTag {
 
     fun registerAll(){}
 
-    fun getStyleFromSpell(spell: ScepterAugment): TagStyle{
-        return if (FzzyPort.ENCHANTMENT.isInTag(spell,LIGHTNING_AUGMENTS)){
-            TagStyle.LIGHTNING
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,ICE_AUGMENTS)){
-            TagStyle.ICE
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,FIRE_AUGMENTS)){
-            TagStyle.FIRE
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,HEALER_AUGMENTS)){
-            TagStyle.HEALER
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,TRAVELER_AUGMENTS)){
-            TagStyle.TRAVELER
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,ARCANE_AUGMENTS)){
-            TagStyle.ARCANE
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,BUILDER_AUGMENTS)){
-            TagStyle.BUILDER
-        } else if (FzzyPort.ENCHANTMENT.isInTag(spell,SOUL_AUGMENTS)){
-            TagStyle.SOUL
-        } else {
-            TagStyle.EMPTY
+    fun getStylesFromSpell(spell: ScepterAugment): Set<TagStyle>{
+        val set: MutableSet<TagStyle> = mutableSetOf()
+        for (style in TagStyle.values()){
+            if (style == TagStyle.EMPTY) continue
+            if (style.isInTag(spell)) set.add(style)
         }
+        if (set.isEmpty()) return setOf(TagStyle.EMPTY)
+        return set
+    }
+
+    fun getStyleFromSpell(spell: ScepterAugment): TagStyle{
+        for (style in TagStyle.values()){
+            if (style.isInTag(spell)) return style
+        }
+        return TagStyle.EMPTY
     }
 
     enum class TagStyle(val x: Int, val y: Int, val color: Formatting){
-        BUILDER(177,1,Formatting.GRAY),
-        TRAVELER(217,1,Formatting.GRAY),
-        FIRE(177,41,Formatting.RED),
-        HEALER(217,41,Formatting.YELLOW),
-        ICE(177,81,Formatting.BLUE),
-        ARCANE(217,81,Formatting.LIGHT_PURPLE),
-        LIGHTNING(177,121,Formatting.GOLD),
-        SOUL(217,121,Formatting.DARK_AQUA),
-        EMPTY(137,1,Formatting.GRAY)
+        LIGHTNING(177,121,Formatting.GOLD){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, LIGHTNING_AUGMENTS)
+            }
+        },
+        ICE(177,81,Formatting.BLUE){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, ICE_AUGMENTS)
+            }
+        },
+        FIRE(177,41,Formatting.RED){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, FIRE_AUGMENTS)
+            }
+        },
+        HEALER(217,41,Formatting.YELLOW){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, HEALER_AUGMENTS)
+            }
+        },
+        TRAVELER(217,1,Formatting.GRAY){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, TRAVELER_AUGMENTS)
+            }
+        },
+        ARCANE(217,81,Formatting.LIGHT_PURPLE){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, ARCANE_AUGMENTS)
+            }
+        },
+        BUILDER(177,1,Formatting.GRAY){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell,BUILDER_AUGMENTS)
+            }
+        },
+        SOUL(217,121,Formatting.DARK_AQUA){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return FzzyPort.ENCHANTMENT.isInTag(spell, SOUL_AUGMENTS)
+            }
+        },
+        EMPTY(137,1,Formatting.GRAY){
+            override fun isInTag(spell: ScepterAugment): Boolean {
+                return true
+            }
+        };
+        abstract fun isInTag(spell: ScepterAugment): Boolean
     }
 }
