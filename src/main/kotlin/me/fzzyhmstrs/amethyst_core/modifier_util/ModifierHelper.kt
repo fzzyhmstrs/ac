@@ -59,7 +59,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
         } while (result.isEmpty())
         return result
     }
-        
+
     fun addRolledModifiers(stack: ItemStack, mods: List<Identifier>) {
         for (mod in mods){
             addModifier(mod, stack)
@@ -133,7 +133,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     override fun initializeModifiers(stack: ItemStack): List<Identifier> {
         val item = stack.item
         val list = if(item is Modifiable){
-            item.defaultModifiers(getType())
+            me.fzzyhmstrs.fzzy_core.registry.ModifierRegistry.getDefaultModifiers(item, getType())
         } else {
             listOf()
         }
@@ -209,7 +209,7 @@ object ModifierHelper: AbstractModifierHelper<AugmentModifier>() {
     override fun getTranslationKeyFromIdentifier(id: Identifier): String {
         return "scepter.modifier.${id}"
     }
-    
+
     override fun getDescTranslationKeyFromIdentifier(id: Identifier): String {
         return "scepter.modifier.${id}.desc"
     }
