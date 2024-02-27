@@ -1,10 +1,13 @@
 package me.fzzyhmstrs.amethyst_core.modifier_util
 
+import com.mojang.serialization.Codec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import me.fzzyhmstrs.amethyst_core.AC
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType
 import me.fzzyhmstrs.fzzy_core.modifier_util.AbstractModifier
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
+import net.minecraft.util.StringIdentifiable
 import java.util.function.Consumer
 
 @Suppress("MemberVisibilityCanBePrivate", "CanBeParameter")
@@ -30,6 +33,7 @@ object ModifierDefaults{
  * For example, if [furyXpMod] stores a value of 3, Fury spells will gain a scepter 4 Fury experience per spell cast rather than 1.
  */
 data class XpModifiers(var furyXpMod: Int = 0, var witXpMod: Int = 0, var graceXpMod: Int = 0){
+
     fun plus(xpMods: XpModifiers?){
         if(xpMods == null) return
         this.furyXpMod += xpMods.furyXpMod
@@ -53,16 +57,36 @@ data class XpModifiers(var furyXpMod: Int = 0, var witXpMod: Int = 0, var graceX
     fun withGraceMod(graceXpMod: Int = 0): XpModifiers {
         return this.copy(graceXpMod = graceXpMod)
     }
+
+    companion object{
+        val CODEC: Codec<XpModifiers> = RecordCodecBuilder.create { instance: RecordCodecBuilder.Instance<XpModifiers> ->
+            instance.group(
+                Codec.INT.optionalFieldOf("furyXpMod", 0).forGetter { xpModifiers -> xpModifiers.furyXpMod },
+                Codec.INT.optionalFieldOf("witXpMod", 0).forGetter { xpModifiers -> xpModifiers.witXpMod },
+                Codec.INT.optionalFieldOf("graceXpMod", 0).forGetter { xpModifiers -> xpModifiers.graceXpMod }
+            ).apply(instance){f, w, g -> XpModifiers(f,w,g) } }
+    }
 }
 
 /**
  * a simple container that holds a consumer and a type notation for sorting.
  */
 data class AugmentConsumer(val consumer: Consumer<List<LivingEntity>>, val type: Type) {
-    enum class Type {
+
+    companion object{
+    }
+
+    enum class Type: StringIdentifiable {
         HARMFUL,
         BENEFICIAL,
-        AUTOMATIC
+        AUTOMATIC;
+
+        override fun asString(): String {
+            return this.name
+        }
+
+        companion object{
+            val CODEC: Codec<Type> = StringIdentifiable.createCodec(Type::values)
+        }
     }
 }
-

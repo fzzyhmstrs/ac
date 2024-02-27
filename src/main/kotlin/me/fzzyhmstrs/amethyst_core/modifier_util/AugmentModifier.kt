@@ -134,7 +134,12 @@ open class AugmentModifier(
     override fun isAcceptableItem(stack: ItemStack): Boolean {
         val nbt = stack.nbt ?: return super.isAcceptableItem(stack)
         val mods = getModifierHelper().getModifiersFromNbt(nbt)
-        val furthestDescendant = getModLineage().last()
+        var furthestDescendant = this.modifierId
+        var descendant = this
+        do {
+            descendant = descendant.getDescendant() ?: break
+            furthestDescendant = descendant.modifierId
+        } while (descendant.hasDescendant())
         if (mods.contains(furthestDescendant)) return false
         return super.isAcceptableItem(stack)
     }

@@ -69,7 +69,7 @@ abstract class AugmentMiningItem(
     private val flavorTextDesc: MutableText by lazy{
         FlavorHelper.makeFlavorTextDesc(this)
     }
-    
+
     override fun getTier(): Int{
         return material.scepterTier()
     }
@@ -80,7 +80,7 @@ abstract class AugmentMiningItem(
         }
         return this
     }
-    
+
     fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentMiningItem{
         defaultAugments = startingAugments
         return this
@@ -95,7 +95,7 @@ abstract class AugmentMiningItem(
     override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
-    
+
     override fun defaultModifiers(type: ModifierHelperType<*>): MutableList<Identifier> {
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
@@ -164,14 +164,14 @@ abstract class AugmentMiningItem(
 
     override fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack,
         activeEnchantId: String,spell: ScepterAugment,testLevel: Int)
-    : 
+    :
     TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
         return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
     }
 
     override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
         activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int)
-    : 
+    :
     TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
@@ -203,7 +203,8 @@ abstract class AugmentMiningItem(
                     1.0F,
                     1.0F
                 )
-                entity.sendMessage(message)
+                if (entity is PlayerEntity)
+                    entity.sendMessage(message,true)
             }
             false
         }
@@ -212,13 +213,13 @@ abstract class AugmentMiningItem(
     override fun applyManaCost(cost: Int, stack: ItemStack, world: World, user: LivingEntity){
         manaDamage(stack, world, user, cost)
     }
-    
+
     override fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>{
         world.playSound(null,user.blockPos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS,0.6F,0.8F)
         ScepterHelper.resetCooldown(world, stack, user, activeEnchant)
         return TypedActionResult.fail(stack)
     }
-    
+
     override fun onCraft(stack: ItemStack, world: World, player: PlayerEntity) {
         if (!world.isClient) {
             val nbt = stack.orCreateNbt
@@ -226,17 +227,17 @@ abstract class AugmentMiningItem(
         }
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
-    
+
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
         return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
     }
-    
+
     override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
         writeDefaultNbt(stack, scepterNbt)
         ManaHelper.initializeManaItem(stack)
         //ModifierHelper.gatherActiveModifiers(stack)
     }
-    
+
     override fun writeDefaultNbt(stack: ItemStack, scepterNbt: NbtCompound) {
         super.writeDefaultNbt(stack, scepterNbt)
         addDefaultEnchantments(stack, scepterNbt)
@@ -250,11 +251,11 @@ abstract class AugmentMiningItem(
             scepterNbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
         }
     }
-    
+
     override fun canBeModifiedBy(type: ModifierHelperType<*>): Boolean {
         return (type == ModifierRegistry.MODIFIER_TYPE)
     }
-    
+
     override fun getRepairTime(): Int{
         return tickerManaRepair
     }
@@ -270,7 +271,7 @@ abstract class AugmentMiningItem(
     override fun getUseAction(stack: ItemStack): UseAction {
         return UseAction.BLOCK
     }
-    
+
     override fun inventoryTick(stack: ItemStack, world: World, entity: Entity, slot: Int, selected: Boolean) {
         if (world.isClient) return
         val nbt = stack.orCreateNbt

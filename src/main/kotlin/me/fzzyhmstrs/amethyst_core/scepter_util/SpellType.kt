@@ -1,7 +1,10 @@
 package me.fzzyhmstrs.amethyst_core.scepter_util
 
+import com.mojang.serialization.Codec
+import me.fzzyhmstrs.amethyst_core.modifier_util.AugmentConsumer
 import me.fzzyhmstrs.amethyst_core.scepter_util.SpellType.*
 import net.minecraft.util.Formatting
+import net.minecraft.util.StringIdentifiable
 
 /**
  * Defines the school of magic the augment is in. Schools of magic increment different scepter statistics and have separete level requirements for application and usage.
@@ -16,7 +19,7 @@ import net.minecraft.util.Formatting
  *
  * [NULL]: Not recommended for use. A null spell will not affect any scepter stat, and a scepter cannot have any level info for null spell types. Only used for Magic Missile, the base spell in Amethyst Imbuement.
  */
-enum class SpellType {
+enum class SpellType: StringIdentifiable {
     FURY{
         private val uv = Pair(0,184)
         override fun str(): String {
@@ -69,4 +72,12 @@ enum class SpellType {
     abstract fun str(): String
     abstract fun fmt(): Formatting
     abstract fun uv(): Pair<Int,Int>
+
+    override fun asString(): String {
+        return str()
+    }
+
+    companion object{
+        val CODEC: Codec<SpellType> = StringIdentifiable.createCodec(SpellType::values)
+    }
 }

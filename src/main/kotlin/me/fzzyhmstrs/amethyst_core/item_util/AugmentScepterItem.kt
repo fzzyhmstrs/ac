@@ -53,7 +53,7 @@ abstract class AugmentScepterItem(
     val defaultModifiers: MutableList<Identifier> = mutableListOf()
     override var noFallback: Boolean = false
     private val tickerManaRepair: Int = material.healCooldown().toInt()
-    
+
     override fun getTier(): Int{
         return material.scepterTier()
     }
@@ -64,7 +64,7 @@ abstract class AugmentScepterItem(
         }
         return this
     }
-    
+
     fun withAugments(startingAugments: List<ScepterAugment> = listOf()): AugmentScepterItem{
         defaultAugments = startingAugments
         return this
@@ -79,7 +79,7 @@ abstract class AugmentScepterItem(
     override fun defaultAugments(): List<ScepterAugment>{
         return defaultAugments
     }
-    
+
     override fun defaultModifiers(type: ModifierHelperType<*>): MutableList<Identifier> {
         return if (canBeModifiedBy(type)) defaultModifiers else mutableListOf()
     }
@@ -152,14 +152,14 @@ abstract class AugmentScepterItem(
 
     override fun <T> serverUse(world: World, user: T, hand: Hand, stack: ItemStack,
         activeEnchantId: String,spell: ScepterAugment,testLevel: Int)
-    : 
+    :
     TypedActionResult<ItemStack> where T: LivingEntity, T: SpellCastingEntity {
         return ScepterHelper.castSpell(world,user,hand,stack,spell,activeEnchantId,testLevel,this)
     }
 
     override fun clientUse(world: World, user: LivingEntity, hand: Hand, stack: ItemStack,
         activeEnchantId: String, testEnchant: ScepterAugment, testLevel: Int)
-    : 
+    :
     TypedActionResult<ItemStack>{
         testEnchant.clientTask(world,user,hand,testLevel)
         return TypedActionResult.pass(stack)
@@ -191,7 +191,8 @@ abstract class AugmentScepterItem(
                     1.0F,
                     1.0F
                 )
-                entity.sendMessage(message)
+                if (entity is PlayerEntity)
+                    entity.sendMessage(message,true)
             }
             false
         }
@@ -200,13 +201,13 @@ abstract class AugmentScepterItem(
     override fun applyManaCost(cost: Int, stack: ItemStack, world: World, user: LivingEntity){
         manaDamage(stack, world, user, cost)
     }
-    
+
     override fun resetCooldown(stack: ItemStack, world: World, user: LivingEntity, activeEnchant: String): TypedActionResult<ItemStack>{
         world.playSound(null,user.blockPos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS,0.6F,0.8F)
         ScepterHelper.resetCooldown(world, stack, user, activeEnchant)
         return TypedActionResult.fail(stack)
     }
-    
+
     override fun onCraft(stack: ItemStack, world: World, player: PlayerEntity) {
         if (!world.isClient) {
             val nbt = stack.orCreateNbt
@@ -214,17 +215,17 @@ abstract class AugmentScepterItem(
         }
         addDefaultEnchantments(stack, stack.orCreateNbt)
     }
-    
+
     override fun needsInitialization(stack: ItemStack, scepterNbt: NbtCompound): Boolean {
         return ManaHelper.needsInitialization(stack) || Nbt.getItemStackId(scepterNbt) == -1L || !scepterNbt.contains(NbtKeys.ACTIVE_ENCHANT.str())
     }
-    
+
     override fun initializeScepter(stack: ItemStack, scepterNbt: NbtCompound) {
         writeDefaultNbt(stack, scepterNbt)
         ManaHelper.initializeManaItem(stack)
         //ModifierHelper.gatherActiveModifiers(stack)
     }
-    
+
     override fun writeDefaultNbt(stack: ItemStack, scepterNbt: NbtCompound) {
         super.writeDefaultNbt(stack, scepterNbt)
         addDefaultEnchantments(stack, scepterNbt)
@@ -238,11 +239,11 @@ abstract class AugmentScepterItem(
             scepterNbt.putString(NbtKeys.ACTIVE_ENCHANT.str(), identifier.toString())
         }
     }
-    
+
     override fun canBeModifiedBy(type: ModifierHelperType<*>): Boolean {
         return (type == ModifierRegistry.MODIFIER_TYPE)
     }
-    
+
     override fun getRepairTime(): Int{
         return tickerManaRepair
     }
@@ -258,7 +259,7 @@ abstract class AugmentScepterItem(
     override fun getUseAction(stack: ItemStack): UseAction {
         return UseAction.BLOCK
     }
-    
+
     override fun inventoryTick(stack: ItemStack, world: World, entity: Entity, slot: Int, selected: Boolean) {
         if (world.isClient) return
         val nbt = stack.orCreateNbt
